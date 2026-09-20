@@ -1,0 +1,56 @@
+import { z } from 'zod';
+
+export const createModuleSchema = z.object({
+  title: z.string().min(1, 'Judul modul wajib diisi'),
+  slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z0-9-]+$/, 'Slug hanya boleh berupa huruf kecil, angka, dan tanda hubung')
+    .optional(),
+  description: z.string().optional().nullable(),
+  orderIndex: z.number().int().default(0),
+  isPublished: z.boolean().default(false),
+});
+
+export const updateModuleSchema = createModuleSchema.partial();
+
+export const createMaterialSchema = z.object({
+  moduleId: z.string().min(1, 'ID Modul wajib diisi'),
+  title: z.string().min(1, 'Judul materi wajib diisi'),
+  slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z0-9-]+$/, 'Slug hanya boleh berupa huruf kecil, angka, dan tanda hubung')
+    .optional(),
+  contentJson: z.union([
+    z.string().min(2, 'Konten AST tidak boleh kosong'),
+    z.array(z.record(z.any())),
+  ]).transform((val) => (typeof val === 'string' ? val : JSON.stringify(val))),
+  summary: z.string().optional().nullable(),
+  estimatedReadTime: z.number().int().min(1).default(10),
+  orderIndex: z.number().int().default(0),
+  isPublished: z.boolean().default(false),
+});
+
+export const updateMaterialSchema = z.object({
+  moduleId: z.string().optional(),
+  title: z.string().min(1).optional(),
+  slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z0-9-]+$/, 'Slug hanya boleh berupa huruf kecil, angka, dan tanda hubung')
+    .optional(),
+  contentJson: z
+    .union([z.string().min(2), z.array(z.record(z.any()))])
+    .transform((val) => (typeof val === 'string' ? val : JSON.stringify(val)))
+    .optional(),
+  summary: z.string().optional().nullable(),
+  estimatedReadTime: z.number().int().min(1).optional(),
+  orderIndex: z.number().int().optional(),
+  isPublished: z.boolean().optional(),
+});
+
+export type CreateModuleInput = z.infer<typeof createModuleSchema>;
+export type UpdateModuleInput = z.infer<typeof updateModuleSchema>;
+export type CreateMaterialInput = z.infer<typeof createMaterialSchema>;
+export type UpdateMaterialInput = z.infer<typeof updateMaterialSchema>;
