@@ -4,6 +4,28 @@ import { createToken } from '../src/utils/jwt.js';
 export async function initDatabaseSchema() {
   await client.execute('PRAGMA journal_mode = WAL;');
   await client.execute('PRAGMA busy_timeout = 5000;');
+  await client.execute('PRAGMA foreign_keys = OFF;');
+
+  // Drop existing tables so schema changes are always applied on a fresh database
+  const dropStatements = [
+    `DROP TABLE IF EXISTS discussion_likes;`,
+    `DROP TABLE IF EXISTS discussion_comments;`,
+    `DROP TABLE IF EXISTS discussion_posts;`,
+    `DROP TABLE IF EXISTS activity_submissions;`,
+    `DROP TABLE IF EXISTS activity_attachments;`,
+    `DROP TABLE IF EXISTS activities;`,
+    `DROP TABLE IF EXISTS attempt_answers;`,
+    `DROP TABLE IF EXISTS quiz_attempts;`,
+    `DROP TABLE IF EXISTS question_options;`,
+    `DROP TABLE IF EXISTS questions;`,
+    `DROP TABLE IF EXISTS quizzes;`,
+    `DROP TABLE IF EXISTS materials;`,
+    `DROP TABLE IF EXISTS users;`,
+  ];
+
+  for (const sql of dropStatements) {
+    await client.execute(sql);
+  }
 
   // Execute DDL statements sequentially
   const statements = [
@@ -20,20 +42,8 @@ export async function initDatabaseSchema() {
       created_at INTEGER NOT NULL,
       updated_at INTEGER NOT NULL
     );`,
-    `CREATE TABLE IF NOT EXISTS modules (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      slug TEXT NOT NULL UNIQUE,
-      description TEXT,
-      order_index INTEGER NOT NULL DEFAULT 0,
-      is_published INTEGER NOT NULL DEFAULT 0,
-      created_by TEXT NOT NULL REFERENCES users(id),
-      created_at INTEGER NOT NULL,
-      updated_at INTEGER NOT NULL
-    );`,
     `CREATE TABLE IF NOT EXISTS materials (
       id TEXT PRIMARY KEY,
-      module_id TEXT NOT NULL REFERENCES modules(id) ON DELETE CASCADE,
       title TEXT NOT NULL,
       slug TEXT NOT NULL UNIQUE,
       content_json TEXT NOT NULL,
@@ -46,7 +56,6 @@ export async function initDatabaseSchema() {
     );`,
     `CREATE TABLE IF NOT EXISTS quizzes (
       id TEXT PRIMARY KEY,
-      module_id TEXT REFERENCES modules(id) ON DELETE SET NULL,
       title TEXT NOT NULL,
       slug TEXT NOT NULL UNIQUE,
       description TEXT,
@@ -152,6 +161,8 @@ export async function initDatabaseSchema() {
   for (const sql of statements) {
     await client.execute(sql);
   }
+
+  await client.execute('PRAGMA foreign_keys = ON;');
 }
 
 export async function createTestAdminToken(id = 'test-admin-id') {

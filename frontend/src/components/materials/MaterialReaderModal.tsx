@@ -45,7 +45,7 @@ export const MaterialReaderModal: React.FC<MaterialReaderModalProps> = ({
               id="readerBadge"
               className="font-sans text-xs font-semibold text-chem-forest bg-chem-glow/70 px-3 py-1 rounded-full border border-chem-sage/30"
             >
-              {material.module?.title || 'Daur Biogeokimia'}
+              Materi Pembelajaran
             </span>
             <span className="text-xs text-chem-ash hidden sm:inline">
               • {material.estimatedReadTime || 5} mnt baca
@@ -61,7 +61,7 @@ export const MaterialReaderModal: React.FC<MaterialReaderModalProps> = ({
                 className="text-xs px-3 py-1.5 bg-chem-subtle hover:bg-chem-glow/60 text-chem-dark font-medium rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <i className="fa-solid fa-pen text-[10px]"></i>
-                <span>Edit Modul</span>
+                <span>Edit Materi</span>
               </button>
             )}
             <button
@@ -91,7 +91,7 @@ export const MaterialReaderModal: React.FC<MaterialReaderModalProps> = ({
             />
           </div>
 
-          {/* Module Title & Icon Header */}
+          {/* Material Title & Icon Header */}
           <div className="space-y-2">
             <div className="text-2xl text-chem-forest" id="readerIconWrap">
               <i className="fa-solid fa-leaf"></i>

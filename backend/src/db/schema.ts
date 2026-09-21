@@ -16,22 +16,9 @@ export const users = sqliteTable('users', {
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
 });
 
-// --- 2. LEARNING MODULES & MATERIALS ---
-export const modules = sqliteTable('modules', {
-  id: text('id').primaryKey(),
-  title: text('title').notNull(),
-  slug: text('slug').notNull().unique(),
-  description: text('description'),
-  orderIndex: integer('order_index').notNull().default(0),
-  isPublished: integer('is_published', { mode: 'boolean' }).notNull().default(false),
-  createdBy: text('created_by').notNull().references(() => users.id),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
-});
-
+// --- 2. LEARNING MATERIALS ---
 export const materials = sqliteTable('materials', {
   id: text('id').primaryKey(),
-  moduleId: text('module_id').notNull().references(() => modules.id, { onDelete: 'cascade' }),
   title: text('title').notNull(),
   slug: text('slug').notNull().unique(),
   contentJson: text('content_json').notNull(),
@@ -46,7 +33,6 @@ export const materials = sqliteTable('materials', {
 // --- 3. QUIZZES, QUESTIONS, ATTEMPTS & ANSWERS ---
 export const quizzes = sqliteTable('quizzes', {
   id: text('id').primaryKey(),
-  moduleId: text('module_id').references(() => modules.id, { onDelete: 'set null' }),
   title: text('title').notNull(),
   slug: text('slug').notNull().unique(),
   description: text('description'),
@@ -162,7 +148,6 @@ export const discussionLikes = sqliteTable('discussion_likes', {
 
 // --- RELATIONS ---
 export const usersRelations = relations(users, ({ many }) => ({
-  createdModules: many(modules),
   activities: many(activities),
   quizAttempts: many(quizAttempts),
   activitySubmissions: many(activitySubmissions),
@@ -171,18 +156,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   discussionLikes: many(discussionLikes),
 }));
 
-export const modulesRelations = relations(modules, ({ one, many }) => ({
-  author: one(users, { fields: [modules.createdBy], references: [users.id] }),
-  materials: many(materials),
-  quizzes: many(quizzes),
-}));
-
-export const materialsRelations = relations(materials, ({ one }) => ({
-  module: one(modules, { fields: [materials.moduleId], references: [modules.id] }),
-}));
-
-export const quizzesRelations = relations(quizzes, ({ one, many }) => ({
-  module: one(modules, { fields: [quizzes.moduleId], references: [modules.id] }),
+export const quizzesRelations = relations(quizzes, ({ many }) => ({
   questions: many(questions),
   attempts: many(quizAttempts),
 }));

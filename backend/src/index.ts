@@ -6,7 +6,6 @@ import * as dotenv from 'dotenv';
 import { errorHandler } from './middlewares/error-middleware.js';
 import { loggerMiddleware } from './middlewares/logger-middleware.js';
 import { authRoutes } from './routes/auth.routes.js';
-import { modulesRoutes } from './routes/modules.routes.js';
 import { materialsRoutes } from './routes/materials.routes.js';
 import { quizzesRoutes } from './routes/quizzes.routes.js';
 import { attemptsRoutes } from './routes/attempts.routes.js';
@@ -55,7 +54,6 @@ app.get('/api/v1/health', (c) => {
 
 // API Routes (prefix /api/v1)
 app.route('/api/v1/auth', authRoutes);
-app.route('/api/v1/modules', modulesRoutes);
 app.route('/api/v1/materials', materialsRoutes);
 app.route('/api/v1/quizzes', quizzesRoutes);
 app.route('/api/v1/attempts', attemptsRoutes);

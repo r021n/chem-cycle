@@ -27,7 +27,25 @@ export const App: React.FC = () => {
         <Route path="/auth/login" element={<LoginPage />} />
         <Route path="/auth/register" element={<RegisterPage />} />
 
-        {/* 2. Authenticated App Pages with Sidebar Layout (Protected) */}
+        {/* 2. Fullscreen Material Editor (Admin only, no sidebar layout) */}
+        <Route
+          path="/materi/baru"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <MaterialEditorPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/materi/:slug/edit"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <MaterialEditorPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 3. Authenticated App Pages with Sidebar Layout (Protected) */}
         <Route
           element={
             <ProtectedRoute>
@@ -41,14 +59,6 @@ export const App: React.FC = () => {
           {/* Materials */}
           <Route path="/materi" element={<MaterialsPage />} />
           <Route path="/materi/:slug" element={<MaterialDetailPage />} />
-          <Route
-            path="/materi/:slug/edit"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <MaterialEditorPage />
-              </ProtectedRoute>
-            }
-          />
 
           {/* Quizzes & Exam Engine */}
           <Route path="/latihan" element={<QuizzesPage />} />

@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 export const createQuizSchema = z.object({
-  moduleId: z.string().optional().nullable(),
   title: z.string().min(1, 'Judul kuis wajib diisi'),
   slug: z
     .string()

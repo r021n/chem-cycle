@@ -26,7 +26,6 @@ export interface BlockAstNode {
 
 export interface Material {
   id: string;
-  moduleId: string;
   title: string;
   slug: string;
   contentJson: string; // JSON array of BlockAstNode
@@ -36,24 +35,9 @@ export interface Material {
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
-  module?: Module | null;
-}
-
-export interface Module {
-  id: string;
-  title: string;
-  slug: string;
-  description?: string | null;
-  orderIndex: number;
-  isPublished: boolean;
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
-  materials?: Material[];
 }
 
 export interface CreateMaterialPayload {
-  moduleId: string;
   title: string;
   slug?: string;
   contentJson: string;
@@ -64,7 +48,6 @@ export interface CreateMaterialPayload {
 }
 
 export interface UpdateMaterialPayload {
-  moduleId?: string;
   title?: string;
   slug?: string;
   contentJson?: string;
@@ -73,4 +56,3 @@ export interface UpdateMaterialPayload {
   orderIndex?: number;
   isPublished?: boolean;
 }
-

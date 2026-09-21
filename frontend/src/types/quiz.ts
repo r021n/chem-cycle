@@ -1,5 +1,3 @@
-import { Module } from './material';
-
 export interface QuestionOption {
   id: string;
   questionId?: string;
@@ -22,7 +20,6 @@ export interface Question {
 
 export interface Quiz {
   id: string;
-  moduleId?: string | null;
   title: string;
   slug: string;
   description?: string | null;
@@ -32,7 +29,6 @@ export interface Quiz {
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
-  module?: Module | null;
   totalQuestions?: number;
   questions?: Question[];
 }
@@ -127,7 +123,6 @@ export interface QuestionPayload {
 export interface QuizPayload {
   title?: string;
   description?: string | null;
-  moduleId?: string | null;
   passingScore?: number;
   timeLimitMinutes?: number | null;
   maxAttempts?: number | null;

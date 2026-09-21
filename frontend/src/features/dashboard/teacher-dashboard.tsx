@@ -5,7 +5,7 @@ import { api } from '../../lib/api-client';
 import { queryKeys } from '../../lib/query-client';
 import { Quiz } from '../../types/quiz';
 import { Activity } from '../../types/activity';
-import { Module } from '../../types/material';
+import { Material } from '../../types/material';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -32,18 +32,18 @@ export const TeacherDashboard: React.FC = () => {
     queryFn: () => api.get<{ success: boolean; data: Activity[] }>('/activities'),
   });
 
-  const { data: modulesData, isLoading: loadingModules } = useQuery({
-    queryKey: queryKeys.modules.list,
-    queryFn: () => api.get<{ success: boolean; data: Module[] }>('/modules'),
+  const { data: materialsData, isLoading: loadingMaterials } = useQuery({
+    queryKey: queryKeys.materials.list,
+    queryFn: () => api.get<{ success: boolean; data: Material[] }>('/materials'),
   });
 
   const quizzes = quizzesData?.data || [];
   const activities = activitiesData?.data || [];
-  const modules = modulesData?.data || [];
+  const materials = materialsData?.data || [];
 
-  const totalMaterials = modules.reduce((acc, m) => acc + (m.materials?.length || 0), 0);
+  const totalMaterials = materials.length;
 
-  if (loadingQuizzes || loadingActivities || loadingModules) {
+  if (loadingQuizzes || loadingActivities || loadingMaterials) {
     return <Spinner label="Memuat metrik dashboard guru..." />;
   }
 
@@ -222,24 +222,35 @@ export const TeacherDashboard: React.FC = () => {
           </div>
         </Card>
 
-        {/* Modules Overview */}
+        {/* Materials Overview */}
         <Card className="p-5 shadow-xs">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-            <h3 className="font-bold text-sm text-slate-900">Bab Modul Pembelajaran</h3>
+            <h3 className="font-bold text-sm text-slate-900">Materi Pembelajaran</h3>
             <Link to="/materi" className="text-xs font-semibold text-indigo-600 hover:text-indigo-700">
-              Semua Modul
+              Semua Materi
             </Link>
           </div>
           <div className="space-y-3">
-            {modules.map((mod) => (
-              <div key={mod.id} className="border border-slate-100 rounded-xl p-3.5 bg-slate-50/70 hover:border-slate-200 transition-colors">
-                <div className="font-semibold text-xs text-slate-900">{mod.title}</div>
-                <p className="text-xs text-slate-600 mt-1">{mod.description || 'Tidak ada deskripsi.'}</p>
+            {materials.slice(0, 3).map((mat) => (
+              <Link
+                key={mat.id}
+                to={`/materi/${mat.slug}`}
+                className="block border border-slate-100 rounded-xl p-3.5 bg-slate-50/70 hover:border-slate-200 transition-colors"
+              >
+                <div className="font-semibold text-xs text-slate-900">{mat.title}</div>
+                <p className="text-xs text-slate-600 mt-1 line-clamp-2">
+                  {mat.summary || 'Tidak ada ringkasan.'}
+                </p>
                 <div className="mt-2 text-[11px] text-slate-400">
-                  {mod.materials?.length || 0} Sub-Materi Terkandung
+                  {mat.estimatedReadTime || 10} menit baca
                 </div>
-              </div>
+              </Link>
             ))}
+            {materials.length === 0 && (
+              <p className="text-xs text-slate-500 py-4 text-center">
+                Belum ada materi yang dibuat.
+              </p>
+            )}
           </div>
         </Card>
       </div>

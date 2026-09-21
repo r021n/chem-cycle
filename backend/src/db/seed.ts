@@ -2,7 +2,6 @@ import crypto from 'node:crypto';
 import { db } from './index.js';
 import {
   users,
-  modules,
   materials,
   quizzes,
   questions,
@@ -35,7 +34,6 @@ export async function seed() {
   await db.delete(questions);
   await db.delete(quizzes);
   await db.delete(materials);
-  await db.delete(modules);
   await db.delete(users);
 
   // 2. Users (Teacher / Admin & Student)
@@ -74,22 +72,7 @@ export async function seed() {
     },
   ]);
 
-  // 3. Learning Module
-  const moduleId = 'mod-termokimia-1';
-  await db.insert(modules).values({
-    id: moduleId,
-    title: 'Termokimia & Perubahan Entalpi',
-    slug: 'termokimia-perubahan-entalpi',
-    description:
-      'Memahami konsep sistem dan lingkungan, reaksi eksoterm dan endoterm, serta penentuan perubahan entalpi reaksi secara eksperimental.',
-    orderIndex: 1,
-    isPublished: true,
-    createdBy: teacherId,
-    createdAt: now,
-    updatedAt: now,
-  });
-
-  // 4. Material (BlockNote AST structure)
+  // 3. Material (BlockNote AST structure)
   const materialAst = [
     {
       id: 'block-1',
@@ -146,7 +129,6 @@ export async function seed() {
 
   await db.insert(materials).values({
     id: 'mat-sistem-lingkungan-1',
-    moduleId,
     title: 'Sistem, Lingkungan, dan Hukum Kekekalan Energi',
     slug: 'sistem-lingkungan-dan-hukum-kekekalan-energi',
     contentJson: JSON.stringify(materialAst),
@@ -162,7 +144,6 @@ export async function seed() {
   const quizId = 'quiz-termokimia-1';
   await db.insert(quizzes).values({
     id: quizId,
-    moduleId,
     title: 'Kuis Pemahaman 1: Konsep Sistem dan Reaksi Eksoterm',
     slug: 'kuis-pemahaman-1-sistem-dan-reaksi-eksoterm',
     description: 'Evaluasi pemahaman konsep perpindahan kalor antara sistem dan lingkungan.',

@@ -38,7 +38,6 @@ export const LandingPage: React.FC = () => {
   const handleOpenSampleReader = () => {
     const sampleMaterial: Material = {
       id: 'mat-kimia-demo',
-      moduleId: 'mod-kimia-demo',
       title: 'Konsep Dasar Energi dan Interaksi dalam Reaksi Kimia',
       slug: 'konsep-dasar-energi-reaksi-kimia',
       summary:

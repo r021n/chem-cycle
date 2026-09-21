@@ -14,12 +14,9 @@ export const queryKeys = {
   auth: {
     me: ['auth', 'me'] as const,
   },
-  modules: {
-    list: ['modules', 'list'] as const,
-    detail: (id: string) => ['modules', 'detail', id] as const,
-  },
   materials: {
-    detail: (slug: string) => ['materials', slug] as const,
+    list: ['materials', 'list'] as const,
+    detail: (slug: string) => ['materials', 'detail', slug] as const,
   },
   quizzes: {
     list: ['quizzes', 'list'] as const,

@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
 import crypto from 'node:crypto';
-import { eq, or } from 'drizzle-orm';
+import { eq, or, asc } from 'drizzle-orm';
 import { db } from '../db/index.js';
-import { materials, modules } from '../db/schema.js';
+import { materials } from '../db/schema.js';
 import { createMaterialSchema, updateMaterialSchema } from '../schemas/material.schema.js';
 import { validate } from '../utils/validator.js';
 import { slugify } from '../utils/slug.js';
@@ -10,6 +10,20 @@ import { authMiddleware } from '../middlewares/auth-middleware.js';
 import { requireRole } from '../middlewares/role-middleware.js';
 
 export const materialsRoutes = new Hono();
+
+// GET / - List all materials
+materialsRoutes.get('/', async (c) => {
+  const allMaterials = await db
+    .select()
+    .from(materials)
+    .orderBy(asc(materials.orderIndex), asc(materials.createdAt));
+
+  return c.json({
+    success: true,
+    data: allMaterials,
+    message: 'Daftar materi berhasil diambil',
+  });
+});
 
 // GET /:slug - Get material by slug or id
 materialsRoutes.get('/:slug', async (c) => {
@@ -24,20 +38,9 @@ materialsRoutes.get('/:slug', async (c) => {
     return c.json({ success: false, message: 'Materi tidak ditemukan' }, 404);
   }
 
-  const material = matched[0];
-
-  // Fetch parent module info
-  const parentModule = await db
-    .select()
-    .from(modules)
-    .where(eq(modules.id, material.moduleId));
-
   return c.json({
     success: true,
-    data: {
-      ...material,
-      module: parentModule[0] || null,
-    },
+    data: matched[0],
     message: 'Detail materi berhasil diambil',
   });
 });
@@ -51,12 +54,6 @@ materialsRoutes.post(
   async (c) => {
     const body = c.req.valid('json');
 
-    // Verify module exists
-    const mod = await db.select().from(modules).where(eq(modules.id, body.moduleId));
-    if (mod.length === 0) {
-      return c.json({ success: false, message: 'Modul induk tidak ditemukan' }, 404);
-    }
-
     const slug = body.slug || slugify(body.title) || `materi-${Date.now()}`;
     const id = crypto.randomUUID();
     const now = new Date();
@@ -65,7 +62,6 @@ materialsRoutes.post(
       .insert(materials)
       .values({
         id,
-        moduleId: body.moduleId,
         title: body.title,
         slug,
         contentJson: body.contentJson,
@@ -108,7 +104,6 @@ materialsRoutes.put(
       updatedAt: new Date(),
     };
 
-    if (body.moduleId !== undefined) updateData.moduleId = body.moduleId;
     if (body.title !== undefined) updateData.title = body.title;
     if (body.slug !== undefined) updateData.slug = body.slug;
     if (body.contentJson !== undefined) updateData.contentJson = body.contentJson;

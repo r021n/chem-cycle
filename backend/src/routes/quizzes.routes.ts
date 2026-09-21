@@ -7,7 +7,6 @@ import {
   questions,
   questionOptions,
   quizAttempts,
-  modules,
   users,
 } from '../db/schema.js';
 import {
@@ -28,7 +27,6 @@ quizzesRoutes.get('/', async (c) => {
   const allQuizzes = await db
     .select({
       id: quizzes.id,
-      moduleId: quizzes.moduleId,
       title: quizzes.title,
       slug: quizzes.slug,
       description: quizzes.description,
@@ -42,9 +40,6 @@ quizzesRoutes.get('/', async (c) => {
     .from(quizzes)
     .orderBy(desc(quizzes.createdAt));
 
-  const allModules = await db.select().from(modules);
-  const moduleMap = new Map(allModules.map((m) => [m.id, m]));
-
   // Get question counts
   const allQuestions = await db.select({ id: questions.id, quizId: questions.quizId }).from(questions);
   const questionCountMap = new Map<string, number>();
@@ -54,7 +49,6 @@ quizzesRoutes.get('/', async (c) => {
 
   const result = allQuizzes.map((q) => ({
     ...q,
-    module: q.moduleId ? moduleMap.get(q.moduleId) || null : null,
     totalQuestions: questionCountMap.get(q.id) || 0,
   }));
 
@@ -141,7 +135,6 @@ quizzesRoutes.post(
       .insert(quizzes)
       .values({
         id,
-        moduleId: body.moduleId || null,
         title: body.title,
         slug,
         description: body.description || null,
@@ -184,7 +177,6 @@ quizzesRoutes.put(
       updatedAt: new Date(),
     };
 
-    if (body.moduleId !== undefined) updateData.moduleId = body.moduleId;
     if (body.title !== undefined) updateData.title = body.title;
     if (body.slug !== undefined) updateData.slug = body.slug;
     if (body.description !== undefined) updateData.description = body.description;
