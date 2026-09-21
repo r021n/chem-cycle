@@ -116,16 +116,16 @@ export const AttemptReviewModal: React.FC<AttemptReviewModalProps> = ({
                       return (
                         <div
                           key={opt.id}
-                          className={`p-2.5 rounded-lg flex items-center justify-between text-xs transition-colors ${rowClass}`}
+                          className={`p-2.5 rounded-lg flex items-center justify-between gap-2 text-xs transition-colors ${rowClass}`}
                         >
-                          <div className="flex items-center space-x-2">
-                            <span className="w-6 h-6 rounded-md bg-slate-100 flex items-center justify-center font-bold text-xs">
+                          <div className="flex items-center space-x-2 min-w-0">
+                            <span className="w-6 h-6 rounded-md bg-slate-100 flex items-center justify-center font-bold text-xs shrink-0">
                               {opt.optionKey}
                             </span>
-                            <span>{opt.content}</span>
+                            <span className="min-w-0 break-words">{opt.content}</span>
                           </div>
 
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-2 shrink-0">
                             {isSelected && (
                               <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-white/80 border border-slate-200">
                                 Jawaban Anda

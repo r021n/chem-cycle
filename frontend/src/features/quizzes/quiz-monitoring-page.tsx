@@ -80,23 +80,23 @@ export const QuizMonitoringPage: React.FC = () => {
     <div className="space-y-6">
       {/* Top Header */}
       <div className="border border-slate-200 p-6 bg-white rounded-2xl shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center space-x-3">
-          <Link to={`/latihan/${quiz.id}/edit`}>
+        <div className="flex items-center space-x-3 min-w-0">
+          <Link to="/latihan" className="shrink-0">
             <Button size="sm" variant="outline">
-              <ArrowLeft className="w-3.5 h-3.5 mr-1" /> Edit Kuis
+              <ArrowLeft className="w-3.5 h-3.5 mr-1" /> Daftar Kuis
             </Button>
           </Link>
-          <div>
+          <div className="min-w-0">
             <div className="text-xs font-semibold text-indigo-600">
               Monitoring & Analisis Jawaban Siswa
             </div>
-            <h1 className="text-xl md:text-2xl font-bold text-slate-900 mt-0.5">
+            <h1 className="text-xl md:text-2xl font-bold text-slate-900 mt-0.5 truncate">
               {quiz.title}
             </h1>
           </div>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           <Button size="sm" variant="primary" onClick={handleExportCsv}>
             <Download className="w-3.5 h-3.5 mr-1" /> Ekspor Rekap CSV
           </Button>

@@ -37,22 +37,22 @@ export const AdminInspectionModal: React.FC<AdminInspectionModalProps> = ({
 
       <div className="relative z-10 bg-white w-full max-w-xl max-h-[90vh] rounded-3xl shadow-float flex flex-col overflow-hidden border border-chem-border">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-chem-border flex items-center justify-between shrink-0">
-          <div>
+        <div className="px-6 py-4 border-b border-chem-border flex items-center justify-between gap-3 shrink-0">
+          <div className="min-w-0">
             <h3
               id="inspectStudentName"
-              className="font-serif text-base font-semibold text-chem-dark"
+              className="font-serif text-base font-semibold text-chem-dark truncate"
             >
               Lembar Jawaban Siswa: {details?.attempt?.userName || studentName || 'Siswa'}
             </h3>
-            <p id="inspectQuizMeta" className="text-xs text-chem-ash font-sans mt-0.5">
-              {details?.quiz?.title || 'Kuis Siklus'} • Percobaan Ke-{details?.attempt?.attemptNumber || 1} • Nilai: {details?.attempt?.totalScore || 0}/{details?.attempt?.maxScore || 100}
+            <p id="inspectQuizMeta" className="text-xs text-chem-ash font-sans mt-0.5 truncate">
+              {details?.quiz?.title || 'Kuis'} • Percobaan Ke-{details?.attempt?.attemptNumber || 1} • Nilai: {details?.attempt?.totalScore || 0}/{details?.attempt?.maxScore || 100}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-chem-ash hover:text-chem-dark hover:bg-chem-subtle rounded-lg cursor-pointer"
+            className="p-1.5 text-chem-ash hover:text-chem-dark hover:bg-chem-subtle rounded-lg cursor-pointer shrink-0"
           >
             <i className="fa-solid fa-xmark text-sm"></i>
           </button>
@@ -109,7 +109,7 @@ export const AdminInspectionModal: React.FC<AdminInspectionModalProps> = ({
                       return (
                         <div
                           key={opt.id}
-                          className={`p-2 rounded-xl text-xs flex items-center justify-between ${
+                          className={`p-2 rounded-xl text-xs flex items-center justify-between gap-2 ${
                             isKey
                               ? 'bg-chem-glow/50 border border-chem-sage/40 text-chem-forest font-semibold'
                               : isChosen && !isKey
@@ -117,12 +117,12 @@ export const AdminInspectionModal: React.FC<AdminInspectionModalProps> = ({
                               : 'bg-white border border-chem-border/60 text-chem-dark'
                           }`}
                         >
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold">{opt.optionKey}.</span>
-                            <span>{opt.content}</span>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="font-bold shrink-0">{opt.optionKey}.</span>
+                            <span className="min-w-0 break-words">{opt.content}</span>
                           </div>
 
-                          <div className="flex items-center gap-1.5 text-[10px]">
+                          <div className="flex items-center gap-1.5 text-[10px] shrink-0">
                             {isChosen && (
                               <span className="px-1.5 py-0.5 rounded bg-white/70 font-semibold uppercase">
                                 [Pilihan Siswa]

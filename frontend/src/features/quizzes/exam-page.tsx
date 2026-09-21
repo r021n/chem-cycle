@@ -275,7 +275,7 @@ export const ExamPage: React.FC = () => {
         </div>
 
         {/* Timer Bar */}
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 justify-end">
           {timeLeft !== null && (
             <div
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold ${
@@ -337,7 +337,7 @@ export const ExamPage: React.FC = () => {
                 <div
                   key={opt.id}
                   onClick={() => handleSelectOption(currentQuestion.id, opt.id)}
-                  className={`p-3.5 rounded-xl border transition-all flex items-center space-x-3 select-none cursor-pointer ${
+                  className={`p-3.5 rounded-xl border transition-all flex items-center gap-3 select-none cursor-pointer ${
                     isSelected
                       ? 'border-chem-forest bg-chem-glow/40 text-chem-dark ring-1 ring-chem-forest font-semibold shadow-xs'
                       : 'border-chem-border bg-white hover:border-chem-sage hover:bg-chem-subtle/50 text-chem-charcoal'
@@ -350,14 +350,14 @@ export const ExamPage: React.FC = () => {
                   >
                     {opt.optionKey}
                   </div>
-                  <div className="text-xs md:text-sm leading-relaxed">{opt.content}</div>
+                  <div className="text-xs md:text-sm leading-relaxed min-w-0 break-words">{opt.content}</div>
                 </div>
               );
             })}
           </div>
 
           {/* Prev / Next Question Buttons */}
-          <div className="flex items-center justify-between pt-6 border-t border-chem-border/60">
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-6 border-t border-chem-border/60">
             <Button
               size="sm"
               variant="outline"

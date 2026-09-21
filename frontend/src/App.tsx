@@ -64,6 +64,14 @@ export const App: React.FC = () => {
           <Route path="/latihan" element={<QuizzesPage />} />
           <Route path="/latihan/:id/exam" element={<ExamPage />} />
           <Route
+            path="/latihan/baru"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <QuizEditorPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/latihan/:id/edit"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
