@@ -1,52 +1,55 @@
-import React from 'react';
-import { NavLink, useNavigate, Link } from 'react-router-dom';
-import { useAuthStore } from '../../stores/auth-store';
-import { useUiStore } from '../../stores/ui-store';
+import React from "react";
+import { NavLink, useNavigate, Link } from "react-router-dom";
+import { useAuthStore } from "../../stores/auth-store";
+import { useUiStore } from "../../stores/ui-store";
 
 interface SidebarProps {
   mobileOpen: boolean;
   onCloseMobile: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  mobileOpen,
+  onCloseMobile,
+}) => {
   const { user, isAuthenticated, clearAuth } = useAuthStore();
   const { addToast } = useUiStore();
   const navigate = useNavigate();
 
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === "admin";
 
   const handleLogout = () => {
     clearAuth();
-    addToast('Anda telah keluar dari akun.', 'info');
-    navigate('/auth/login');
+    addToast("Anda telah keluar dari akun.", "info");
+    navigate("/auth/login");
     onCloseMobile();
   };
 
   const navItems = [
     {
-      to: '/dashboard',
-      label: 'Dashboard Belajar',
-      icon: 'fa-gauge-high',
+      to: "/dashboard",
+      label: "Dashboard Belajar",
+      icon: "fa-gauge-high",
     },
     {
-      to: '/materi',
-      label: 'Materi & Catatan',
-      icon: 'fa-book-open',
+      to: "/materi",
+      label: "Materi & Catatan",
+      icon: "fa-book-open",
     },
     {
-      to: '/latihan',
-      label: 'Latihan & Evaluasi',
-      icon: 'fa-circle-check',
+      to: "/latihan",
+      label: "Latihan & Evaluasi",
+      icon: "fa-circle-check",
     },
     {
-      to: '/aktivitas',
-      label: 'Instruksi Kelas',
-      icon: 'fa-bullhorn',
+      to: "/aktivitas",
+      label: "Instruksi Kelas",
+      icon: "fa-bullhorn",
     },
     {
-      to: '/diskusi',
-      label: 'Komunitas Diskusi',
-      icon: 'fa-comments',
+      to: "/diskusi",
+      label: "Komunitas Diskusi",
+      icon: "fa-comments",
     },
   ];
 
@@ -63,7 +66,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
       <aside
         id="sidebar"
         className={`w-64 bg-chem-paper/95 backdrop-blur-md border-r border-chem-border flex flex-col shrink-0 z-40 transition-transform duration-300 fixed md:static inset-y-0 left-0 ${
-          mobileOpen ? 'translate-x-0 shadow-float' : '-translate-x-full md:translate-x-0'
+          mobileOpen
+            ? "translate-x-0 shadow-float"
+            : "-translate-x-full md:translate-x-0"
         }`}
       >
         {/* Brand Header */}
@@ -71,20 +76,43 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
           <div
             className="flex items-center gap-3.5 cursor-pointer select-none"
             onClick={() => {
-              navigate('/dashboard');
+              navigate("/dashboard");
               onCloseMobile();
             }}
           >
             <div className="w-9 h-9 rounded-xl bg-chem-forest text-chem-glow flex items-center justify-center relative shadow-xs">
-              <svg className="w-5 h-5 spin-orbital" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(30 12 12)" strokeWidth="1.5" strokeDasharray="2 2" />
-                <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(-30 12 12)" strokeWidth="1.5" />
+              <svg
+                className="w-5 h-5 spin-orbital"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <ellipse
+                  cx="12"
+                  cy="12"
+                  rx="9"
+                  ry="3.5"
+                  transform="rotate(30 12 12)"
+                  strokeWidth="1.5"
+                  strokeDasharray="2 2"
+                />
+                <ellipse
+                  cx="12"
+                  cy="12"
+                  rx="9"
+                  ry="3.5"
+                  transform="rotate(-30 12 12)"
+                  strokeWidth="1.5"
+                />
                 <circle cx="12" cy="12" r="2" fill="currentColor" />
               </svg>
             </div>
             <div>
               <span className="font-serif italic text-lg font-medium tracking-tight text-chem-dark">
-                Chem<span className="font-sans font-bold not-italic text-chem-sage tracking-normal">Cycle</span>
+                Chem
+                <span className="font-sans font-bold not-italic text-chem-sage tracking-normal">
+                  Cycle
+                </span>
               </span>
               <span className="block text-[10px] font-sans font-semibold tracking-wider uppercase text-chem-ash">
                 Pembelajaran Termokimia
@@ -111,19 +139,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
             <NavLink
               key={item.to}
               to={item.to}
-              end={item.to === '/'}
+              end={item.to === "/"}
               onClick={onCloseMobile}
               className={({ isActive }) =>
                 `w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-all ${
                   isActive
-                    ? 'font-semibold text-chem-dark bg-chem-subtle shadow-2xs'
-                    : 'font-medium text-chem-ash hover:bg-chem-subtle hover:text-chem-dark'
+                    ? "font-semibold text-chem-dark bg-chem-subtle shadow-2xs"
+                    : "font-medium text-chem-ash hover:bg-chem-subtle hover:text-chem-dark"
                 }`
               }
             >
               {({ isActive }) => (
                 <>
-                  <i className={`fa-solid ${item.icon} w-4 text-center ${isActive ? 'text-chem-sage' : 'text-chem-ash'}`}></i>
+                  <i
+                    className={`fa-solid ${item.icon} w-4 text-center ${isActive ? "text-chem-sage" : "text-chem-ash"}`}
+                  ></i>
                   <span>{item.label}</span>
                 </>
               )}
@@ -156,14 +186,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
                   className={({ isActive }) =>
                     `w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-all ${
                       isActive
-                        ? 'font-semibold text-chem-dark bg-chem-subtle shadow-2xs'
-                        : 'font-medium text-chem-ash hover:bg-chem-subtle hover:text-chem-dark'
+                        ? "font-semibold text-chem-dark bg-chem-subtle shadow-2xs"
+                        : "font-medium text-chem-ash hover:bg-chem-subtle hover:text-chem-dark"
                     }`
                   }
                 >
                   {({ isActive }) => (
                     <>
-                      <i className={`fa-solid fa-user w-4 text-center ${isActive ? 'text-chem-sage' : 'text-chem-ash'}`}></i>
+                      <i
+                        className={`fa-solid fa-user w-4 text-center ${isActive ? "text-chem-sage" : "text-chem-ash"}`}
+                      ></i>
                       <span>Profil & Kredensial</span>
                     </>
                   )}
@@ -186,14 +218,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
                   className={({ isActive }) =>
                     `w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-all ${
                       isActive
-                        ? 'font-semibold text-chem-dark bg-chem-subtle shadow-2xs'
-                        : 'font-medium text-chem-ash hover:bg-chem-subtle hover:text-chem-dark'
+                        ? "font-semibold text-chem-dark bg-chem-subtle shadow-2xs"
+                        : "font-medium text-chem-ash hover:bg-chem-subtle hover:text-chem-dark"
                     }`
                   }
                 >
                   {({ isActive }) => (
                     <>
-                      <i className={`fa-solid fa-right-to-bracket w-4 text-center ${isActive ? 'text-chem-sage' : 'text-chem-ash'}`}></i>
+                      <i
+                        className={`fa-solid fa-right-to-bracket w-4 text-center ${isActive ? "text-chem-sage" : "text-chem-ash"}`}
+                      ></i>
                       <span>Masuk Akun (Login)</span>
                     </>
                   )}
@@ -205,14 +239,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
                   className={({ isActive }) =>
                     `w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-all ${
                       isActive
-                        ? 'font-semibold text-chem-dark bg-chem-subtle shadow-2xs'
-                        : 'font-medium text-chem-ash hover:bg-chem-subtle hover:text-chem-dark'
+                        ? "font-semibold text-chem-dark bg-chem-subtle shadow-2xs"
+                        : "font-medium text-chem-ash hover:bg-chem-subtle hover:text-chem-dark"
                     }`
                   }
                 >
                   {({ isActive }) => (
                     <>
-                      <i className={`fa-solid fa-user-plus w-4 text-center ${isActive ? 'text-chem-sage' : 'text-chem-ash'}`}></i>
+                      <i
+                        className={`fa-solid fa-user-plus w-4 text-center ${isActive ? "text-chem-sage" : "text-chem-ash"}`}
+                      ></i>
                       <span>Daftar Akun (Register)</span>
                     </>
                   )}
@@ -226,22 +262,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
         {isAuthenticated && user ? (
           <div className="p-3.5 border-t border-chem-border/70 bg-white/70 m-3 rounded-2xl border border-chem-border/80">
             <div className="flex items-center justify-between text-[11px] font-sans">
-              <span className="text-chem-ash font-medium">Peran Saat Ini:</span>
+              <span className="text-chem-ash font-medium">Status:</span>
               <span
                 id="roleIndicator"
                 className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${
                   isAdmin
-                    ? 'bg-chem-forest text-chem-glow'
-                    : 'bg-chem-subtle text-chem-forest border border-chem-border'
+                    ? "bg-chem-forest text-chem-glow"
+                    : "bg-chem-subtle text-chem-forest border border-chem-border"
                 }`}
               >
-                {isAdmin ? 'Admin / Guru' : 'Siswa'}
+                {isAdmin ? "Admin / Guru" : "Siswa"}
               </span>
             </div>
           </div>
         ) : (
           <div className="p-3.5 border-t border-chem-border/70 bg-white/70 m-3 rounded-2xl border border-chem-border/80 space-y-2 text-center">
-            <p className="text-[11px] text-chem-ash font-medium">Belum masuk ke akun?</p>
+            <p className="text-[11px] text-chem-ash font-medium">
+              Belum masuk ke akun?
+            </p>
             <div className="grid grid-cols-2 gap-1.5">
               <Link
                 to="/auth/login"
