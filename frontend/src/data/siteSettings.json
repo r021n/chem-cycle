@@ -1,0 +1,81 @@
+{
+  "hero": {
+    "badge": "Kurikulum Kimia Sirkular & Inklusif 2026",
+    "title": "Eksplorasi Kimia Hijau & Siklus Energi Terbuka untuk Semua",
+    "subtitle": "Platform pembelajaran kimia interaktif berbasis Universal Design for Learning (UDL) dan standar aksesibilitas WCAG 2.1 AA. Jelajahi modul termokimia, kinetika, dan ekonomi sirkular dengan alat bantu asistif lengkap.",
+    "bannerImage": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=1400&q=80",
+    "primaryCtaText": "Mulai Belajar Sekarang",
+    "primaryCtaLink": "/materi",
+    "secondaryCtaText": "Buka Ruang Simulasi",
+    "secondaryCtaLink": "/aktivitas"
+  },
+  "learningFlow": [
+    {
+      "step": 1,
+      "title": "1. Pahami Konsep Inti",
+      "desc": "Baca materi terstruktur dengan notasi kimia jelas, capaian pembelajaran, dan studi kasus industri nyata.",
+      "iconName": "BookOpen",
+      "route": "/materi"
+    },
+    {
+      "step": 2,
+      "title": "2. Eksplorasi Fenomena",
+      "desc": "Jalankan simulasi laboratorium interaktif untuk menguji variabel suhu, konsentrasi, dan katalis secara visual.",
+      "iconName": "FlaskConical",
+      "route": "/aktivitas"
+    },
+    {
+      "step": 3,
+      "title": "3. Analisis Lembar Kerja",
+      "desc": "Isi pertanyaan refleksi dan uji hipotesis mandiri dengan panduan berpikir kritis berwawasan lingkungan.",
+      "iconName": "FileText",
+      "route": "/aktivitas"
+    },
+    {
+      "step": 4,
+      "title": "4. Evaluasi Mandiri Cepat",
+      "desc": "Uji penguasaan konsep lewat latihan soal instan dengan pembahasan detail dan rekapitulasi capaian tanpa login.",
+      "iconName": "CheckCircle2",
+      "route": "/kuis"
+    }
+  ],
+  "sdgImpact": {
+    "tagline": "Keselarasan Tujuan Pembangunan Berkelanjutan (SDGs)",
+    "description": "EcoInclusive mengintegrasikan konsep ilmu kimia dengan komitmen pelestarian biosfer global PBB untuk generasi mendatang.",
+    "goals": [
+      {
+        "number": 4,
+        "title": "Pendidikan Berkualitas (Quality Education)",
+        "description": "Menyediakan akses pembelajaran sains terbuka yang inklusif bagi seluruh peserta didik dengan berbagai profil modalitas belajar dan kebutuhan khusus asistif.",
+        "color": "#c5192d",
+        "iconName": "GraduationCap"
+      },
+      {
+        "number": 12,
+        "title": "Konsumsi & Produksi Bertanggung Jawab",
+        "description": "Mengenalkan prinsip 12 Kimia Hijau: pencegahan limbah berbahaya, katalisis ramah lingkungan, dan siklus daur ulang material polimer terbarukan.",
+        "color": "#cf8d2a",
+        "iconName": "Recycle"
+      },
+      {
+        "number": 13,
+        "title": "Penanganan Perubahan Iklim (Climate Action)",
+        "description": "Membekali peserta didik dengan pemahaman neraca massa dan termodinamika penangkapan karbon atmosfer demi masa depan net-zero emission.",
+        "color": "#3f7e44",
+        "iconName": "CloudRain"
+      }
+    ]
+  },
+  "accessibilityDefaults": {
+    "contrastScheme": "normal",
+    "interfaceLanguage": "id",
+    "dyslexiaFontEnabled": false
+  },
+  "adminProfile": {
+    "username": "admin",
+    "name": "Dr. Ratna Indrayani, M.Sc.",
+    "email": "admin@ecoinclusive.edu",
+    "role": "Lead Instructional Designer & Content Admin",
+    "avatarUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
+  }
+}

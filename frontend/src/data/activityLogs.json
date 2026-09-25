@@ -1,0 +1,34 @@
+[
+  {
+    "id": "log-1",
+    "action": "publish",
+    "entityType": "Materi",
+    "entityTitle": "Termokimia & Siklus Energi Reaksi Kimia",
+    "timestamp": "2026-09-25T14:30:00Z",
+    "author": "Dr. Ratna Indrayani"
+  },
+  {
+    "id": "log-2",
+    "action": "update",
+    "entityType": "Aktivitas",
+    "entityTitle": "Simulasi Dinamika Siklus Karbon & Efisiensi Katalis Hijau",
+    "timestamp": "2026-09-25T14:00:00Z",
+    "author": "Dr. Ratna Indrayani"
+  },
+  {
+    "id": "log-3",
+    "action": "create",
+    "entityType": "Kuis",
+    "entityTitle": "Evaluasi Mandiri: Asas Kesetimbangan & Kimia Kelautan",
+    "timestamp": "2026-09-25T12:15:00Z",
+    "author": "Dr. Ratna Indrayani"
+  },
+  {
+    "id": "log-4",
+    "action": "update",
+    "entityType": "Pengaturan",
+    "entityTitle": "Banner Hero & Section SDG PBB 2026",
+    "timestamp": "2026-09-25T09:40:00Z",
+    "author": "Dr. Ratna Indrayani"
+  }
+]

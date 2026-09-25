@@ -1,0 +1,150 @@
+[
+  {
+    "id": "act-1",
+    "title": "Simulasi Dinamika Siklus Karbon & Efisiensi Katalis Hijau",
+    "topicRelation": "termokimia-siklus-energi",
+    "category": "simulasi",
+    "badgeLabel": "Pemodelan Interaktif",
+    "summary": "Eksplorasi hubungan antara laju pembakaran bahan bakar fosil, efisiensi penyerapan katalitik, dan stabilisasi temperatur kesetimbangan biosfer.",
+    "estimatedTime": 20,
+    "orderIndex": 1,
+    "isPublished": true,
+    "phenomenonIntro": {
+      "title": "Fenomena: Kenaikan Konsentrasi CO2 Atmosfer dan Disrupsi Siklus Alami",
+      "narrative": "Sebelum revolusi industri, konsentrasi gas karbon dioksida di atmosfer berada pada tingkat stabil sekitar 280 ppm. Saat ini, angka tersebut telah melampaui 420 ppm akibat pembakaran bahan bakar hidrokarbon berkecepatan tinggi. Siklus biogeokimia karbon membutuhkan ribuan tahun untuk mengendapkan kelebihan karbon menjadi sedimen batuan karbonat, sementara aktivitas antropogenik melepaskannya hanya dalam hitungan dekade.",
+      "triggerQuestions": [
+        "Bagaimana perubahan laju pembakaran fosil mempengaruhi laju penimbunan karbon di biosfer?",
+        "Apakah percepatan penyerapan karbon menggunakan teknologi nanokatalis mampu mengembalikan laju netto ke angka nol?",
+        "Apa batas ambang kestabilan konsentrasi CO2 agar tidak memicu kenaikan suhu bumi lebih dari 1.5°C?"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?auto=format&fit=crop&w=1200&q=80"
+    },
+    "interactiveModule": {
+      "type": "carbon_cycle_simulator",
+      "title": "Laboratorium Virtual: Simulasi Dinamika Karbon Sirkular",
+      "description": "Geser pengatur emisi industri, persentase penangkapan katalitik (Carbon Capture & Utilization), dan luas tutupan biomassa hijau untuk memantau neraca massa dan proyeksi konsentrasi CO2.",
+      "initialState": {
+        "industrialEmission": 40,
+        "greenCatalystEfficiency": 25,
+        "reforestationIndex": 30,
+        "simulationYears": 50
+      }
+    },
+    "worksheet": [
+      {
+        "id": "wq-1",
+        "prompt": "1. Berdasarkan simulasi, apa yang terjadi pada konsentrasi CO2 biosfer jika efisiensi katalis hijau dinaikkan hingga 75% tanpa mengurangi laju emisi industri?",
+        "placeholder": "Tuliskan hasil pengamatan Anda terhadap neraca emisi dan perubahan kurva konsentrasi...",
+        "sampleExpectedInsight": "Peningkatan efisiensi katalis hingga 75% mereduksi laju akumulasi secara tajam, namun jika emisi dasar tetap di atas 35 Gt/tahun, konsentrasi atmosfer tetap bertumbuh perlahan sehingga reduksi sumber emisi tetap mutlak diperlukan."
+      },
+      {
+        "id": "wq-2",
+        "prompt": "2. Hubungkan fenomena di atas dengan Hukum Kekekalan Massa dan Termodinamika reaksi penangkapan karbon!",
+        "placeholder": "Analisis aspek energi reaksi (eksoterm/endoterm) serta perpindahan atom karbon...",
+        "sampleExpectedInsight": "Atom karbon tidak hilang melainkan dikonversi menjadi senyawa bernilai tambah (seperti metanol atau kalsium karbonat padat). Proses ini memerlukan efisiensi termal agar energi yang dipakai untuk memicu reaktor katalis tidak menghasilkan emisi sekunder yang lebih besar."
+      },
+      {
+        "id": "wq-3",
+        "prompt": "3. Rumuskan kesimpulan rekomendasi kebijakan ilmiah untuk mencapai status 'Net-Zero Carbon'!",
+        "placeholder": "Rangkum 2 langkah strategis yang saling bersinergi...",
+        "sampleExpectedInsight": "Kombinasi mitigasi ganda: penghentian pemakaian batubara fosil secara simultan dengan implementasi unit penangkap karbon berbasis katalis daur ulang di titik-titik cerobong industri beremisi tinggi."
+      }
+    ],
+    "createdAt": "2026-09-22T10:00:00Z",
+    "updatedAt": "2026-09-25T14:00:00Z"
+  },
+  {
+    "id": "act-2",
+    "title": "Studi Komparasi Kinetika Katalis: Enzim Alami vs Katalis Sintetis",
+    "topicRelation": "kinetika-reaksi-katalis-hijau",
+    "category": "studi_kasus",
+    "badgeLabel": "Studi Kasus Kontekstual",
+    "summary": "Analisis komparatif laju dekomposisi hidrogen peroksida (H2O2) menggunakan enzim katalase hati versus serbuk mangan dioksida (MnO2) dan dampaknya terhadap jejak lingkungan.",
+    "estimatedTime": 15,
+    "orderIndex": 2,
+    "isPublished": true,
+    "phenomenonIntro": {
+      "title": "Misteri Busa Oksigen: Membedah Keajaiban Biokatalis",
+      "narrative": "Ketika cairan hidrogen peroksida diteteskan pada kentang atau ekstrak ragi, terjadi pembentukan gelembung gas oksigen secara seketika dan eksotermik. Namun larutan H2O2 dalam botol kaca di laboratorium dapat bertahan berbulan-bulan tanpa terurai tampak nyata. Mengapa biomolekul mikro dapat memicu reaksi secepat itu pada suhu ruang netral?",
+      "triggerQuestions": [
+        "Bagaimana enzim menstabilkan keadaan transisi reaktan dibandingkan katalis anorganik?",
+        "Mengapa enzim memiliki sensitivitas tinggi terhadap pH dan suhu ekstrem sedangkan MnO2 tidak?",
+        "Manakah jenis katalis yang lebih ramah lingkungan untuk proses pemutihan pulp kertas modern?"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=1200&q=80"
+    },
+    "interactiveModule": {
+      "type": "reaction_kinetics",
+      "title": "Simulator Profil Energi Tumbukan & Suhu Reaksi",
+      "description": "Sesuaikan konsentrasi substrat, suhu reaksi, dan keberadaan inhibitor kompetitif untuk melihat kurva laju pembentukan produk secara real-time.",
+      "initialState": {
+        "temperature": 25,
+        "substrateConcentration": 1.5,
+        "catalystType": "enzim"
+      }
+    },
+    "worksheet": [
+      {
+        "id": "wq-4",
+        "prompt": "1. Pada suhu berapakah aktivitas katalase mencapai titik optimum dan apa yang terjadi jika suhu dinaikkan melampaui 60°C?",
+        "placeholder": "Jelaskan dengan mengacu pada struktur tersier protein enzim...",
+        "sampleExpectedInsight": "Suhu optimum enzim berada pada rentang 37°C-40°C. Di atas 60°C terjadi denaturasi struktur protein akibat putusnya ikatan hidrogen, sehingga sisi aktif rusak dan aktivitas laju merosot drastis."
+      },
+      {
+        "id": "wq-5",
+        "prompt": "2. Mengapa industri kertas hijau beralih dari oksidator klorin ke sistem pemutihan berbasis enzim xilanase dan H2O2?",
+        "placeholder": "Kaitkan dengan konsep limbah organoklorin berbahaya...",
+        "sampleExpectedInsight": "Penggunaan klorin melepaskan senyawa karsinogenik dioksin ke perairan. Sistem enzimatik H2O2 hanya menghasilkan produk samping berupa molekul air (H2O) dan gas oksigen (O2), bebas toksisitas."
+      }
+    ],
+    "createdAt": "2026-09-23T08:30:00Z",
+    "updatedAt": "2026-09-25T11:00:00Z"
+  },
+  {
+    "id": "act-3",
+    "title": "Analisis Data: Pergeseran Kesetimbangan & Saturasi Aragonit Lautan",
+    "topicRelation": "kesetimbangan-mitigasi-pengasaman-laut",
+    "category": "analisis_data",
+    "badgeLabel": "Analisis Data Lingkungan",
+    "summary": "Interpretasi grafik time-series pH laut global dan tingkat kejenuhan aragonit (Ω_arag) selama 60 tahun terakhir dari data stasiun stasiun oseanografi Mauna Loa dan ALOHA.",
+    "estimatedTime": 25,
+    "orderIndex": 3,
+    "isPublished": true,
+    "phenomenonIntro": {
+      "title": "Indikator Kritis Oseanografi: Penurunan pH Air Laut Permukaan",
+      "narrative": "Sejak awal era industrialisasi hingga saat ini, rata-rata keasaman laut telah naik 30% (penurunan nilai pH dari 8.25 menjadi 8.14). Meskipun terlihat sebagai angka desimal kecil, skala pH bersifat logaritmik, yang berarti peningkatan konsentrasi ion hidronium bebas yang sangat masif bagi kehidupan koral dan pteropoda (siput laut pembangun rantai makanan).",
+      "triggerQuestions": [
+        "Bagaimana hubungan kuantitatif antara pCO2 atmosfer dengan saturasi kalsium karbonat di perairan tropis?",
+        "Apakah penyangga alami laut (bikarbonat buffer system) memiliki daya tampung tak terbatas?",
+        "Apa strategi rekayasa kimia kelautan untuk menaikkan kembali alkalinitas air laut secara aman?"
+      ],
+      "imageUrl": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=80"
+    },
+    "interactiveModule": {
+      "type": "equilibrium_shift",
+      "title": "Model Matematika Kesetimbangan Asam-Basa Kelautan",
+      "description": "Simulasi interaktif neraca spesies karbonat: [CO2], [H2CO3], [HCO3-], dan [CO3^2-] terhadap variasi pH dan temperatur permukaan laut.",
+      "initialState": {
+        "phValue": 8.1,
+        "seaTemp": 26,
+        "calciumConcentration": 10.3
+      }
+    },
+    "worksheet": [
+      {
+        "id": "wq-6",
+        "prompt": "1. Pada pH berapakah fraksi ion karbonat (CO3^2-) mulai turun di bawah batas kritis saturasi aragonit (Ω < 1.0)?",
+        "placeholder": "Catat nilai pH kritis dari grafik simulasi...",
+        "sampleExpectedInsight": "Ketika pH air laut turun di bawah 7.8, tingkat kejenuhan aragonit (Ω_arag) jatuh di bawah 1.0, menyebabkan cangkang kalsium karbonat mulai melarut secara spontan ke dalam air."
+      },
+      {
+        "id": "wq-7",
+        "prompt": "2. Usulkan satu pendekatan penambahan mineral basa (Ocean Alkalinity Enhancement) dengan mempertimbangkan prinsip kimia hijau!",
+        "placeholder": "Jelaskan jenis mineral alami yang dapat dilarutkan...",
+        "sampleExpectedInsight": "Pelapukan batuan silikat/olivin halus alami (Mg2SiO4) yang ditebarkan di pesisir mampu mengikat molekul CO2 menjadi bikarbonat stabil tanpa meninggalkan residu logam berat beracun."
+      }
+    ],
+    "createdAt": "2026-09-24T09:15:00Z",
+    "updatedAt": "2026-09-25T15:45:00Z"
+  }
+]

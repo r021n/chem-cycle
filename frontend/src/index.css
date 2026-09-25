@@ -28,6 +28,7 @@
     -webkit-tap-highlight-color: transparent;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
   }
 }
 
@@ -44,8 +45,8 @@
 
 /* Minimalist smooth laboratory scrollbars */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -73,4 +74,168 @@
 
 .spin-orbital {
   animation: cycleSpin 26s linear infinite;
+}
+
+/* ==========================================================================
+   ACCESSIBILITY & UDL CONTRAST / THEME ENGINE
+   ========================================================================== */
+
+/* 1. Monochrome (Grayscale) */
+body.acc-monochrome {
+  filter: grayscale(100%);
+}
+
+/* 2. Low Saturation */
+body.acc-low-sat {
+  filter: saturate(40%);
+}
+
+/* 3. High Saturation */
+body.acc-high-sat {
+  filter: saturate(180%) contrast(105%);
+}
+
+/* 4. Dark Contrast */
+body.acc-dark-contrast {
+  background-color: #0b1410 !important;
+  color: #e2ede7 !important;
+}
+body.acc-dark-contrast .bg-white,
+body.acc-dark-contrast .bg-chem-paper,
+body.acc-dark-contrast .bg-chem-subtle {
+  background-color: #12211b !important;
+  color: #f0f7f3 !important;
+  border-color: #244135 !important;
+}
+body.acc-dark-contrast header,
+body.acc-dark-contrast footer,
+body.acc-dark-contrast aside {
+  background-color: #0d1a14 !important;
+  border-color: #244135 !important;
+}
+body.acc-dark-contrast h1,
+body.acc-dark-contrast h2,
+body.acc-dark-contrast h3,
+body.acc-dark-contrast h4 {
+  color: #6ee7b7 !important;
+}
+body.acc-dark-contrast p,
+body.acc-dark-contrast span,
+body.acc-dark-contrast td {
+  color: #d1fae5 !important;
+}
+
+/* 5. Medium Contrast */
+body.acc-medium-contrast {
+  filter: contrast(125%);
+}
+
+/* 6. High Contrast (High contrast black & white) */
+body.acc-high-contrast {
+  filter: contrast(160%);
+}
+
+/* 7. Yellow on Black (WCAG AAA Special High Visibility) */
+body.acc-yellow-black {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+}
+body.acc-yellow-black * {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border-color: #ffff00 !important;
+}
+body.acc-yellow-black button,
+body.acc-yellow-black a {
+  outline: 2px solid #ffff00 !important;
+}
+
+/* Typography Overrides */
+body.acc-dyslexia {
+  font-family: 'Comic Sans MS', 'Trebuchet MS', -apple-system, sans-serif !important;
+  letter-spacing: 0.05em !important;
+  word-spacing: 0.15em !important;
+}
+
+body.acc-weight-medium {
+  font-weight: 500 !important;
+}
+body.acc-weight-bold {
+  font-weight: 700 !important;
+}
+
+body.acc-lh-relaxed {
+  line-height: 1.8 !important;
+}
+body.acc-lh-loose {
+  line-height: 2.2 !important;
+}
+
+body.acc-ls-wide {
+  letter-spacing: 0.06em !important;
+}
+body.acc-ls-wider {
+  letter-spacing: 0.12em !important;
+}
+
+/* Visual Markers */
+body.acc-highlight-links a,
+body.acc-highlight-links button:not(.btn-no-highlight) {
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+  text-underline-offset: 4px !important;
+  outline: 2px dashed #e11d48 !important;
+  outline-offset: 2px !important;
+}
+
+body.acc-highlight-headings h1,
+body.acc-highlight-headings h2,
+body.acc-highlight-headings h3 {
+  background-color: #fef08a !important;
+  color: #713f12 !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  display: inline-block !important;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* Stop Animations */
+body.acc-stop-animations *,
+body.acc-stop-animations *::before,
+body.acc-stop-animations *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Hide Images */
+body.acc-hide-images img,
+body.acc-hide-images svg:not(.lucide):not(.accessible-icon) {
+  visibility: hidden !important;
+  position: relative !important;
+}
+body.acc-hide-images img::after {
+  content: "🖼️ [Gambar Disembunyikan]";
+  visibility: visible !important;
+  display: block !important;
+  padding: 16px;
+  background: #f1f5f9;
+  border: 1px dashed #94a3b8;
+  color: #475569;
+  font-size: 12px;
+  text-align: center;
+  border-radius: 8px;
+}
+
+/* Big Cursor */
+body.acc-big-cursor,
+body.acc-big-cursor * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36' viewBox='0 0 24 24' fill='%23f59e0b' stroke='%23000000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 3 7 18 3-7 7-3L3 3z'/%3E%3C/svg%3E"), auto !important;
+}
+
+/* Screen Reader Active Indicator */
+.sr-highlight-speaking {
+  outline: 3px solid #10b981 !important;
+  background-color: rgba(16, 185, 129, 0.1) !important;
+  border-radius: 6px;
 }
