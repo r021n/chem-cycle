@@ -36,23 +36,3 @@ export interface Material {
   createdAt: string;
   updatedAt: string;
 }
-
-export interface CreateMaterialPayload {
-  title: string;
-  slug?: string;
-  contentJson: string;
-  summary?: string | null;
-  estimatedReadTime?: number;
-  orderIndex?: number;
-  isPublished?: boolean;
-}
-
-export interface UpdateMaterialPayload {
-  title?: string;
-  slug?: string;
-  contentJson?: string;
-  summary?: string | null;
-  estimatedReadTime?: number;
-  orderIndex?: number;
-  isPublished?: boolean;
-}

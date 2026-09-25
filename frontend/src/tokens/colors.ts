@@ -1,9 +1,8 @@
 /**
- * ChemCycle Design System - Color Tokens
- * Based on UI-UX-SYSTEM-DESIGN.md Section 2.1
+ * EcoInclusive Design System - Color Tokens
  */
 
-export const chemColors = {
+export const ecoColors = {
   paper: '#fbfbfa',
   subtle: '#f3f4ee',
   border: '#e6e8df',
@@ -22,4 +21,7 @@ export const chemColors = {
   cardBg: '#ffffff',
 } as const;
 
-export type ChemColorKey = keyof typeof chemColors;
+export const chemColors = ecoColors;
+
+export type EcoColorKey = keyof typeof ecoColors;
+export type ChemColorKey = EcoColorKey;

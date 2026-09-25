@@ -1,6 +1,5 @@
 /**
- * ChemCycle Design System - Typography Tokens
- * Based on UI-UX-SYSTEM-DESIGN.md Section 2.2
+ * EcoInclusive Design System - Typography Tokens
  */
 
 export const typography = {

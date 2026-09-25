@@ -1,24 +1,18 @@
 import React from 'react';
 import { Material } from '../../types/material';
 import { BlockAstViewer } from '../editor/block-ast-viewer';
-import { useAuthStore } from '../../stores/auth-store';
 
 interface MaterialReaderModalProps {
   material: Material | null;
   isOpen: boolean;
   onClose: () => void;
-  onEdit?: (material: Material) => void;
 }
 
 export const MaterialReaderModal: React.FC<MaterialReaderModalProps> = ({
   material,
   isOpen,
   onClose,
-  onEdit,
 }) => {
-  const { user } = useAuthStore();
-  const isAdmin = user?.role === 'admin';
-
   if (!isOpen || !material) return null;
 
   // Derive cover or placeholder
@@ -53,17 +47,6 @@ export const MaterialReaderModal: React.FC<MaterialReaderModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            {isAdmin && onEdit && (
-              <button
-                type="button"
-                id="readerAdminEditBtn"
-                onClick={() => onEdit(material)}
-                className="text-xs px-3 py-1.5 bg-chem-subtle hover:bg-chem-glow/60 text-chem-dark font-medium rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
-              >
-                <i className="fa-solid fa-pen text-[10px]"></i>
-                <span>Edit Materi</span>
-              </button>
-            )}
             <button
               type="button"
               onClick={onClose}

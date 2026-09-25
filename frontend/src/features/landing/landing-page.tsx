@@ -1,36 +1,31 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuthStore } from '../../stores/auth-store';
 import { Material } from '../../types/material';
 import { MaterialReaderModal } from '../../components/materials/MaterialReaderModal';
 
 const FAQS = [
   {
-    question: 'Apa materi pokok yang dipelajari di ChemCycle?',
+    question: 'Apa materi pokok yang dipelajari di EcoInclusive?',
     answer:
-      'ChemCycle menyediakan materi pembelajaran kimia yang mencakup berbagai topik penting sesuai kurikulum SMA/MA, dari konsep dasar hingga analisis kuantitatif.',
+      'EcoInclusive menyediakan materi pembelajaran kimia yang mencakup berbagai topik penting sesuai kurikulum SMA/MA, dari konsep dasar hingga analisis kuantitatif.',
   },
   {
-    question: 'Apakah ChemCycle memfasilitasi praktikum?',
+    question: 'Apakah EcoInclusive memfasilitasi praktikum?',
     answer:
-      'Ya! ChemCycle menyajikan panduan praktikum berbasis Problem-Based Learning (PBL), simulasi interaktif, serta bank latihan bertahap.',
+      'Ya! EcoInclusive menyajikan panduan praktikum berbasis Problem-Based Learning (PBL), simulasi interaktif, serta bank latihan bertahap.',
   },
   {
-    question: 'Apa perbedaan akun Siswa dan akun Guru?',
+    question: 'Apa perbedaan fasilitas Siswa dan Guru di EcoInclusive?',
     answer:
-      'Siswa dapat mengakses modul materi, mengerjakan kuis, dan berdiskusi. Guru memiliki fitur tambahan untuk membuat/mengedit materi, mengelola bank soal, serta memonitor hasil belajar siswa.',
+      'Siswa dapat mengakses modul materi interaktif, mengerjakan kuis Zen tanpa cemas, dan berdiskusi. Guru difasilitasi dengan alat perancangan materi terstruktur dan panduan praktikum.',
   },
   {
-    question: 'Apakah aplikasi bisa diakses gratis?',
+    question: 'Apakah EcoInclusive bisa diakses melalui perangkat seluler?',
     answer:
-      'Ya! ChemCycle sepenuhnya gratis dan responsif, nyaman dibuka melalui komputer, laptop, tablet, maupun smartphone.',
+      'Ya! EcoInclusive sepenuhnya responsif dan nyaman dibuka melalui smartphone, tablet, maupun layar komputer/laptop.',
   },
 ];
 
 export const LandingPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuthStore();
-
   const [readingMaterial, setReadingMaterial] = useState<Material | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
@@ -103,13 +98,22 @@ export const LandingPage: React.FC = () => {
     }
   };
 
+  const scrollToTop = () => {
+    setMobileMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-chem-paper lab-grid-bg text-chem-dark selection:bg-chem-glow selection:text-chem-forest flex flex-col antialiased font-sans">
       {/* 1. PUBLIC TOP NAVIGATION BAR */}
       <header className="sticky top-0 z-50 bg-chem-paper/90 backdrop-blur-md border-b border-chem-border/70 transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-3.5 group select-none">
+          <button
+            type="button"
+            onClick={scrollToTop}
+            className="flex items-center gap-3.5 group select-none text-left cursor-pointer"
+          >
             <div className="w-10 h-10 rounded-2xl bg-chem-forest text-chem-glow flex items-center justify-center shadow-xs transition-transform group-hover:scale-105">
               <svg className="w-5 h-5 spin-orbital" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <ellipse cx="12" cy="12" rx="9" ry="3.5" transform="rotate(30 12 12)" strokeWidth="1.5" strokeDasharray="2 2" />
@@ -119,13 +123,13 @@ export const LandingPage: React.FC = () => {
             </div>
             <div>
               <span className="font-serif italic text-xl font-medium tracking-tight text-chem-dark">
-                Chem<span className="font-sans font-bold not-italic text-chem-sage tracking-normal">Cycle</span>
+                Eco<span className="font-sans font-bold not-italic text-chem-sage tracking-normal">Inclusive</span>
               </span>
               <span className="hidden sm:block text-[10px] font-sans font-semibold tracking-wider uppercase text-chem-ash">
                 Platform Pembelajaran Kimia
               </span>
             </div>
-          </Link>
+          </button>
 
           {/* Desktop Nav Links */}
           <nav className="hidden lg:flex items-center space-x-7 text-xs font-semibold text-chem-ash">
@@ -154,38 +158,14 @@ export const LandingPage: React.FC = () => {
 
           {/* Right Action CTA Buttons */}
           <div className="hidden sm:flex items-center gap-3">
-            {isAuthenticated && user ? (
-              <div className="flex items-center gap-3">
-                <Link
-                  to="/dashboard"
-                  className="px-4 py-2 bg-chem-forest hover:bg-chem-dark text-chem-glow text-xs font-bold rounded-2xl shadow-subtle flex items-center gap-2 transition-transform active:scale-95"
-                >
-                  <i className="fa-solid fa-gauge-high text-xs"></i>
-                  <span>Buka Dashboard</span>
-                </Link>
-                <div className="flex items-center gap-2 pl-1 text-left">
-                  <div className="w-8 h-8 rounded-full bg-chem-subtle border border-chem-border flex items-center justify-center font-bold text-xs text-chem-forest">
-                    {user.fullName ? user.fullName[0].toUpperCase() : 'U'}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2.5">
-                <Link
-                  to="/auth/login"
-                  className="px-4 py-2 text-xs font-semibold text-chem-dark hover:text-chem-forest hover:bg-chem-subtle rounded-xl transition-colors"
-                >
-                  Masuk Akun
-                </Link>
-                <Link
-                  to="/auth/register"
-                  className="px-4.5 py-2.5 bg-chem-forest hover:bg-chem-dark text-chem-glow text-xs font-bold rounded-2xl shadow-subtle flex items-center gap-1.5 transition-transform active:scale-95"
-                >
-                  <i className="fa-solid fa-user-plus text-xs text-chem-mint"></i>
-                  <span>Daftar Gratis</span>
-                </Link>
-              </div>
-            )}
+            <button
+              type="button"
+              onClick={handleOpenSampleReader}
+              className="px-4.5 py-2.5 bg-chem-forest hover:bg-chem-dark text-chem-glow text-xs font-bold rounded-2xl shadow-subtle flex items-center gap-2 transition-transform active:scale-95 cursor-pointer"
+            >
+              <i className="fa-solid fa-book-open-reader text-xs text-chem-mint"></i>
+              <span>Baca Modul Sampel</span>
+            </button>
           </div>
 
           {/* Mobile Hamburger Toggle */}
@@ -208,53 +188,38 @@ export const LandingPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => scrollToSection('fitur')}
-                className="text-left py-2 hover:text-chem-forest transition-colors"
+                className="text-left py-2 hover:text-chem-forest transition-colors cursor-pointer"
               >
                 Fitur
               </button>
               <button
                 type="button"
                 onClick={() => scrollToSection('peran')}
-                className="text-left py-2 hover:text-chem-forest transition-colors"
+                className="text-left py-2 hover:text-chem-forest transition-colors cursor-pointer"
               >
                 Siswa & Guru
               </button>
               <button
                 type="button"
                 onClick={() => scrollToSection('faq')}
-                className="text-left py-2 hover:text-chem-forest transition-colors"
+                className="text-left py-2 hover:text-chem-forest transition-colors cursor-pointer"
               >
                 FAQ
               </button>
             </nav>
 
             <div className="pt-3 border-t border-chem-border/70 flex flex-col gap-2">
-              {isAuthenticated && user ? (
-                <Link
-                  to="/dashboard"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full text-center py-2.5 bg-chem-forest text-chem-glow font-bold text-xs rounded-xl shadow-xs"
-                >
-                  Buka Dashboard Belajar
-                </Link>
-              ) : (
-                <>
-                  <Link
-                    to="/auth/login"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="w-full text-center py-2.5 border border-chem-border text-chem-dark font-semibold text-xs rounded-xl hover:bg-chem-subtle"
-                  >
-                    Masuk ke Akun
-                  </Link>
-                  <Link
-                    to="/auth/register"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="w-full text-center py-2.5 bg-chem-forest text-chem-glow font-bold text-xs rounded-xl shadow-xs"
-                  >
-                    Daftar Akun Baru (Gratis)
-                  </Link>
-                </>
-              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleOpenSampleReader();
+                }}
+                className="w-full text-center py-2.5 bg-chem-forest text-chem-glow font-bold text-xs rounded-xl shadow-xs cursor-pointer flex items-center justify-center gap-2"
+              >
+                <i className="fa-solid fa-book-open-reader text-xs text-chem-mint"></i>
+                <span>Baca Modul Sampel</span>
+              </button>
             </div>
           </div>
         )}
@@ -279,36 +244,19 @@ export const LandingPage: React.FC = () => {
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-              {isAuthenticated ? (
-                <Link
-                  to="/dashboard"
-                  className="px-6 py-3.5 bg-chem-forest hover:bg-chem-dark text-chem-glow text-sm font-bold rounded-2xl shadow-float flex items-center gap-2.5 transition-transform active:scale-95"
-                >
-                  <i className="fa-solid fa-gauge-high"></i>
-                  <span>Masuk ke Dashboard Belajar</span>
-                </Link>
-              ) : (
-                <>
-                  <Link
-                    to="/auth/register"
-                    className="px-6 py-3.5 bg-chem-forest hover:bg-chem-dark text-chem-glow text-sm font-bold rounded-2xl shadow-float flex items-center gap-2.5 transition-transform active:scale-95"
-                  >
-                    <span>Mulai Belajar Sekarang</span>
-                    <i className="fa-solid fa-arrow-right text-xs text-chem-mint"></i>
-                  </Link>
-                  <Link
-                    to="/auth/login"
-                    className="px-5 py-3.5 bg-white hover:bg-chem-subtle text-chem-dark border border-chem-border text-sm font-semibold rounded-2xl transition-colors"
-                  >
-                    Masuk ke Akun
-                  </Link>
-                </>
-              )}
+              <button
+                type="button"
+                onClick={() => scrollToSection('fitur')}
+                className="px-6 py-3.5 bg-chem-forest hover:bg-chem-dark text-chem-glow text-sm font-bold rounded-2xl shadow-float flex items-center gap-2.5 transition-transform active:scale-95 cursor-pointer"
+              >
+                <span>Jelajahi Fitur</span>
+                <i className="fa-solid fa-arrow-down text-xs text-chem-mint"></i>
+              </button>
 
               <button
                 type="button"
                 onClick={handleOpenSampleReader}
-                className="px-5 py-3.5 bg-chem-subtle hover:bg-chem-glow/50 text-chem-forest border border-chem-border/70 text-sm font-semibold rounded-2xl transition-colors flex items-center gap-2 cursor-pointer"
+                className="px-5 py-3.5 bg-white hover:bg-chem-subtle text-chem-forest border border-chem-border/70 text-sm font-semibold rounded-2xl transition-colors flex items-center gap-2 cursor-pointer shadow-subtle"
               >
                 <i className="fa-solid fa-book-open-reader text-xs text-chem-sage"></i>
                 <span>Baca Modul Sampel</span>
@@ -393,7 +341,7 @@ export const LandingPage: React.FC = () => {
               Fasilitas Terpadu untuk Siswa & Guru Kimia
             </h2>
             <p className="text-sm text-chem-ash leading-relaxed">
-              ChemCycle menjembatani interaksi antara kemandirian belajar siswa dengan fleksibilitas pengelolaan kelas oleh guru.
+              EcoInclusive menjembatani interaksi antara kemandirian belajar siswa dengan fleksibilitas pengelolaan kelas oleh guru.
             </p>
           </div>
 
@@ -415,7 +363,7 @@ export const LandingPage: React.FC = () => {
               </div>
 
               <p className="text-xs text-chem-ash leading-relaxed">
-                Belajar mandiri dengan ritme sendiri. Akses modul kimia, kerjakan kuis, dan pantau progres belajar di dashboard pribadi.
+                Belajar mandiri dengan ritme sendiri. Akses modul kimia, kerjakan kuis, dan pantau progres belajar secara komprehensif.
               </p>
 
               <div className="space-y-3 border-t border-chem-border/70 pt-4">
@@ -429,18 +377,19 @@ export const LandingPage: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2.5 text-xs text-chem-dark">
                   <i className="fa-solid fa-circle-check text-chem-mint"></i>
-                  <span>Forum diskusi kimia yang bersahabat</span>
+                  <span>Eksperimen laboratorium praktikum PBL</span>
                 </div>
               </div>
 
               <div className="pt-2">
-                <Link
-                  to="/auth/register"
-                  className="w-full py-3 px-4 bg-chem-forest hover:bg-chem-dark text-chem-glow text-xs font-bold rounded-2xl shadow-subtle flex items-center justify-center gap-2 transition-transform active:scale-95"
+                <button
+                  type="button"
+                  onClick={handleOpenSampleReader}
+                  className="w-full py-3 px-4 bg-chem-forest hover:bg-chem-dark text-chem-glow text-xs font-bold rounded-2xl shadow-subtle flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer"
                 >
-                  <span>Daftar Sebagai Siswa</span>
-                  <i className="fa-solid fa-arrow-right text-xs"></i>
-                </Link>
+                  <i className="fa-solid fa-book-open text-xs text-chem-mint"></i>
+                  <span>Buka Pratinjau Modul Siswa</span>
+                </button>
               </div>
             </div>
 
@@ -461,39 +410,40 @@ export const LandingPage: React.FC = () => {
               </div>
 
               <p className="text-xs text-chem-ash leading-relaxed">
-                Kelola bahan ajar dan evaluasi kimia. Rancang modul, susun bank soal, dan monitor pemahaman siswa secara real-time.
+                Kelola bahan ajar dan evaluasi kimia. Rancang modul terstruktur, susun bank soal, dan monitor pemahaman siswa secara terarah.
               </p>
 
               <div className="space-y-3 border-t border-chem-border/70 pt-4">
                 <div className="flex items-center gap-2.5 text-xs text-chem-dark">
                   <i className="fa-solid fa-circle-check text-chem-mint"></i>
-                  <span>Block Editor untuk menyusun materi</span>
+                  <span>Format modul berbasis blok konten visual</span>
                 </div>
                 <div className="flex items-center gap-2.5 text-xs text-chem-dark">
                   <i className="fa-solid fa-circle-check text-chem-mint"></i>
-                  <span>Pembuatan kuis dan kunci jawaban</span>
+                  <span>Penyusunan kuis dan kunci pembahasan</span>
                 </div>
                 <div className="flex items-center gap-2.5 text-xs text-chem-dark">
                   <i className="fa-solid fa-circle-check text-chem-mint"></i>
-                  <span>Pemantauan progres siswa real-time</span>
+                  <span>Pemantauan indikator capaian belajar</span>
                 </div>
               </div>
 
               <div className="pt-2">
-                <Link
-                  to="/auth/login"
-                  className="w-full py-3 px-4 bg-chem-subtle hover:bg-chem-glow/60 text-chem-forest border border-chem-border text-xs font-bold rounded-2xl shadow-subtle flex items-center justify-center gap-2 transition-transform active:scale-95"
+                <button
+                  type="button"
+                  onClick={() => scrollToSection('fitur')}
+                  className="w-full py-3 px-4 bg-chem-subtle hover:bg-chem-glow/60 text-chem-forest border border-chem-border text-xs font-bold rounded-2xl shadow-subtle flex items-center justify-center gap-2 transition-transform active:scale-95 cursor-pointer"
                 >
-                  <span>Masuk Akun Guru</span>
-                  <i className="fa-solid fa-arrow-right text-xs"></i>
-                </Link>
+                  <i className="fa-solid fa-list-check text-xs"></i>
+                  <span>Eksplorasi Fitur Pembelajaran</span>
+                </button>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 8. SECTION: FAQ (TANYA JAWAB) */}
+      {/* 5. SECTION: FAQ (TANYA JAWAB) */}
       <section id="faq" className="py-20 border-b border-chem-border/70">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           <div className="text-center space-y-3">
@@ -501,7 +451,7 @@ export const LandingPage: React.FC = () => {
               ✦ Pertanyaan yang Kerap Diajukan
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl text-chem-dark">
-              Tanya Jawab Seputar ChemCycle
+              Tanya Jawab Seputar EcoInclusive
             </h2>
             <p className="text-sm text-chem-ash leading-relaxed">
               Temukan informasi seputar kurikulum, materi kimia, dan akses platform.
@@ -542,7 +492,7 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 9. SECTION: CALL TO ACTION BANNER */}
+      {/* 6. SECTION: CALL TO ACTION BANNER */}
       <section className="py-20 bg-chem-forest text-chem-glow relative overflow-hidden">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8 relative z-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-chem-glow/20 text-chem-glow text-xs font-semibold">
@@ -556,34 +506,25 @@ export const LandingPage: React.FC = () => {
           </h2>
 
           <p className="text-xs sm:text-sm text-chem-glow/80 max-w-2xl mx-auto leading-relaxed">
-            Daftarkan akun sekarang untuk membuka modul kimia terstruktur, mencoba kuis Zen dengan kunci dan pembahasan, serta berdiskusi bersama teman dan guru.
+            Jelajahi modul kimia terstruktur, coba kuis Zen dengan pembahasan lengkap, serta eksplorasi panduan eksperimen praktikum berbasis PBL.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
-            {isAuthenticated ? (
-              <Link
-                to="/dashboard"
-                className="px-8 py-3.5 bg-chem-mint hover:bg-emerald-400 text-chem-dark text-xs sm:text-sm font-bold rounded-2xl shadow-float transition-transform active:scale-95"
-              >
-                Buka Dashboard Saya
-              </Link>
-            ) : (
-              <>
-                <Link
-                  to="/auth/register"
-                  className="px-8 py-3.5 bg-chem-mint hover:bg-emerald-400 text-chem-dark text-xs sm:text-sm font-bold rounded-2xl shadow-float transition-transform active:scale-95 flex items-center gap-2"
-                >
-                  <span>Daftar Akun Baru (Gratis)</span>
-                  <i className="fa-solid fa-arrow-right text-xs"></i>
-                </Link>
-                <Link
-                  to="/auth/login"
-                  className="px-7 py-3.5 bg-white/10 hover:bg-white/20 border border-chem-glow/30 text-white text-xs sm:text-sm font-semibold rounded-2xl transition-colors"
-                >
-                  Masuk ke Akun
-                </Link>
-              </>
-            )}
+            <button
+              type="button"
+              onClick={handleOpenSampleReader}
+              className="px-8 py-3.5 bg-chem-mint hover:bg-emerald-400 text-chem-dark text-xs sm:text-sm font-bold rounded-2xl shadow-float transition-transform active:scale-95 flex items-center gap-2 cursor-pointer"
+            >
+              <i className="fa-solid fa-book-open-reader text-xs"></i>
+              <span>Buka Modul Kimia Interaktif</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollToSection('fitur')}
+              className="px-7 py-3.5 bg-white/10 hover:bg-white/20 border border-chem-glow/30 text-white text-xs sm:text-sm font-semibold rounded-2xl transition-colors cursor-pointer"
+            >
+              Lihat Fitur Unggulan
+            </button>
           </div>
         </div>
 
@@ -592,7 +533,7 @@ export const LandingPage: React.FC = () => {
         <div className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-chem-mint/20 blur-3xl pointer-events-none"></div>
       </section>
 
-      {/* 10. PUBLIC FOOTER */}
+      {/* 7. PUBLIC FOOTER */}
       <footer className="bg-white border-t border-chem-border/80 text-chem-ash font-sans py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -607,11 +548,11 @@ export const LandingPage: React.FC = () => {
                   </svg>
                 </div>
                 <span className="font-serif italic text-lg font-bold text-chem-dark">
-                  Chem<span className="font-sans font-bold not-italic text-chem-sage">Cycle</span>
+                  Eco<span className="font-sans font-bold not-italic text-chem-sage">Inclusive</span>
                 </span>
               </div>
               <p className="text-xs text-chem-ash leading-relaxed max-w-md">
-                Platform pembelajaran kimia SMA/MA interaktif yang mengintegrasikan modul editorial Notion-style, kuis adaptif tanpa cemas, instruksi eksperimen laboratorium, dan komunitas diskusi ilmiah.
+                Platform pembelajaran kimia SMA/MA interaktif yang mengintegrasikan modul editorial Notion-style, kuis adaptif tanpa cemas, instruksi eksperimen laboratorium, dan materi terstruktur.
               </p>
               <div className="flex items-center gap-2 text-xs text-chem-forest font-semibold">
                 <i className="fa-solid fa-atom text-chem-sage"></i>
@@ -631,7 +572,16 @@ export const LandingPage: React.FC = () => {
                     onClick={() => scrollToSection('fitur')}
                     className="hover:text-chem-dark transition-colors cursor-pointer"
                   >
-                    Fitur
+                    Fitur Unggulan
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => scrollToSection('peran')}
+                    className="hover:text-chem-dark transition-colors cursor-pointer"
+                  >
+                    Siswa & Guru
                   </button>
                 </li>
                 <li>
@@ -646,27 +596,12 @@ export const LandingPage: React.FC = () => {
               </ul>
             </div>
 
-            {/* Column 3: Akses Akun */}
+            {/* Column 3: Eksplorasi Materi */}
             <div className="space-y-3">
               <h4 className="font-serif text-sm font-bold text-chem-dark">
-                Akses Platform
+                Eksplorasi
               </h4>
               <ul className="space-y-2 text-xs">
-                <li>
-                  <Link to="/auth/login" className="hover:text-chem-dark transition-colors">
-                    Masuk ke Akun
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/auth/register" className="hover:text-chem-dark transition-colors">
-                    Daftar Akun Baru
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/dashboard" className="hover:text-chem-dark transition-colors">
-                    Dashboard Belajar
-                  </Link>
-                </li>
                 <li>
                   <button
                     type="button"
@@ -676,16 +611,25 @@ export const LandingPage: React.FC = () => {
                     Baca Modul Sampel
                   </button>
                 </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={scrollToTop}
+                    className="hover:text-chem-dark transition-colors cursor-pointer text-left"
+                  >
+                    Kembali ke Atas
+                  </button>
+                </li>
               </ul>
             </div>
           </div>
 
           <div className="pt-8 border-t border-chem-border/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-chem-ash">
             <p>
-              Hak Cipta © {new Date().getFullYear()} ChemCycle. Seluruh hak cipta dilindungi undang-undang.
+              Hak Cipta © {new Date().getFullYear()} EcoInclusive. Seluruh hak cipta dilindungi undang-undang.
             </p>
             <p className="text-[11px] text-chem-ash/80">
-              Chemistry Learning Platform — Media Pembelajaran Kimia SMA
+              EcoInclusive Learning Platform — Media Pembelajaran Kimia SMA
             </p>
           </div>
         </div>
@@ -697,10 +641,6 @@ export const LandingPage: React.FC = () => {
           material={readingMaterial}
           isOpen={!!readingMaterial}
           onClose={() => setReadingMaterial(null)}
-          onEdit={() => {
-            setReadingMaterial(null);
-            navigate('/auth/login');
-          }}
         />
       )}
     </div>
