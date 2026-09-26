@@ -6,6 +6,7 @@ import {
   QuizQuestion,
   SiteSettings,
   ContentLog,
+  MaterialComment,
 } from '../types/app';
 
 import rawMaterials from '../data/materials.json';
@@ -15,6 +16,8 @@ import rawSettings from '../data/siteSettings.json';
 import rawLogs from '../data/activityLogs.json';
 
 const STORAGE_KEY_PREFIX = 'chem_cycle_data_';
+const PASSWORD_STORAGE_KEY = `${STORAGE_KEY_PREFIX}password`;
+const DEFAULT_PASSWORD = 'admin123';
 
 function loadFromStorage<T>(key: string, fallback: T): T {
   try {
@@ -36,6 +39,20 @@ function saveToStorage<T>(key: string, data: T): void {
   }
 }
 
+function mergeSeedComments(
+  saved: ExtendedMaterial[],
+  seed: ExtendedMaterial[]
+): ExtendedMaterial[] {
+  return saved.map((m) => {
+    const source = seed.find((s) => s.id === m.id);
+    if (!source?.comments?.length) return m;
+    const existing = new Set((m.comments ?? []).map((c) => c.id));
+    const missing = source.comments.filter((c) => !existing.has(c.id));
+    if (missing.length === 0) return m;
+    return { ...m, comments: [...(m.comments ?? []), ...missing] };
+  });
+}
+
 interface DataStoreState {
   materials: ExtendedMaterial[];
   activities: ActivityModule[];
@@ -54,6 +71,10 @@ interface DataStoreState {
   deleteMaterial: (id: string) => void;
   togglePublishMaterial: (id: string) => void;
   reorderMaterials: (orderedIds: string[]) => void;
+  addMaterialComment: (
+    materialId: string,
+    comment: Omit<MaterialComment, 'id' | 'createdAt'>
+  ) => void;
 
   // Activities CRUD
   addActivity: (item: Omit<ActivityModule, 'id' | 'createdAt' | 'updatedAt'>) => ActivityModule;
@@ -72,10 +93,8 @@ interface DataStoreState {
   duplicateQuestion: (quizId: string, questionId: string) => void;
 
   // Site Settings
-  updateHero: (hero: Partial<SiteSettings['hero']>) => void;
-  updateSdgImpact: (sdgImpact: Partial<SiteSettings['sdgImpact']>) => void;
-  updateAccessibilityDefaults: (defaults: Partial<SiteSettings['accessibilityDefaults']>) => void;
   updateAdminProfile: (profile: Partial<SiteSettings['adminProfile']>) => void;
+  changePassword: (newPassword: string) => void;
   resetAllDataToDefaults: () => void;
 
   // Logs
@@ -83,7 +102,10 @@ interface DataStoreState {
 }
 
 export const useDataStore = create<DataStoreState>((set, get) => ({
-  materials: loadFromStorage<ExtendedMaterial[]>('materials', rawMaterials as unknown as ExtendedMaterial[]),
+  materials: mergeSeedComments(
+    loadFromStorage<ExtendedMaterial[]>('materials', rawMaterials as unknown as ExtendedMaterial[]),
+    rawMaterials as unknown as ExtendedMaterial[]
+  ),
   activities: loadFromStorage<ActivityModule[]>('activities', rawActivities as unknown as ActivityModule[]),
   quizzes: loadFromStorage<QuizPackage[]>('quizzes', rawQuizzes as unknown as QuizPackage[]),
   settings: loadFromStorage<SiteSettings>('settings', rawSettings as unknown as SiteSettings),
@@ -91,10 +113,11 @@ export const useDataStore = create<DataStoreState>((set, get) => ({
   isAuthenticated: !!localStorage.getItem(`${STORAGE_KEY_PREFIX}auth_token`),
 
   login: (identity, pass) => {
-    // Admin credentials demo: admin or admin@ecoinclusive.edu with password 'admin123'
+    // Admin credentials demo: admin or admin@ecoinclusive.edu with default password 'admin123'
+    const storedPassword = localStorage.getItem(PASSWORD_STORAGE_KEY) || DEFAULT_PASSWORD;
     if (
       (identity === 'admin' || identity === 'admin@ecoinclusive.edu') &&
-      pass === 'admin123'
+      pass === storedPassword
     ) {
       localStorage.setItem(`${STORAGE_KEY_PREFIX}auth_token`, 'demo_token_' + Date.now());
       set({ isAuthenticated: true });
@@ -131,6 +154,7 @@ export const useDataStore = create<DataStoreState>((set, get) => ({
     const newMaterial: ExtendedMaterial = {
       ...item,
       id,
+      comments: item.comments ?? [],
       createdAt: now,
       updatedAt: now,
     };
@@ -191,6 +215,21 @@ export const useDataStore = create<DataStoreState>((set, get) => ({
         updated.push({ ...item, orderIndex: idx + 1 });
       }
     });
+    set({ materials: updated });
+    saveToStorage('materials', updated);
+  },
+
+  addMaterialComment: (materialId, comment) => {
+    const newComment: MaterialComment = {
+      ...comment,
+      id: `cmt-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+    };
+    const updated = get().materials.map((m) =>
+      m.id === materialId
+        ? { ...m, comments: [...(m.comments ?? []), newComment] }
+        : m
+    );
     set({ materials: updated });
     saveToStorage('materials', updated);
   },
@@ -385,36 +424,6 @@ export const useDataStore = create<DataStoreState>((set, get) => ({
   },
 
   // Settings Actions
-  updateHero: (hero) => {
-    const updated: SiteSettings = {
-      ...get().settings,
-      hero: { ...get().settings.hero, ...hero },
-    };
-    set({ settings: updated });
-    saveToStorage('settings', updated);
-    get().pushLog('update', 'Pengaturan', 'Pembaruan Hero & Banner Beranda');
-  },
-
-  updateSdgImpact: (sdgImpact) => {
-    const updated: SiteSettings = {
-      ...get().settings,
-      sdgImpact: { ...get().settings.sdgImpact, ...sdgImpact },
-    };
-    set({ settings: updated });
-    saveToStorage('settings', updated);
-    get().pushLog('update', 'Pengaturan', 'Pembaruan Orientasi SDGs');
-  },
-
-  updateAccessibilityDefaults: (defaults) => {
-    const updated: SiteSettings = {
-      ...get().settings,
-      accessibilityDefaults: { ...get().settings.accessibilityDefaults, ...defaults },
-    };
-    set({ settings: updated });
-    saveToStorage('settings', updated);
-    get().pushLog('update', 'Pengaturan', 'Pembaruan Konfigurasi Standar Aksesibilitas');
-  },
-
   updateAdminProfile: (profile) => {
     const updated: SiteSettings = {
       ...get().settings,
@@ -423,6 +432,11 @@ export const useDataStore = create<DataStoreState>((set, get) => ({
     set({ settings: updated });
     saveToStorage('settings', updated);
     get().pushLog('update', 'Pengaturan', 'Pembaruan Profil Administrator');
+  },
+
+  changePassword: (newPassword) => {
+    localStorage.setItem(PASSWORD_STORAGE_KEY, newPassword);
+    get().pushLog('update', 'Pengaturan', 'Perubahan Kata Sandi Administrator');
   },
 
   resetAllDataToDefaults: () => {
@@ -438,6 +452,7 @@ export const useDataStore = create<DataStoreState>((set, get) => ({
     saveToStorage('quizzes', rawQuizzes);
     saveToStorage('settings', rawSettings);
     saveToStorage('logs', rawLogs);
+    localStorage.removeItem(PASSWORD_STORAGE_KEY);
     get().pushLog('update', 'Pengaturan', 'Reset Database ke Kondisi Default JSON');
   },
 }));

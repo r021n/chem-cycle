@@ -97,10 +97,6 @@ export const ActivityWorkspacePage: React.FC = () => {
               {activity.title}
             </span>
           </nav>
-
-          <span className="text-xs font-semibold text-chem-forest bg-chem-glow/60 px-3 py-1 rounded-full border border-chem-sage/30">
-            {activity.badgeLabel}
-          </span>
         </div>
 
         {/* Workspace Title & Scope */}

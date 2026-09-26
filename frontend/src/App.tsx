@@ -18,6 +18,7 @@ import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminMaterialsPage } from './pages/admin/AdminMaterialsPage';
 import { AdminActivitiesPage } from './pages/admin/AdminActivitiesPage';
 import { AdminQuizzesPage } from './pages/admin/AdminQuizzesPage';
+import { AdminQuizEditorPage } from './pages/admin/AdminQuizEditorPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 
 export const App: React.FC = () => {
@@ -43,6 +44,7 @@ export const App: React.FC = () => {
           <Route path="materi" element={<AdminMaterialsPage />} />
           <Route path="aktivitas" element={<AdminActivitiesPage />} />
           <Route path="kuis" element={<AdminQuizzesPage />} />
+          <Route path="kuis/:quizId/edit" element={<AdminQuizEditorPage />} />
           <Route path="pengaturan" element={<AdminSettingsPage />} />
         </Route>
 

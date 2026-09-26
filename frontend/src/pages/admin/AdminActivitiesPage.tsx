@@ -23,7 +23,6 @@ export const AdminActivitiesPage: React.FC = () => {
     title: string;
     topicRelation: string;
     category: ActivityCategory;
-    badgeLabel: string;
     summary: string;
     estimatedTime: number;
     orderIndex: number;
@@ -39,7 +38,6 @@ export const AdminActivitiesPage: React.FC = () => {
     title: '',
     topicRelation: 'termokimia-siklus-energi',
     category: 'simulasi',
-    badgeLabel: 'Pemodelan Interaktif',
     summary: '',
     estimatedTime: 20,
     orderIndex: 1,
@@ -59,7 +57,6 @@ export const AdminActivitiesPage: React.FC = () => {
       title: '',
       topicRelation: 'termokimia-siklus-energi',
       category: 'simulasi',
-      badgeLabel: 'Pemodelan Interaktif',
       summary: '',
       estimatedTime: 20,
       orderIndex: activities.length + 1,
@@ -88,7 +85,6 @@ export const AdminActivitiesPage: React.FC = () => {
       title: act.title,
       topicRelation: act.topicRelation,
       category: act.category,
-      badgeLabel: act.badgeLabel,
       summary: act.summary,
       estimatedTime: act.estimatedTime,
       orderIndex: act.orderIndex,
@@ -111,7 +107,6 @@ export const AdminActivitiesPage: React.FC = () => {
       title: formData.title,
       topicRelation: formData.topicRelation,
       category: formData.category,
-      badgeLabel: formData.badgeLabel,
       summary: formData.summary,
       estimatedTime: Number(formData.estimatedTime),
       orderIndex: Number(formData.orderIndex),
@@ -187,7 +182,6 @@ export const AdminActivitiesPage: React.FC = () => {
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
               <tr>
                 <th className="py-3.5 px-4">Modul Aktivitas</th>
-                <th className="py-3.5 px-4">Tipe Eksplorasi</th>
                 <th className="py-3.5 px-4">Simulasi Interaktif</th>
                 <th className="py-3.5 px-4">Durasi</th>
                 <th className="py-3.5 px-4 text-center">Status</th>
@@ -204,12 +198,6 @@ export const AdminActivitiesPage: React.FC = () => {
                         {act.worksheet?.length || 0} Butir Pertanyaan Lembar Kerja
                       </span>
                     </div>
-                  </td>
-
-                  <td className="py-3.5 px-4">
-                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold text-[11px]">
-                      {act.badgeLabel}
-                    </span>
                   </td>
 
                   <td className="py-3.5 px-4 font-mono text-[11px] text-slate-500">
@@ -324,25 +312,14 @@ export const AdminActivitiesPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-700">Label Badge</label>
-                    <input
-                      type="text"
-                      value={formData.badgeLabel}
-                      onChange={(e) => setFormData({ ...formData, badgeLabel: e.target.value })}
-                      className="w-full p-2.5 text-xs bg-slate-50 border border-slate-300 rounded-xl"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-700">Estimasi Durasi (Menit)</label>
-                    <input
-                      type="number"
-                      value={formData.estimatedTime}
-                      onChange={(e) => setFormData({ ...formData, estimatedTime: Number(e.target.value) })}
-                      className="w-full p-2.5 text-xs bg-slate-50 border border-slate-300 rounded-xl"
-                    />
-                  </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-slate-700">Estimasi Durasi (Menit)</label>
+                  <input
+                    type="number"
+                    value={formData.estimatedTime}
+                    onChange={(e) => setFormData({ ...formData, estimatedTime: Number(e.target.value) })}
+                    className="w-full p-2.5 text-xs bg-slate-50 border border-slate-300 rounded-xl"
+                  />
                 </div>
 
                 <div className="space-y-1">

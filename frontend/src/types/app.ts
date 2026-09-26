@@ -17,6 +17,14 @@ interface ContextualSection {
   relatedSdg?: number;
 }
 
+export interface MaterialComment {
+  id: string;
+  name: string;
+  email?: string;
+  body: string;
+  createdAt: string;
+}
+
 export interface ExtendedMaterial {
   id: string;
   title: string;
@@ -31,6 +39,7 @@ export interface ExtendedMaterial {
   contentJson: string | BlockAstNode[];
   contextualSection: ContextualSection;
   practiceExamples: PracticeExample[];
+  comments?: MaterialComment[];
   createdAt: string;
   updatedAt: string;
 }
@@ -64,7 +73,6 @@ export interface ActivityModule {
   title: string;
   topicRelation: string;
   category: ActivityCategory;
-  badgeLabel: string;
   summary: string;
   estimatedTime: number;
   orderIndex: number;
@@ -82,14 +90,55 @@ export interface QuizChoice {
   subtext?: string;
 }
 
+export type QuizSectionType =
+  | 'text'
+  | 'image'
+  | 'youtube'
+  | 'orderedList'
+  | 'unorderedList';
+
+export interface QuizSectionText {
+  id: string;
+  type: 'text';
+  text: string;
+}
+
+export interface QuizSectionImage {
+  id: string;
+  type: 'image';
+  dataUrl: string;
+  caption?: string;
+}
+
+export interface QuizSectionYoutube {
+  id: string;
+  type: 'youtube';
+  url: string;
+}
+
+export interface QuizSectionList {
+  id: string;
+  type: 'orderedList' | 'unorderedList';
+  items: string[];
+}
+
+export type QuizSection =
+  | QuizSectionText
+  | QuizSectionImage
+  | QuizSectionYoutube
+  | QuizSectionList;
+
 export interface QuizQuestion {
   id: string;
+  sections?: QuizSection[];
   questionText: string;
   chemicalFormula?: string;
   stimulusImage?: string;
   choices: QuizChoice[];
-  correctAnswerId: string;
+  correctAnswerId?: string;
+  correctAnswerIds?: string[];
   explanation: string;
+  wrongAnswerExplanation?: string;
   conceptSummary: string;
 }
 
@@ -107,44 +156,7 @@ export interface QuizPackage {
   updatedAt: string;
 }
 
-interface SdgGoal {
-  number: number;
-  title: string;
-  description: string;
-  color: string;
-  iconName: string;
-}
-
-interface LearningFlowStep {
-  step: number;
-  title: string;
-  desc: string;
-  iconName: string;
-  route: string;
-}
-
 export interface SiteSettings {
-  hero: {
-    badge: string;
-    title: string;
-    subtitle: string;
-    bannerImage: string;
-    primaryCtaText: string;
-    primaryCtaLink: string;
-    secondaryCtaText: string;
-    secondaryCtaLink: string;
-  };
-  learningFlow: LearningFlowStep[];
-  sdgImpact: {
-    tagline: string;
-    description: string;
-    goals: SdgGoal[];
-  };
-  accessibilityDefaults: {
-    contrastScheme: string;
-    interfaceLanguage: 'id' | 'en';
-    dyslexiaFontEnabled: boolean;
-  };
   adminProfile: {
     username: string;
     name: string;

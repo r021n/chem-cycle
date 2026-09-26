@@ -99,6 +99,22 @@
         "finalAnswer": "ΔH netralisasi = -54.34 kJ/mol (Reaksi Eksotermik)."
       }
     ],
+    "comments": [
+      {
+        "id": "cmt-1-1",
+        "name": "Rina Ardhani",
+        "email": "rina.ardhani@siswa.sch.id",
+        "body": "Bagian sistem terbuka vs terisolasi jadi lebih mudah dipahami setelah membaca contoh kalorimeternya. Semoga ada lanjutan tentang hukum Hess.",
+        "createdAt": "2026-09-24T08:15:00Z"
+      },
+      {
+        "id": "cmt-1-2",
+        "name": "Bagas Prasetyo",
+        "email": "bagas.p@siswa.sch.id",
+        "body": "Studi kasus waste heat recovery-nya bikin nyambung ke pelajaran tata ruang pabrik. Ilustrasi ΔH negatifnya keren.",
+        "createdAt": "2026-09-25T13:40:00Z"
+      }
+    ],
     "createdAt": "2026-09-20T10:00:00Z",
     "updatedAt": "2026-09-25T14:30:00Z"
   },
@@ -171,6 +187,15 @@
           "Waktu berbanding terbalik dengan laju: t = 48 s / 8 = 6 detik."
         ],
         "finalAnswer": "Waktu yang dibutuhkan pada suhu 60°C adalah 6 detik."
+      }
+    ],
+    "comments": [
+      {
+        "id": "cmt-2-1",
+        "name": "Dewi Lestari",
+        "email": "dewi.lestari@guru.sch.id",
+        "body": "Penjelasan katalis hijau yang tidak terkonsumsi sangat pas untuk bahan diskusi kelas. Diagram Ea-nya sangat membantu.",
+        "createdAt": "2026-09-24T10:05:00Z"
       }
     ],
     "createdAt": "2026-09-21T09:00:00Z",
@@ -247,6 +272,22 @@
         "finalAnswer": "Kenaikan suhu menggeser ke kiri; peningkatan tekanan menggeser ke kanan."
       }
     ],
+    "comments": [
+      {
+        "id": "cmt-3-1",
+        "name": "Fajar Nugroho",
+        "email": "fajar.n@siswa.sch.id",
+        "body": "Hubungan ion karbonat dengan terumbu karang bikin saya mikir soal dampak emisi pabrik dekat pantai. Tolong tambahkan simulasi pergeserannya.",
+        "createdAt": "2026-09-24T14:20:00Z"
+      },
+      {
+        "id": "cmt-3-2",
+        "name": "Siti Marlina",
+        "email": "siti.marlina@guru.sch.id",
+        "body": "Asas Le Chatelier dijelaskan runut, cocok untuk remedial. Contoh amonia-nya sangat relevan dengan soal UN.",
+        "createdAt": "2026-09-25T07:55:00Z"
+      }
+    ],
     "createdAt": "2026-09-22T08:00:00Z",
     "updatedAt": "2026-09-25T16:00:00Z"
   },
@@ -301,6 +342,15 @@
           "Polimerisasi Kondensasi: Terjadi antar monomer yang memiliki minimal dua gugus fungsi aktif (-COOH, -OH, -NH2), disertai eliminasi molekul kecil sederhana seperti H2O atau HCl. Contoh: Poliester (PET) dan Nilon-6,6."
         ],
         "finalAnswer": "Adisi membuka ikatan rangkap tanpa produk samping; Kondensasi menggabungkan gugus fungsi dengan melepaskan molekul kecil (H2O/HCl)."
+      }
+    ],
+    "comments": [
+      {
+        "id": "cmt-4-1",
+        "name": "Andini Kusuma",
+        "email": "andini.k@siswa.sch.id",
+        "body": "Depolimerisasi PET dengan enzim LCC terdengar futuristik. Ada rencana praktikum sederhana untuk versi sekolah?",
+        "createdAt": "2026-09-25T09:10:00Z"
       }
     ],
     "createdAt": "2026-09-23T11:00:00Z",
