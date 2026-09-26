@@ -9,7 +9,7 @@ interface GeneralSimulatorRendererProps {
 
 export const GeneralSimulatorRenderer: React.FC<GeneralSimulatorRendererProps> = ({ config }) => {
   if (config.type === 'carbon_cycle_simulator') {
-    return <CarbonCycleSimulator initialState={config.initialState as any} />;
+    return <CarbonCycleSimulator initialState={config.initialState} />;
   }
 
   if (config.type === 'reaction_kinetics') {
@@ -127,7 +127,7 @@ const KineticsSimulator: React.FC = () => {
                 <button
                   key={c.id}
                   type="button"
-                  onClick={() => setCatalystType(c.id as any)}
+                  onClick={() => setCatalystType(c.id as 'tanpa' | 'mno2' | 'katalase')}
                   className={`py-2 px-2 rounded-xl text-xs font-medium cursor-pointer transition-colors ${
                     catalystType === c.id
                       ? 'bg-chem-forest text-white font-bold'

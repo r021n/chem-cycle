@@ -285,7 +285,7 @@ export const QuizPlayerPage: React.FC = () => {
                   </>
                 )}
 
-                {currentQ.chemicalFormula && (
+                {currentQ.chemicalFormula && !currentQ.sections?.some((s) => s.type === 'formula') && (
                   <div className="p-3 bg-chem-subtle/80 rounded-xl border border-chem-border">
                     <ChemFormula formula={currentQ.chemicalFormula} className="text-sm font-bold text-chem-forest" />
                   </div>

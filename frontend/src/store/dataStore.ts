@@ -45,12 +45,26 @@ function mergeSeedComments(
 ): ExtendedMaterial[] {
   return saved.map((m) => {
     const source = seed.find((s) => s.id === m.id);
-    if (!source?.comments?.length) return m;
+    if (!source) return m;
     const existing = new Set((m.comments ?? []).map((c) => c.id));
-    const missing = source.comments.filter((c) => !existing.has(c.id));
-    if (missing.length === 0) return m;
-    return { ...m, comments: [...(m.comments ?? []), ...missing] };
+    const missing = (source.comments ?? []).filter((c) => !existing.has(c.id));
+    return {
+      ...m,
+      slug: m.slug || source.slug,
+      comments: missing.length > 0 ? [...(m.comments ?? []), ...missing] : m.comments,
+    };
   });
+}
+
+function sanitizeActivities(saved: ActivityModule[], seed: ActivityModule[]): ActivityModule[] {
+  const isLegacy = saved.some(
+    (a) => 'worksheet' in a || 'phenomenonIntro' in a || !('attachments' in a)
+  );
+  if (isLegacy) {
+    saveToStorage('activities', seed);
+    return seed;
+  }
+  return saved;
 }
 
 interface DataStoreState {
@@ -106,7 +120,10 @@ export const useDataStore = create<DataStoreState>((set, get) => ({
     loadFromStorage<ExtendedMaterial[]>('materials', rawMaterials as unknown as ExtendedMaterial[]),
     rawMaterials as unknown as ExtendedMaterial[]
   ),
-  activities: loadFromStorage<ActivityModule[]>('activities', rawActivities as unknown as ActivityModule[]),
+  activities: sanitizeActivities(
+    loadFromStorage<ActivityModule[]>('activities', rawActivities as unknown as ActivityModule[]),
+    rawActivities as unknown as ActivityModule[]
+  ),
   quizzes: loadFromStorage<QuizPackage[]>('quizzes', rawQuizzes as unknown as QuizPackage[]),
   settings: loadFromStorage<SiteSettings>('settings', rawSettings as unknown as SiteSettings),
   logs: loadFromStorage<ContentLog[]>('logs', rawLogs as unknown as ContentLog[]),

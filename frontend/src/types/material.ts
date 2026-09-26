@@ -13,12 +13,25 @@ export interface BlockInlineContent {
 
 export interface BlockAstNode {
   id: string;
-  type: 'heading' | 'paragraph' | 'bulletListItem' | 'numberedListItem' | 'quote' | 'image' | 'video' | 'divider';
+  type:
+    | 'heading'
+    | 'paragraph'
+    | 'bulletListItem'
+    | 'numberedListItem'
+    | 'quote'
+    | 'image'
+    | 'video'
+    | 'divider'
+    | 'formula'
+    | 'callout';
   props?: {
     level?: 1 | 2 | 3;
     url?: string;
     caption?: string;
     previewUrl?: string;
+    formula?: string;
+    text?: string;
+    emoji?: string;
   };
   content?: BlockInlineContent[];
   children?: BlockAstNode[];

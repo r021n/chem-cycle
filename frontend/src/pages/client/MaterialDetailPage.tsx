@@ -1,21 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDataStore } from '../../store/dataStore';
 import { useAccessibilityStore } from '../../store/accessibilityStore';
 import { BlockAstViewer } from '../../components/editor/block-ast-viewer';
-import { ChemFormula } from '../../components/common/ChemFormula';
 import { CommentSection } from '../../components/materials/CommentSection';
 import {
   ChevronLeft,
   ChevronRight,
   Home,
-  Clock,
-  CheckCircle2,
-  HelpCircle,
-  ChevronDown,
   Volume2,
   ArrowLeft,
-  Lightbulb,
 } from 'lucide-react';
 
 const formatDate = (iso: string) =>
@@ -31,8 +25,6 @@ export const MaterialDetailPage: React.FC = () => {
   const { materials } = useDataStore();
   const { setScreenReaderActive } = useAccessibilityStore();
 
-  const [openExampleIds, setOpenExampleIds] = useState<string[]>([]);
-
   const published = useMemo(() => {
     return [...materials]
       .filter((m) => m.isPublished)
@@ -44,12 +36,6 @@ export const MaterialDetailPage: React.FC = () => {
 
   const prevMaterial = currentIndex > 0 ? published[currentIndex - 1] : null;
   const nextMaterial = currentIndex < published.length - 1 ? published[currentIndex + 1] : null;
-
-  const toggleAccordion = (id: string) => {
-    setOpenExampleIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
 
   if (!material) {
     return (
@@ -74,7 +60,7 @@ export const MaterialDetailPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-chem-paper lab-grid-bg text-chem-dark py-8 font-sans">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Breadcrumb */}
+        {/* Breadcrumb Navigation */}
         <div className="flex items-center justify-between mb-8">
           <nav className="flex items-center gap-2 text-xs text-chem-ash" aria-label="Breadcrumb">
             <Link to="/" className="hover:text-chem-forest flex items-center gap-1 transition-colors">
@@ -104,22 +90,20 @@ export const MaterialDetailPage: React.FC = () => {
           {/* Article Header */}
           <header className="mb-8">
             <p className="text-xs font-bold uppercase tracking-widest text-chem-sage">
-              Bab {material.orderIndex} · {material.category}
+              Bab {material.orderIndex}
             </p>
             <h1 className="font-serif text-3xl sm:text-5xl font-bold text-chem-dark leading-[1.1] mt-3">
               {material.title}
             </h1>
-            <p className="text-base sm:text-lg text-chem-ash leading-relaxed mt-4">
-              {material.summary}
-            </p>
+            {material.summary && (
+              <p className="text-base sm:text-lg text-chem-ash leading-relaxed mt-4">
+                {material.summary}
+              </p>
+            )}
 
             {/* Byline & Meta */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-3 mt-6 pb-6 border-b border-chem-border text-xs text-chem-ash">
-              <span>Diperbarui {formatDate(material.updatedAt)}</span>
-              <span className="flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-chem-sage" />
-                {material.estimatedReadTime} menit baca
-              </span>
+              <span>Diperbarui {formatDate(material.updatedAt || material.createdAt)}</span>
               <button
                 type="button"
                 onClick={() => setScreenReaderActive(true)}
@@ -132,146 +116,23 @@ export const MaterialDetailPage: React.FC = () => {
           </header>
 
           {/* Cover Image */}
-          <figure className="mb-10">
-            <img
-              src={material.coverUrl}
-              alt={material.title}
-              className="w-full h-56 sm:h-80 object-cover rounded-2xl"
-            />
-          </figure>
+          {material.coverUrl && (
+            <figure className="mb-10">
+              <img
+                src={material.coverUrl}
+                alt={material.title}
+                className="w-full h-56 sm:h-80 object-cover rounded-2xl"
+              />
+            </figure>
+          )}
 
-          <div className="space-y-10">
-            {/* Learning Objectives */}
-            {material.learningObjectives && material.learningObjectives.length > 0 && (
-              <section aria-labelledby="learning-objectives-heading">
-                <h2
-                  id="learning-objectives-heading"
-                  className="font-serif text-xl font-bold text-chem-dark mb-3"
-                >
-                  Capaian Pembelajaran
-                </h2>
-                <ul className="space-y-2.5 border-l-2 border-chem-sage/50 pl-5">
-                  {material.learningObjectives.map((obj, idx) => (
-                    <li key={idx} className="flex items-start gap-2.5 text-sm text-chem-dark/85">
-                      <CheckCircle2 className="w-4 h-4 text-chem-sage shrink-0 mt-0.5" />
-                      <span className="leading-relaxed">{obj}</span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-
-            {/* Main Article Body */}
+          <div className="space-y-12">
+            {/* Pure Notion / Medium Blog Body */}
             <div className="prose max-w-none">
               <BlockAstViewer contentJson={material.contentJson} />
             </div>
 
-            {/* Contextual Case Study */}
-            {material.contextualSection && (
-              <aside
-                aria-labelledby="contextual-heading"
-                className="border-l-4 border-chem-sage bg-chem-subtle/70 rounded-r-2xl px-5 sm:px-6 py-5 space-y-3"
-              >
-                <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-wider">
-                  <span className="text-chem-forest">{material.contextualSection.caseStudyTag}</span>
-                  {material.contextualSection.relatedSdg && (
-                    <span className="text-chem-sage">· SDG {material.contextualSection.relatedSdg}</span>
-                  )}
-                </div>
-                <h2
-                  id="contextual-heading"
-                  className="font-serif text-lg sm:text-xl font-bold text-chem-forest leading-snug"
-                >
-                  {material.contextualSection.title}
-                </h2>
-                <p className="text-sm text-chem-dark/85 leading-relaxed">
-                  {material.contextualSection.content}
-                </p>
-                <p className="flex items-start gap-2 text-xs text-chem-ash italic">
-                  <Lightbulb className="w-4 h-4 text-chem-warm shrink-0 mt-0.5 not-italic" />
-                  <span>
-                    <strong className="not-italic text-chem-forest">Dampak Nyata:</strong>{' '}
-                    {material.contextualSection.impactHighlight}
-                  </span>
-                </p>
-              </aside>
-            )}
-
-            {/* Practice Examples Accordion */}
-            {material.practiceExamples && material.practiceExamples.length > 0 && (
-              <section aria-labelledby="practice-heading">
-                <div className="flex items-center gap-2 mb-4">
-                  <HelpCircle className="w-5 h-5 text-chem-sage" />
-                  <h2
-                    id="practice-heading"
-                    className="font-serif text-xl font-bold text-chem-dark"
-                  >
-                    Contoh Soal & Pembahasan
-                  </h2>
-                </div>
-
-                <div className="divide-y divide-chem-border border-y border-chem-border">
-                  {material.practiceExamples.map((ex, i) => {
-                    const isOpen = openExampleIds.includes(ex.id);
-                    return (
-                      <div key={ex.id}>
-                        <button
-                          type="button"
-                          onClick={() => toggleAccordion(ex.id)}
-                          className="w-full text-left py-4 flex items-start justify-between gap-4 hover:bg-chem-subtle/50 transition-colors cursor-pointer"
-                          aria-expanded={isOpen}
-                        >
-                          <div className="space-y-1.5 flex-1 px-1">
-                            <span className="text-[10px] font-mono font-bold uppercase text-chem-sage">
-                              Contoh {i + 1}
-                            </span>
-                            <p className="text-sm font-semibold text-chem-dark leading-snug">
-                              {ex.question}
-                            </p>
-                            {ex.chemicalFormula && (
-                              <ChemFormula formula={ex.chemicalFormula} className="text-xs font-bold" />
-                            )}
-                          </div>
-                          <ChevronDown
-                            className={`w-5 h-5 text-chem-ash transition-transform duration-200 shrink-0 mt-1 ${
-                              isOpen ? 'rotate-180 text-chem-forest' : ''
-                            }`}
-                          />
-                        </button>
-
-                        {isOpen && (
-                          <div className="pb-5 px-1 space-y-4">
-                            {ex.contextHint && (
-                              <p className="text-xs text-chem-dark/85 flex items-start gap-2">
-                                <Lightbulb className="w-4 h-4 text-chem-warm shrink-0 mt-0.5" />
-                                <span>
-                                  <strong>Petunjuk Konsep:</strong> {ex.contextHint}
-                                </span>
-                              </p>
-                            )}
-
-                            <ol className="space-y-2 pl-4 list-decimal text-xs sm:text-sm text-chem-dark leading-relaxed">
-                              {ex.solutionSteps.map((step, sIdx) => (
-                                <li key={sIdx} className="pl-1">
-                                  {step}
-                                </li>
-                              ))}
-                            </ol>
-
-                            <p className="text-xs font-bold text-chem-forest">
-                              <span>Hasil Akhir: </span>
-                              <span className="font-mono">{ex.finalAnswer}</span>
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-            )}
-
-            {/* Comments */}
+            {/* Comments & Discussion */}
             <CommentSection materialId={material.id} />
           </div>
 
@@ -279,7 +140,7 @@ export const MaterialDetailPage: React.FC = () => {
           <nav className="mt-12 pt-6 border-t border-chem-border grid grid-cols-1 sm:grid-cols-2 gap-6" aria-label="Navigasi Antar Bab">
             {prevMaterial ? (
               <Link
-                to={`/materi/${prevMaterial.slug}`}
+                to={`/materi/${prevMaterial.slug || prevMaterial.id}`}
                 className="group text-left"
               >
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
@@ -294,7 +155,7 @@ export const MaterialDetailPage: React.FC = () => {
               <Link to="/materi" className="group text-left">
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  Indeks Pembelajaran
+                  Katalog Materi
                 </span>
                 <span className="block text-sm font-bold text-chem-dark group-hover:text-chem-forest transition-colors mt-1">
                   Kembali ke Katalog Materi
@@ -304,7 +165,7 @@ export const MaterialDetailPage: React.FC = () => {
 
             {nextMaterial ? (
               <Link
-                to={`/materi/${nextMaterial.slug}`}
+                to={`/materi/${nextMaterial.slug || nextMaterial.id}`}
                 className="group text-right sm:col-start-2"
               >
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">

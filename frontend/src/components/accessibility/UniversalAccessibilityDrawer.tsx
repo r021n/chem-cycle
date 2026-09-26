@@ -291,7 +291,7 @@ export const UniversalAccessibilityDrawer: React.FC = () => {
                 </label>
                 <select
                   value={lineHeight}
-                  onChange={(e) => setLineHeight(e.target.value as any)}
+                  onChange={(e) => setLineHeight(e.target.value as 'normal' | 'relaxed' | 'loose')}
                   className="w-full text-xs p-2 rounded-xl bg-white border border-chem-border text-chem-dark cursor-pointer"
                 >
                   <option value="normal">Normal (1.6)</option>
@@ -306,7 +306,7 @@ export const UniversalAccessibilityDrawer: React.FC = () => {
                 </label>
                 <select
                   value={letterSpacing}
-                  onChange={(e) => setLetterSpacing(e.target.value as any)}
+                  onChange={(e) => setLetterSpacing(e.target.value as 'normal' | 'wide' | 'wider')}
                   className="w-full text-xs p-2 rounded-xl bg-white border border-chem-border text-chem-dark cursor-pointer"
                 >
                   <option value="normal">Normal</option>

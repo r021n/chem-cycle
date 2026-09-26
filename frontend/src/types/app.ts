@@ -29,22 +29,30 @@ export interface ExtendedMaterial {
   id: string;
   title: string;
   slug: string;
-  category: string;
-  summary: string;
-  coverUrl: string;
-  estimatedReadTime: number;
+  summary?: string;
+  coverUrl?: string;
+  estimatedReadTime?: number;
   orderIndex: number;
   isPublished: boolean;
-  learningObjectives: string[];
   contentJson: string | BlockAstNode[];
-  contextualSection: ContextualSection;
-  practiceExamples: PracticeExample[];
+  category?: string;
+  learningObjectives?: string[];
+  contextualSection?: ContextualSection;
+  practiceExamples?: PracticeExample[];
   comments?: MaterialComment[];
   createdAt: string;
   updatedAt: string;
 }
 
 export type ActivityCategory = 'studi_kasus' | 'simulasi' | 'analisis_data';
+
+export interface ActivityAttachment {
+  id: string;
+  name: string;
+  url: string;
+  size?: string;
+  type?: 'file' | 'link' | 'image';
+}
 
 interface PhenomenonIntro {
   title: string;
@@ -71,15 +79,18 @@ export interface WorksheetQuestion {
 export interface ActivityModule {
   id: string;
   title: string;
-  topicRelation: string;
-  category: ActivityCategory;
-  summary: string;
-  estimatedTime: number;
+  slug?: string;
+  summary?: string;
+  contentJson?: string | BlockAstNode[];
+  attachments?: ActivityAttachment[];
   orderIndex: number;
   isPublished: boolean;
-  phenomenonIntro: PhenomenonIntro;
-  interactiveModule: InteractiveModuleConfig;
-  worksheet: WorksheetQuestion[];
+  topicRelation?: string;
+  category?: ActivityCategory;
+  estimatedTime?: number;
+  phenomenonIntro?: PhenomenonIntro;
+  interactiveModule?: InteractiveModuleConfig;
+  worksheet?: WorksheetQuestion[];
   createdAt: string;
   updatedAt: string;
 }
@@ -92,15 +103,45 @@ export interface QuizChoice {
 
 export type QuizSectionType =
   | 'text'
+  | 'formula'
+  | 'callout'
+  | 'heading'
   | 'image'
   | 'youtube'
   | 'orderedList'
-  | 'unorderedList';
+  | 'unorderedList'
+  | 'divider';
 
 export interface QuizSectionText {
   id: string;
   type: 'text';
   text: string;
+}
+
+export interface QuizSectionFormula {
+  id: string;
+  type: 'formula';
+  formula: string;
+  caption?: string;
+}
+
+export interface QuizSectionCallout {
+  id: string;
+  type: 'callout';
+  text: string;
+  emoji?: string;
+}
+
+export interface QuizSectionHeading {
+  id: string;
+  type: 'heading';
+  text: string;
+  level?: 2 | 3;
+}
+
+export interface QuizSectionDivider {
+  id: string;
+  type: 'divider';
 }
 
 export interface QuizSectionImage {
@@ -124,6 +165,10 @@ export interface QuizSectionList {
 
 export type QuizSection =
   | QuizSectionText
+  | QuizSectionFormula
+  | QuizSectionCallout
+  | QuizSectionHeading
+  | QuizSectionDivider
   | QuizSectionImage
   | QuizSectionYoutube
   | QuizSectionList;

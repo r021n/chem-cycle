@@ -121,7 +121,7 @@ export const AdminQuizzesPage: React.FC = () => {
         <div className="md:col-span-4">
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
+            onChange={(e) => setStatusFilter(e.target.value as 'all' | 'published' | 'draft')}
             className="w-full py-2 px-3 text-xs bg-slate-50 border border-slate-200 rounded-xl cursor-pointer"
           >
             <option value="all">Semua Status Publikasi</option>
@@ -285,7 +285,7 @@ export const AdminQuizzesPage: React.FC = () => {
                   <label className="font-semibold text-slate-700">Tingkat Kesulitan</label>
                   <select
                     value={packetFormData.difficulty}
-                    onChange={(e) => setPacketFormData({ ...packetFormData, difficulty: e.target.value as any })}
+                    onChange={(e) => setPacketFormData({ ...packetFormData, difficulty: e.target.value as 'Dasar' | 'Menengah' | 'Lanjutan' })}
                     className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl cursor-pointer"
                   >
                     <option value="Dasar">Dasar</option>

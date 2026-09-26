@@ -14,6 +14,25 @@
         "questionText": "Perhatikan diagram entalpi pembakaran hidrokarbon berikut. Jika entalpi reaktan (H_reaktan) lebih tinggi daripada entalpi produk (H_produk), maka pernyataan manakah yang BENAR?",
         "chemicalFormula": "CH4(g) + 2O2(g) -> CO2(g) + 2H2O(l) (ΔH < 0)",
         "stimulusImage": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=800&q=80",
+        "sections": [
+          {
+            "id": "sec-1-1-img",
+            "type": "image",
+            "dataUrl": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=800&q=80",
+            "caption": "Reaksi Pembakaran Hidrokarbon dalam Sistem Terbuka"
+          },
+          {
+            "id": "sec-1-1-form",
+            "type": "formula",
+            "formula": "CH4(g) + 2O2(g) -> CO2(g) + 2H2O(l) (ΔH < 0)",
+            "caption": "Persamaan Termokimia Pembakaran Metana"
+          },
+          {
+            "id": "sec-1-1-txt",
+            "type": "text",
+            "text": "Jika entalpi reaktan (H_reaktan) lebih tinggi daripada entalpi produk (H_produk), maka pernyataan manakah yang BENAR?"
+          }
+        ],
         "choices": [
           { "id": "opt-a", "text": "Reaksi bersifat endotermik dan kalor diserap dari lingkungan sekitar." },
           { "id": "opt-b", "text": "Reaksi bersifat eksotermik, kalor dilepaskan ke lingkungan, dan nilai ΔH bertanda negatif." },
@@ -21,6 +40,7 @@
           { "id": "opt-d", "text": "Energi ikatan total pada reaktan lebih kuat dibandingkan pada produk." }
         ],
         "correctAnswerId": "opt-b",
+        "correctAnswerIds": ["opt-b"],
         "explanation": "Pada reaksi eksotermik, sistem melepaskan energi ke lingkungan sehingga entalpi akhir (produk) lebih rendah daripada entalpi awal (reaktan), menghasilkan ΔH bernilai negatif dan temperatur lingkungan meningkat.",
         "conceptSummary": "ΔH = H_produk - H_reaktan < 0 menunjukkan pelepasan kalor eksotermik."
       },
@@ -28,6 +48,19 @@
         "id": "q-1-2",
         "questionText": "Sebanyak 200 mL air dipanaskan menggunakan pembakaran 0.8 gram gas metana (Mr = 16 g/mol). Suhu air naik dari 25°C menjadi 45°C. Jika kalor jenis air 4.2 J/g°C, berapa kalor (q) yang diserap oleh air?",
         "chemicalFormula": "q = m * c * ΔT",
+        "sections": [
+          {
+            "id": "sec-1-2-form",
+            "type": "formula",
+            "formula": "q = m * c * ΔT",
+            "caption": "Rumus Kalorimetri Larutan"
+          },
+          {
+            "id": "sec-1-2-txt",
+            "type": "text",
+            "text": "Sebanyak 200 mL air dipanaskan menggunakan pembakaran 0.8 gram gas metana (Mr = 16 g/mol). Suhu air naik dari 25°C menjadi 45°C. Jika kalor jenis air 4.2 J/g°C, berapa kalor (q) yang diserap oleh air?"
+          }
+        ],
         "choices": [
           { "id": "opt-a", "text": "16.800 Joule (16.8 kJ)" },
           { "id": "opt-b", "text": "8.400 Joule (8.4 kJ)" },
@@ -35,12 +68,26 @@
           { "id": "opt-d", "text": "4.200 Joule (4.2 kJ)" }
         ],
         "correctAnswerId": "opt-a",
+        "correctAnswerIds": ["opt-a"],
         "explanation": "Massa air m = 200 g (massa jenis air = 1 g/mL). ΔT = 45°C - 25°C = 20°C. Kalor q = 200 g * 4.2 J/g°C * 20°C = 16,800 Joule = 16.8 kJ.",
         "conceptSummary": "Kalor yang diserap oleh medium lingkungan kalorimeter dihitung dengan q = m * c * ΔT."
       },
       {
         "id": "q-1-3",
         "questionText": "Dalam kerangka kimia hijau dan ekonomi sirkular, mengapa reaksi eksotermik skala industri sering dirangkai dalam sistem 'Heat Recovery Exchanger'?",
+        "sections": [
+          {
+            "id": "sec-1-3-call",
+            "type": "callout",
+            "text": "Prinsip Kimia Hijau Ke-6: Desain untuk Efisiensi Energi (Design for Energy Efficiency)",
+            "emoji": "🌱"
+          },
+          {
+            "id": "sec-1-3-txt",
+            "type": "text",
+            "text": "Dalam kerangka kimia hijau dan ekonomi sirkular, mengapa reaksi eksotermik skala industri sering dirangkai dalam sistem 'Heat Recovery Exchanger'?"
+          }
+        ],
         "choices": [
           { "id": "opt-a", "text": "Agar reaksi bergeser ke arah reaktan dan memperlambat produksi." },
           { "id": "opt-b", "text": "Untuk membuang kelebihan kalor langsung ke badan sungai terdekat." },
@@ -48,6 +95,7 @@
           { "id": "opt-d", "text": "Hanya sebagai aksesoris tampilan keselamatan kerja reaktor pabrik." }
         ],
         "correctAnswerId": "opt-c",
+        "correctAnswerIds": ["opt-c"],
         "explanation": "Heat recovery menangkap energi termal eksoterm yang biasanya terbuang ke biosfer untuk dialirkan kembali ke proses endoterm atau distilasi lain, menghemat energi fosil secara nyata.",
         "conceptSummary": "Prinsip Kimia Hijau Ke-6: Desain untuk Efisiensi Energi (Design for Energy Efficiency)."
       }
@@ -68,6 +116,13 @@
       {
         "id": "q-2-1",
         "questionText": "Fungsi utama penambahan katalis dalam suatu sistem reaksi kimia adalah...",
+        "sections": [
+          {
+            "id": "sec-2-1-txt",
+            "type": "text",
+            "text": "Fungsi utama penambahan katalis dalam suatu sistem reaksi kimia adalah..."
+          }
+        ],
         "choices": [
           { "id": "opt-a", "text": "Menaikkan nilai entalpi reaksi total (ΔH) secara signifikan." },
           { "id": "opt-b", "text": "Menurunkan energi aktivasi (Ea) dengan menyediakan mekanisme lintasan alternatif." },
@@ -75,12 +130,20 @@
           { "id": "opt-d", "text": "Menurunkan jumlah tumbukan total antarpartikel reaktan." }
         ],
         "correctAnswerId": "opt-b",
+        "correctAnswerIds": ["opt-b"],
         "explanation": "Katalis tidak mengubah nilai termodinamika ΔH ataupun posisi kesetimbangan, melainkan menurunkan ambang energi aktivasi (Ea) sehingga fraksi partikel yang bertumbukan efektif meningkat pesat.",
         "conceptSummary": "Katalis menurunkan Ea tanpa terkonsumsi dalam reaksi total."
       },
       {
         "id": "q-2-2",
         "questionText": "Manakah keuntungan utama pemanfaatan katalis heterogen padat dibandingkan katalis homogen cair pada sintesis biofuel?",
+        "sections": [
+          {
+            "id": "sec-2-2-txt",
+            "type": "text",
+            "text": "Manakah keuntungan utama pemanfaatan katalis heterogen padat dibandingkan katalis homogen cair pada sintesis biofuel?"
+          }
+        ],
         "choices": [
           { "id": "opt-a", "text": "Katalis homogen lebih mahal daripada emas murni." },
           { "id": "opt-b", "text": "Katalis heterogen sangat mudah dipisahkan secara fisik (filtrasi/magnetik) dan dapat digunakan berulang kali." },
@@ -88,6 +151,7 @@
           { "id": "opt-d", "text": "Katalis heterogen memperlambat laju reaksi agar tidak meledak." }
         ],
         "correctAnswerId": "opt-b",
+        "correctAnswerIds": ["opt-b"],
         "explanation": "Katalis heterogen berada pada fasa berbeda dengan reaktan, sehingga pemisahannya pasca-reaksi tidak memerlukan pencucian kimiawi beracun dan dapat disirkulasi ulang untuk siklus berikutnya.",
         "conceptSummary": "Kemudahan separasi & daur ulang katalis adalah pilar utama manufaktur kimia hijau sirkular."
       }
@@ -109,6 +173,19 @@
         "id": "q-3-1",
         "questionText": "Diberikan reaksi kesetimbangan: CO2(g) + H2O(l) <=> H2CO3(aq) <=> H+(aq) + HCO3-(aq). Jika konsentrasi gas CO2 atmosfer meningkat drastis, pergeseran kesetimbangan dan dampaknya terhadap keasaman air laut adalah...",
         "chemicalFormula": "CO2(g) + H2O(l) <=> H+(aq) + HCO3-(aq)",
+        "sections": [
+          {
+            "id": "sec-3-1-form",
+            "type": "formula",
+            "formula": "CO2(g) + H2O(l) <=> H+(aq) + HCO3-(aq)",
+            "caption": "Reaksi Pelarutan Karbon Dioksida dalam Air Laut"
+          },
+          {
+            "id": "sec-3-1-txt",
+            "type": "text",
+            "text": "Jika konsentrasi gas CO2 atmosfer meningkat drastis, pergeseran kesetimbangan dan dampaknya terhadap keasaman air laut adalah..."
+          }
+        ],
         "choices": [
           { "id": "opt-a", "text": "Kesetimbangan bergeser ke kiri, konsentrasi H+ berkurang, dan air laut menjadi lebih basa." },
           { "id": "opt-b", "text": "Kesetimbangan bergeser ke kanan, konsentrasi H+ meningkat, menyebabkan penurunan nilai pH air laut (pengasaman laut)." },
@@ -116,6 +193,7 @@
           { "id": "opt-d", "text": "Kesetimbangan terhenti permanen dan tidak bereaksi lagi." }
         ],
         "correctAnswerId": "opt-b",
+        "correctAnswerIds": ["opt-b"],
         "explanation": "Menurut Asas Le Chatelier, penambahan reaktan CO2 menggeser kesetimbangan ke arah kanan (produk), menghasilkan pelepasan ion hidrogen (H+) bebas yang menurunkan pH laut.",
         "conceptSummary": "Peningkatan pCO2 atmosfer mendorong pembentukan asam karbonat dan pengasaman samudra."
       }

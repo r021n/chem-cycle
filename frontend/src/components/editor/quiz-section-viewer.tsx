@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { QuizSection } from '../../types/app';
 import { getYoutubeEmbedUrl } from '../../lib/media';
 import { Modal } from '../ui/modal';
+import { ChemFormula } from '../common/ChemFormula';
 
 interface QuizSectionViewerProps {
   sections: QuizSection[];
@@ -29,6 +30,51 @@ export const QuizSectionViewer: React.FC<QuizSectionViewerProps> = ({
                 {section.text}
               </p>
             ) : null;
+
+          case 'formula':
+            return section.formula.trim() ? (
+              <div
+                key={section.id || index}
+                className="p-3.5 sm:p-4 rounded-2xl bg-chem-glow/40 border border-chem-sage/40 flex flex-col items-center justify-center text-center space-y-1 shadow-2xs"
+              >
+                <div className="overflow-x-auto max-w-full py-1">
+                  <ChemFormula
+                    formula={section.formula}
+                    className="text-base sm:text-lg font-bold text-chem-forest"
+                  />
+                </div>
+                {section.caption?.trim() && (
+                  <p className="text-[11px] text-chem-ash italic">{section.caption}</p>
+                )}
+              </div>
+            ) : null;
+
+          case 'heading':
+            return section.text.trim() ? (
+              section.level === 3 ? (
+                <h4 key={section.id || index} className="text-sm sm:text-base font-bold text-chem-dark pt-1">
+                  {section.text}
+                </h4>
+              ) : (
+                <h3 key={section.id || index} className="font-serif text-lg sm:text-xl font-bold text-chem-dark pt-1">
+                  {section.text}
+                </h3>
+              )
+            ) : null;
+
+          case 'callout':
+            return section.text.trim() ? (
+              <div
+                key={section.id || index}
+                className="flex items-start gap-3 p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-950"
+              >
+                <span className="text-lg leading-none shrink-0">{section.emoji || '💡'}</span>
+                <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap flex-1">{section.text}</p>
+              </div>
+            ) : null;
+
+          case 'divider':
+            return <hr key={section.id || index} className="my-2 border-t border-chem-border" />;
 
           case 'image':
             return section.dataUrl ? (

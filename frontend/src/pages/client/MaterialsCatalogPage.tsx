@@ -1,12 +1,11 @@
-import React, { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
-import { useDataStore } from "../../store/dataStore";
-import { Search, BookOpen, Clock, ChevronRight, Home } from "lucide-react";
+import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { useDataStore } from '../../store/dataStore';
+import { Search, BookOpen, ChevronRight, Home } from 'lucide-react';
 
 export const MaterialsCatalogPage: React.FC = () => {
   const { materials } = useDataStore();
-
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
 
   const publishedMaterials = useMemo(() => {
     return [...materials]
@@ -19,7 +18,7 @@ export const MaterialsCatalogPage: React.FC = () => {
     return publishedMaterials.filter(
       (m) =>
         m.title.toLowerCase().includes(q) ||
-        m.summary.toLowerCase().includes(q),
+        (m.summary || '').toLowerCase().includes(q)
     );
   }, [publishedMaterials, searchQuery]);
 
@@ -46,8 +45,7 @@ export const MaterialsCatalogPage: React.FC = () => {
             Katalog Modul Pembelajaran
           </h1>
           <p className="text-xs sm:text-sm text-chem-ash max-w-2xl leading-relaxed">
-            Eksplorasi bab materi kimia berurutan, lengkap dengan capaian
-            pembelajaran terukur dan panduan latihan bertahap.
+            Eksplorasi modul materi kimia terbuka secara bertahap dan terstruktur.
           </p>
         </div>
 
@@ -58,7 +56,7 @@ export const MaterialsCatalogPage: React.FC = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari judul bab atau topik kimia..."
+              placeholder="Cari judul bab kimia..."
               className="w-full pl-10 pr-4 py-2.5 bg-chem-subtle/50 focus:bg-white text-xs text-chem-dark rounded-2xl border border-chem-border focus:border-chem-sage focus:outline-none transition-all"
             />
           </div>
@@ -71,7 +69,7 @@ export const MaterialsCatalogPage: React.FC = () => {
               Tidak ada materi yang cocok
             </h3>
             <p className="text-xs text-chem-ash">
-              Coba gunakan kata kunci yang lebih umum.
+              Coba gunakan kata kunci pencarian yang lain.
             </p>
           </div>
         ) : (
@@ -79,40 +77,35 @@ export const MaterialsCatalogPage: React.FC = () => {
             {filteredMaterials.map((mat) => (
               <Link
                 key={mat.id}
-                to={`/materi/${mat.slug}`}
+                to={`/materi/${mat.slug || mat.id}`}
                 className="bg-white rounded-3xl border border-chem-border overflow-hidden shadow-subtle hover:shadow-float hover:border-chem-sage transition-all flex flex-col group"
               >
-                <div className="h-40 overflow-hidden relative bg-slate-100">
-                  <img
-                    src={mat.coverUrl}
-                    alt={mat.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <span className="absolute top-3 left-3 text-[11px] font-bold bg-chem-dark/85 backdrop-blur-xs text-white px-3 py-1 rounded-full shadow-xs border border-white/20">
-                    Bab {mat.orderIndex}
-                  </span>
-                </div>
+                {mat.coverUrl && (
+                  <div className="h-44 overflow-hidden relative bg-slate-100">
+                    <img
+                      src={mat.coverUrl}
+                      alt={mat.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <span className="absolute top-3 left-3 text-[11px] font-bold bg-chem-dark/85 backdrop-blur-xs text-white px-3 py-1 rounded-full shadow-xs border border-white/20">
+                      Bab {mat.orderIndex}
+                    </span>
+                  </div>
+                )}
 
-                <div className="p-5 flex flex-col flex-1 gap-1.5">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-chem-sage">
-                    {mat.category}
-                  </span>
+                <div className="p-5 flex flex-col flex-1 gap-2">
                   <h3 className="font-serif text-lg font-bold text-chem-dark group-hover:text-chem-forest transition-colors leading-tight">
                     {mat.title}
                   </h3>
-                  <p className="text-xs text-chem-ash line-clamp-2 leading-relaxed">
-                    {mat.summary}
-                  </p>
+                  {mat.summary && (
+                    <p className="text-xs text-chem-ash line-clamp-3 leading-relaxed">
+                      {mat.summary}
+                    </p>
+                  )}
 
-                  <div className="mt-auto pt-3 flex items-center justify-between text-xs font-bold">
-                    <span className="flex items-center gap-1.5 text-chem-ash font-medium">
-                      <Clock className="w-3.5 h-3.5" />
-                      {mat.estimatedReadTime} menit
-                    </span>
-                    <span className="flex items-center gap-1 text-chem-forest">
-                      Baca
-                      <ChevronRight className="w-4 h-4" />
-                    </span>
+                  <div className="mt-auto pt-3 flex items-center justify-between text-xs font-bold text-chem-forest">
+                    <span>Baca Artikel</span>
+                    <ChevronRight className="w-4 h-4" />
                   </div>
                 </div>
               </Link>

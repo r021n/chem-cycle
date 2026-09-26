@@ -16,7 +16,9 @@ import { QuizPlayerPage } from './pages/client/QuizPlayerPage';
 import { AdminLoginPage } from './pages/admin/AdminLoginPage';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminMaterialsPage } from './pages/admin/AdminMaterialsPage';
+import { AdminMaterialEditorPage } from './pages/admin/AdminMaterialEditorPage';
 import { AdminActivitiesPage } from './pages/admin/AdminActivitiesPage';
+import { AdminActivityEditorPage } from './pages/admin/AdminActivityEditorPage';
 import { AdminQuizzesPage } from './pages/admin/AdminQuizzesPage';
 import { AdminQuizEditorPage } from './pages/admin/AdminQuizEditorPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
@@ -42,7 +44,11 @@ export const App: React.FC = () => {
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboardPage />} />
           <Route path="materi" element={<AdminMaterialsPage />} />
+          <Route path="materi/baru" element={<AdminMaterialEditorPage />} />
+          <Route path="materi/:materialId/edit" element={<AdminMaterialEditorPage />} />
           <Route path="aktivitas" element={<AdminActivitiesPage />} />
+          <Route path="aktivitas/baru" element={<AdminActivityEditorPage />} />
+          <Route path="aktivitas/:activityId/edit" element={<AdminActivityEditorPage />} />
           <Route path="kuis" element={<AdminQuizzesPage />} />
           <Route path="kuis/:quizId/edit" element={<AdminQuizEditorPage />} />
           <Route path="pengaturan" element={<AdminSettingsPage />} />

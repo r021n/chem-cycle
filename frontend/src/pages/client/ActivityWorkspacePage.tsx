@@ -1,19 +1,25 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDataStore } from '../../store/dataStore';
-import { GeneralSimulatorRenderer } from '../../components/activities/GeneralSimulatorRenderer';
+import { BlockAstViewer } from '../../components/editor/block-ast-viewer';
 import {
   ChevronRight,
   ChevronLeft,
   Home,
-  Clock,
-  CheckCircle2,
-  Send,
-  Eye,
-  ArrowRight,
   FileText,
-  Lightbulb,
+  Link2,
+  ExternalLink,
+  ArrowLeft,
+  Paperclip,
+  Image as ImageIcon,
 } from 'lucide-react';
+
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
 
 export const ActivityWorkspacePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,40 +32,17 @@ export const ActivityWorkspacePage: React.FC = () => {
       .sort((a, b) => a.orderIndex - b.orderIndex);
   }, [activities]);
 
-  const currentIndex = published.findIndex((a) => a.id === id);
+  const currentIndex = published.findIndex((a) => a.id === id || a.slug === id);
   const activity = published[currentIndex];
 
+  const prevActivity = currentIndex > 0 ? published[currentIndex - 1] : null;
   const nextActivity = currentIndex < published.length - 1 ? published[currentIndex + 1] : null;
-
-  // Student worksheet answers state
-  const [worksheetAnswers, setWorksheetAnswers] = useState<Record<string, string>>({});
-  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [revealedInsights, setRevealedInsights] = useState<Record<string, boolean>>({});
-
-  const handleAnswerChange = (qId: string, val: string) => {
-    setWorksheetAnswers((prev) => ({ ...prev, [qId]: val }));
-  };
-
-  const handleEvaluate = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitted(true);
-    // Reveal all insights upon submission
-    const allRevealed: Record<string, boolean> = {};
-    activity?.worksheet.forEach((q) => {
-      allRevealed[q.id] = true;
-    });
-    setRevealedInsights(allRevealed);
-  };
-
-  const toggleInsight = (qId: string) => {
-    setRevealedInsights((prev) => ({ ...prev, [qId]: !prev[qId] }));
-  };
 
   if (!activity) {
     return (
       <div className="min-h-screen bg-chem-paper lab-grid-bg flex items-center justify-center p-6 font-sans">
         <div className="bg-white p-8 rounded-3xl border border-chem-border text-center max-w-md space-y-4 shadow-subtle">
-          <h2 className="font-serif text-xl font-bold text-chem-dark">Modul Aktivitas Tidak Ditemukan</h2>
+          <h2 className="font-serif text-xl font-bold text-chem-dark">Aktivitas Tidak Ditemukan</h2>
           <p className="text-xs text-chem-ash">
             Aktivitas yang Anda tuju mungkin belum aktif atau telah diperbarui.
           </p>
@@ -75,12 +58,11 @@ export const ActivityWorkspacePage: React.FC = () => {
     );
   }
 
-  const answeredCount = Object.values(worksheetAnswers).filter((v) => v.trim().length > 0).length;
-  const totalQuestions = activity.worksheet.length;
+  const attachments = activity.attachments || [];
 
   return (
     <div className="min-h-screen bg-chem-paper lab-grid-bg text-chem-dark py-8 font-sans">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Navigation Breadcrumb */}
         <div className="flex items-center justify-between">
           <nav className="flex items-center gap-2 text-xs text-chem-ash" aria-label="Breadcrumb">
@@ -90,210 +72,149 @@ export const ActivityWorkspacePage: React.FC = () => {
             </Link>
             <ChevronRight className="w-3.5 h-3.5 text-chem-border" />
             <Link to="/aktivitas" className="hover:text-chem-forest transition-colors">
-              Katalog Aktivitas
+              Modul Aktivitas
             </Link>
             <ChevronRight className="w-3.5 h-3.5 text-chem-border" />
             <span className="font-semibold text-chem-dark line-clamp-1 max-w-[220px]">
               {activity.title}
             </span>
           </nav>
+
+          <Link
+            to="/aktivitas"
+            className="text-xs font-semibold text-chem-forest hover:text-chem-moss flex items-center gap-1"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Katalog</span>
+          </Link>
         </div>
 
-        {/* Workspace Title & Scope */}
+        {/* Announcement Header */}
         <div className="space-y-3 pb-6 border-b border-chem-border">
-          <div className="flex items-center gap-2 text-xs text-chem-ash">
-            <Clock className="w-3.5 h-3.5" />
-            <span>Estimasi Durasi: {activity.estimatedTime} menit eksplorasi mandiri</span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-chem-sage px-2.5 py-0.5 rounded-full bg-chem-glow/60 border border-chem-sage/30">
+              Aktivitas {activity.orderIndex}
+            </span>
+            <span className="text-xs text-chem-ash">
+              {formatDate(activity.updatedAt || activity.createdAt)}
+            </span>
           </div>
+
           <h1 className="font-serif text-2xl sm:text-4xl font-bold text-chem-dark leading-tight">
             {activity.title}
           </h1>
-          <p className="text-xs sm:text-sm text-chem-ash max-w-3xl leading-relaxed">
-            {activity.summary}
-          </p>
+
+          {activity.summary && (
+            <p className="text-xs sm:text-sm text-chem-ash max-w-3xl leading-relaxed">
+              {activity.summary}
+            </p>
+          )}
         </div>
 
-        {/* 1. SECTION PENGANTAR FENOMENA & TRIGGER QUESTIONS */}
-        <section
-          aria-labelledby="phenomenon-heading"
-          className="bg-white rounded-3xl border border-chem-border p-6 sm:p-8 shadow-subtle space-y-6"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center">
-              <Lightbulb className="w-5 h-5 text-amber-600" />
+        {/* Google Classroom Announcement Content */}
+        {activity.contentJson && (
+          <section className="bg-white rounded-3xl border border-chem-border p-6 sm:p-8 shadow-subtle">
+            <div className="prose max-w-none">
+              <BlockAstViewer contentJson={activity.contentJson} />
             </div>
-            <div>
-              <span className="text-[10px] font-mono uppercase font-bold text-amber-700">
-                Fase Pemantik Kritis
-              </span>
-              <h2 id="phenomenon-heading" className="font-serif text-xl font-bold text-chem-dark">
-                {activity.phenomenonIntro.title}
+          </section>
+        )}
+
+        {/* Attachments & Files Section */}
+        {attachments.length > 0 && (
+          <section className="bg-white rounded-3xl border border-chem-border p-6 sm:p-8 shadow-subtle space-y-4">
+            <div className="flex items-center gap-2 pb-3 border-b border-chem-border/70">
+              <Paperclip className="w-4 h-4 text-chem-forest" />
+              <h2 className="font-serif text-base font-bold text-chem-dark">
+                Lampiran Berkas & Tautan Pendukung ({attachments.length})
               </h2>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            {activity.phenomenonIntro.imageUrl && (
-              <div className="lg:col-span-4 rounded-2xl overflow-hidden border border-chem-border h-48 bg-slate-100">
-                <img
-                  src={activity.phenomenonIntro.imageUrl}
-                  alt={activity.phenomenonIntro.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            )}
-
-            <div className={`${activity.phenomenonIntro.imageUrl ? 'lg:col-span-8' : 'lg:col-span-12'} space-y-4`}>
-              <p className="text-xs sm:text-sm text-chem-dark/90 leading-relaxed">
-                {activity.phenomenonIntro.narrative}
-              </p>
-
-              {/* Trigger Questions Callout */}
-              <div className="p-4 bg-chem-subtle/70 rounded-2xl border border-chem-border space-y-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-chem-forest block">
-                  Pertanyaan Pemantik Analisis:
-                </span>
-                <ul className="space-y-1.5 list-disc pl-5 text-xs text-chem-dark leading-relaxed">
-                  {activity.phenomenonIntro.triggerQuestions.map((tq, idx) => (
-                    <li key={idx} className="pl-1">
-                      {tq}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 2. KONTAINER MODUL INTERAKTIF / SIMULATOR */}
-        <section aria-label="Modul Laboratorium Simulasi Interaktif">
-          <GeneralSimulatorRenderer config={activity.interactiveModule} />
-        </section>
-
-        {/* 3. DYNAMIC ANALYSIS FORM / WORKSHEET */}
-        <section
-          aria-labelledby="worksheet-heading"
-          className="bg-white rounded-3xl border border-chem-border p-6 sm:p-8 shadow-subtle space-y-6"
-        >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-chem-border">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-2xl bg-chem-glow text-chem-forest flex items-center justify-center">
-                <FileText className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 id="worksheet-heading" className="font-serif text-xl font-bold text-chem-dark">
-                  Lembar Kerja Respons & Analisis Hubungan Sebab-Akibat
-                </h2>
-                <p className="text-xs text-chem-ash">
-                  Kemukakan hasil pengamatan Anda dari simulator di atas secara mandiri dan argumentatif.
-                </p>
-              </div>
-            </div>
-
-            <div className="text-xs font-semibold px-3 py-1.5 rounded-full bg-chem-subtle text-chem-forest border border-chem-border self-start sm:self-center">
-              Progres: {answeredCount} dari {totalQuestions} terjawab
-            </div>
-          </div>
-
-          <form onSubmit={handleEvaluate} className="space-y-6">
-            {activity.worksheet.map((item) => {
-              const currentVal = worksheetAnswers[item.id] || '';
-              const isRevealed = !!revealedInsights[item.id];
-
-              return (
-                <div
-                  key={item.id}
-                  className="p-5 rounded-2xl border border-chem-border bg-chem-paper/60 space-y-3"
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {attachments.map((att) => (
+                <a
+                  key={att.id}
+                  href={att.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-3.5 p-4 rounded-2xl border border-chem-border hover:border-chem-forest bg-chem-subtle/40 hover:bg-white transition-all group shadow-2xs"
                 >
-                  <label htmlFor={`input-${item.id}`} className="block text-xs sm:text-sm font-bold text-chem-dark leading-snug">
-                    {item.prompt}
-                  </label>
-
-                  <textarea
-                    id={`input-${item.id}`}
-                    rows={4}
-                    value={currentVal}
-                    onChange={(e) => handleAnswerChange(item.id, e.target.value)}
-                    placeholder={item.placeholder}
-                    className="w-full p-3.5 bg-white text-xs sm:text-sm text-chem-dark border border-chem-border rounded-xl focus:border-chem-sage focus:outline-none transition-colors"
-                  />
-
-                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-chem-ash">
-                    <span>{currentVal.length} karakter ditulis</span>
-
-                    <button
-                      type="button"
-                      onClick={() => toggleInsight(item.id)}
-                      className="text-chem-forest hover:text-chem-moss font-semibold flex items-center gap-1 cursor-pointer"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>{isRevealed ? 'Sembunyikan Wawasan Konsep' : 'Lihat Wawasan Konsep / Kunci Analisis'}</span>
-                    </button>
+                  <div className="w-10 h-10 rounded-xl bg-white border border-chem-border flex items-center justify-center text-chem-forest shrink-0">
+                    {att.type === 'link' ? (
+                      <Link2 className="w-4 h-4" />
+                    ) : att.type === 'image' ? (
+                      <ImageIcon className="w-4 h-4" />
+                    ) : (
+                      <FileText className="w-4 h-4" />
+                    )}
                   </div>
-
-                  {isRevealed && (
-                    <div className="p-3.5 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-950 space-y-1 animate-in fade-in">
-                      <p className="font-bold flex items-center gap-1.5 text-emerald-800">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                        Wawasan Analisis yang Diharapkan:
-                      </p>
-                      <p className="leading-relaxed opacity-90 pl-5">
-                        {item.sampleExpectedInsight}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-
-            {/* 4. TOMBOL EVALUASI & NAVIGASI */}
-            <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-chem-border">
-              <button
-                type="submit"
-                className="w-full sm:w-auto px-6 py-3.5 bg-chem-forest hover:bg-chem-moss text-white rounded-2xl text-xs font-bold shadow-float transition-all cursor-pointer flex items-center justify-center gap-2"
-              >
-                <Send className="w-4 h-4 text-chem-glow" />
-                <span>Simpan Isian & Tinjau Evaluasi Mandiri</span>
-              </button>
-
-              {isSubmitted && (
-                <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 px-3.5 py-2 rounded-xl border border-emerald-200">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Lembar kerja berhasil divalidasi! Wawasan telah dibuka.</span>
-                </div>
-              )}
+                  <div className="min-w-0 flex-1">
+                    <span className="text-xs font-semibold text-chem-dark block truncate group-hover:text-chem-forest">
+                      {att.name}
+                    </span>
+                    <span className="text-[10px] text-chem-ash font-mono block mt-0.5">
+                      {att.type === 'link' ? 'Tautan Web' : (att.size || 'Berkas Unduhan')}
+                    </span>
+                  </div>
+                  <ExternalLink className="w-4 h-4 text-chem-ash group-hover:text-chem-forest shrink-0" />
+                </a>
+              ))}
             </div>
-          </form>
-        </section>
+          </section>
+        )}
 
-        {/* Workspace Footer Navigation */}
-        <div className="pt-6 border-t border-chem-border flex flex-col sm:flex-row items-center justify-between gap-4">
-          <Link
-            to="/aktivitas"
-            className="text-xs font-semibold text-chem-forest hover:text-chem-moss flex items-center gap-1.5"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            <span>Kembali ke Katalog Aktivitas</span>
-          </Link>
+        {/* Prev / Next Activity Navigation */}
+        <nav className="pt-6 border-t border-chem-border grid grid-cols-1 sm:grid-cols-2 gap-6" aria-label="Navigasi Aktivitas">
+          {prevActivity ? (
+            <Link
+              to={`/aktivitas/${prevActivity.id}`}
+              className="group text-left"
+            >
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
+                <ChevronLeft className="w-3.5 h-3.5" />
+                Aktivitas Sebelumnya
+              </span>
+              <span className="block text-sm font-bold text-chem-dark group-hover:text-chem-forest transition-colors mt-1">
+                {prevActivity.title}
+              </span>
+            </Link>
+          ) : (
+            <Link to="/aktivitas" className="group text-left">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
+                <ArrowLeft className="w-3.5 h-3.5" />
+                Katalog Aktivitas
+              </span>
+              <span className="block text-sm font-bold text-chem-dark group-hover:text-chem-forest transition-colors mt-1">
+                Kembali ke Katalog Aktivitas
+              </span>
+            </Link>
+          )}
 
           {nextActivity ? (
             <Link
               to={`/aktivitas/${nextActivity.id}`}
-              className="px-5 py-3 rounded-2xl bg-chem-forest text-white text-xs font-bold hover:bg-chem-moss flex items-center gap-2 transition-all shadow-xs"
+              className="group text-right sm:col-start-2"
             >
-              <span>Aktivitas Selanjutnya: {nextActivity.title}</span>
-              <ChevronRight className="w-4 h-4 text-chem-glow" />
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
+                Aktivitas Selanjutnya
+                <ChevronRight className="w-3.5 h-3.5" />
+              </span>
+              <span className="block text-sm font-bold text-chem-dark group-hover:text-chem-forest transition-colors mt-1">
+                {nextActivity.title}
+              </span>
             </Link>
           ) : (
-            <Link
-              to="/kuis"
-              className="px-5 py-3 rounded-2xl bg-chem-forest text-white text-xs font-bold hover:bg-chem-moss flex items-center gap-2 transition-all shadow-xs"
-            >
-              <span>Lanjut ke Tahap 4: Uji Pemahaman Mandiri (Kuis)</span>
-              <ArrowRight className="w-4 h-4 text-chem-glow" />
+            <Link to="/kuis" className="group text-right sm:col-start-2">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
+                Evaluasi Belajar
+                <ChevronRight className="w-3.5 h-3.5" />
+              </span>
+              <span className="block text-sm font-bold text-chem-dark group-hover:text-chem-forest transition-colors mt-1">
+                Lanjut ke Latihan Soal
+              </span>
             </Link>
           )}
-        </div>
+        </nav>
       </div>
     </div>
   );
