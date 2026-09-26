@@ -1,10 +1,5 @@
 import { BlockAstNode } from './material';
 
-export interface LearningObjective {
-  id: string;
-  text: string;
-}
-
 export interface PracticeExample {
   id: string;
   question: string;
@@ -14,7 +9,7 @@ export interface PracticeExample {
   finalAnswer: string;
 }
 
-export interface ContextualSection {
+interface ContextualSection {
   title: string;
   caseStudyTag: string;
   content: string;
@@ -42,7 +37,7 @@ export interface ExtendedMaterial {
 
 export type ActivityCategory = 'studi_kasus' | 'simulasi' | 'analisis_data';
 
-export interface PhenomenonIntro {
+interface PhenomenonIntro {
   title: string;
   narrative: string;
   triggerQuestions: string[];
@@ -112,7 +107,7 @@ export interface QuizPackage {
   updatedAt: string;
 }
 
-export interface SdgGoal {
+interface SdgGoal {
   number: number;
   title: string;
   description: string;
@@ -120,7 +115,7 @@ export interface SdgGoal {
   iconName: string;
 }
 
-export interface LearningFlowStep {
+interface LearningFlowStep {
   step: number;
   title: string;
   desc: string;

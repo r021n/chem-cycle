@@ -23,16 +23,3 @@ export interface BlockAstNode {
   content?: BlockInlineContent[];
   children?: BlockAstNode[];
 }
-
-export interface Material {
-  id: string;
-  title: string;
-  slug: string;
-  contentJson: string; // JSON array of BlockAstNode
-  summary?: string | null;
-  estimatedReadTime: number;
-  orderIndex: number;
-  isPublished: boolean;
-  createdAt: string;
-  updatedAt: string;
-}

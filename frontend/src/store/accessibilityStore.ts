@@ -10,9 +10,9 @@ export type ContrastMode =
   | 'high-contrast'
   | 'yellow-black';
 
-export type TextWeight = 'normal' | 'medium' | 'bold';
-export type TextLineHeight = 'normal' | 'relaxed' | 'loose';
-export type TextLetterSpacing = 'normal' | 'wide' | 'wider';
+type TextWeight = 'normal' | 'medium' | 'bold';
+type TextLineHeight = 'normal' | 'relaxed' | 'loose';
+type TextLetterSpacing = 'normal' | 'wide' | 'wider';
 
 interface AccessibilityState {
   isOpen: boolean;

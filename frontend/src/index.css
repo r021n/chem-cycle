@@ -38,11 +38,6 @@
   background-size: 24px 24px;
 }
 
-/* Notion row interaction highlight */
-.notion-block-row:hover {
-  background-color: rgba(243, 244, 238, 0.7);
-}
-
 /* Minimalist smooth laboratory scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
@@ -180,7 +175,7 @@ body.acc-ls-wider {
 
 /* Visual Markers */
 body.acc-highlight-links a,
-body.acc-highlight-links button:not(.btn-no-highlight) {
+body.acc-highlight-links button {
   text-decoration: underline !important;
   text-decoration-thickness: 2px !important;
   text-underline-offset: 4px !important;
@@ -210,7 +205,7 @@ body.acc-stop-animations *::after {
 
 /* Hide Images */
 body.acc-hide-images img,
-body.acc-hide-images svg:not(.lucide):not(.accessible-icon) {
+body.acc-hide-images svg:not(.lucide) {
   visibility: hidden !important;
   position: relative !important;
 }

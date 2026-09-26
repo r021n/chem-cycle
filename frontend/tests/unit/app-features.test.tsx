@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import React from 'react';
 import { useDataStore } from '../../src/store/dataStore';
 import { useAccessibilityStore } from '../../src/store/accessibilityStore';
