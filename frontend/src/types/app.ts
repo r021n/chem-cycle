@@ -103,7 +103,6 @@ export interface QuizChoice {
 
 export type QuizSectionType =
   | 'text'
-  | 'formula'
   | 'callout'
   | 'heading'
   | 'image'
@@ -116,13 +115,6 @@ export interface QuizSectionText {
   id: string;
   type: 'text';
   text: string;
-}
-
-export interface QuizSectionFormula {
-  id: string;
-  type: 'formula';
-  formula: string;
-  caption?: string;
 }
 
 export interface QuizSectionCallout {
@@ -165,7 +157,6 @@ export interface QuizSectionList {
 
 export type QuizSection =
   | QuizSectionText
-  | QuizSectionFormula
   | QuizSectionCallout
   | QuizSectionHeading
   | QuizSectionDivider
@@ -177,7 +168,6 @@ export interface QuizQuestion {
   id: string;
   sections?: QuizSection[];
   questionText: string;
-  chemicalFormula?: string;
   stimulusImage?: string;
   choices: QuizChoice[];
   correctAnswerId?: string;
@@ -204,10 +194,10 @@ export interface QuizPackage {
 export interface SiteSettings {
   adminProfile: {
     username: string;
-    name: string;
     email: string;
-    role: string;
-    avatarUrl: string;
+    avatarUrl?: string;
+    name?: string;
+    role?: string;
   };
 }
 

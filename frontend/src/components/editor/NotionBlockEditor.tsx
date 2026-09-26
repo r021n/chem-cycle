@@ -8,7 +8,6 @@ import {
   Copy,
   Type,
   Heading2,
-  FlaskConical,
   AlertCircle,
   Image as ImageIcon,
   MonitorPlay,
@@ -21,7 +20,6 @@ import {
   X,
 } from 'lucide-react';
 import { BlockAstNode } from '../../types/material';
-import { ChemFormula } from '../common/ChemFormula';
 import { compressImageToDataUrl, getYoutubeEmbedUrl } from '../../lib/media';
 import { formatFileSize } from '../../lib/utils';
 
@@ -52,12 +50,6 @@ const BLOCK_DEFINITIONS: {
     desc: 'Pembagi bab dan sub-topik',
     icon: Heading2,
     defaultProps: { level: 2 },
-  },
-  {
-    type: 'formula',
-    label: 'Rumus Kimia',
-    desc: 'Reaksi, fasa zat, ion & entalpi',
-    icon: FlaskConical,
   },
   {
     type: 'callout',
@@ -104,30 +96,9 @@ const BLOCK_DEFINITIONS: {
   },
 ];
 
-const QUICK_CHEM_CHIPS = [
-  { label: '→', value: ' -> ' },
-  { label: '⇌', value: ' <=> ' },
-  { label: 'ΔH', value: ' (ΔH = kJ/mol)' },
-  { label: '(s)', value: '(s)' },
-  { label: '(l)', value: '(l)' },
-  { label: '(g)', value: '(g)' },
-  { label: '(aq)', value: '(aq)' },
-  { label: '⁺', value: '^+' },
-  { label: '⁻', value: '^-' },
-  { label: '²⁺', value: '^2+' },
-  { label: '²⁻', value: '^2-' },
-  { label: '³⁺', value: '^3+' },
-  { label: 'H₂O', value: 'H2O' },
-  { label: 'CO₂', value: 'CO2' },
-  { label: 'O₂', value: 'O2' },
-];
-
 const CALLOUT_EMOJIS = ['💡', '⚠️', '🧪', '📌', '🔍', '📝', '❓', '⚡'];
 
 function getBlockText(block: BlockAstNode): string {
-  if (block.type === 'formula') {
-    return block.props?.formula || block.content?.[0]?.text || '';
-  }
   if (block.props?.text) return block.props.text;
   if (block.content && block.content.length > 0) {
     return block.content.map((c) => c.text).join('');
@@ -136,13 +107,6 @@ function getBlockText(block: BlockAstNode): string {
 }
 
 function setBlockText(block: BlockAstNode, text: string): BlockAstNode {
-  if (block.type === 'formula') {
-    return {
-      ...block,
-      props: { ...block.props, formula: text },
-      content: [{ type: 'text', text }],
-    };
-  }
   return {
     ...block,
     content: [{ type: 'text', text }],
@@ -422,64 +386,7 @@ export const NotionBlockEditor: React.FC<NotionBlockEditorProps> = ({
                 </div>
               )}
 
-              {/* 3. FORMULA KIMIA */}
-              {block.type === 'formula' && (
-                <div className="rounded-2xl border border-chem-border/70 bg-chem-subtle/50 p-3.5 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-chem-forest flex items-center gap-1.5">
-                      <FlaskConical className="w-3.5 h-3.5" />
-                      <span>Persamaan Kimia / Reaksi</span>
-                    </span>
-                    <span className="text-[10px] text-slate-400">Live Chemistry Preview</span>
-                  </div>
-
-                  <input
-                    type="text"
-                    value={textValue}
-                    placeholder="misal: CH4(g) + 2O2(g) -> CO2(g) + 2H2O(l) (ΔH = -890.4 kJ/mol)"
-                    onChange={(e) => updateBlock(index, setBlockText(block, e.target.value))}
-                    className="w-full px-3 py-2 text-xs font-mono bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-chem-sage"
-                  />
-
-                  {/* Quick symbol chips */}
-                  <div className="flex flex-wrap gap-1">
-                    {QUICK_CHEM_CHIPS.map((chip) => (
-                      <button
-                        key={chip.label}
-                        type="button"
-                        onClick={() =>
-                          updateBlock(index, setBlockText(block, textValue + chip.value))
-                        }
-                        className="px-2 py-0.5 text-[11px] font-mono bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 border border-slate-200 rounded-lg cursor-pointer transition-colors"
-                      >
-                        {chip.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Live Render */}
-                  {textValue && (
-                    <div className="p-3 bg-white rounded-xl border border-slate-100 text-chem-forest font-semibold text-sm font-mono overflow-x-auto">
-                      <ChemFormula formula={textValue} />
-                    </div>
-                  )}
-
-                  <input
-                    type="text"
-                    value={block.props?.caption || ''}
-                    placeholder="Keterangan rumus reaksi (opsional)..."
-                    onChange={(e) =>
-                      updateBlock(index, {
-                        ...block,
-                        props: { ...block.props, caption: e.target.value },
-                      })
-                    }
-                    className="w-full text-[11px] text-slate-500 bg-transparent border-0 p-0 focus:outline-none italic placeholder:text-slate-300"
-                  />
-                </div>
-              )}
-
-              {/* 4. CALLOUT */}
+              {/* 3. CALLOUT */}
               {block.type === 'callout' && (
                 <div className="rounded-2xl border border-amber-200/90 bg-amber-50/80 p-3.5 space-y-2">
                   <div className="flex items-start gap-2.5">

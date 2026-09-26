@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { BlockAstNode, BlockInlineContent } from '../../types/material';
 import { Modal } from '../ui/modal';
-import { ChemFormula } from '../common/ChemFormula';
 
 interface BlockAstViewerProps {
   contentJson: string | BlockAstNode[];
@@ -205,23 +204,6 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({ contentJson, cla
                     allowFullScreen
                   />
                 </div>
-              </div>
-            );
-          }
-
-          case 'formula': {
-            const formulaStr = block.props?.formula || block.content?.[0]?.text || '';
-            return (
-              <div
-                key={block.id || index}
-                className="my-4 p-4 rounded-2xl bg-chem-subtle/70 border border-chem-border"
-              >
-                <div className="font-mono text-base font-semibold text-chem-forest overflow-x-auto py-1">
-                  <ChemFormula formula={formulaStr} />
-                </div>
-                {block.props?.caption && (
-                  <p className="text-xs text-slate-500 mt-1 italic">{block.props.caption}</p>
-                )}
               </div>
             );
           }

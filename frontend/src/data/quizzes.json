@@ -12,7 +12,6 @@
       {
         "id": "q-1-1",
         "questionText": "Perhatikan diagram entalpi pembakaran hidrokarbon berikut. Jika entalpi reaktan (H_reaktan) lebih tinggi daripada entalpi produk (H_produk), maka pernyataan manakah yang BENAR?",
-        "chemicalFormula": "CH4(g) + 2O2(g) -> CO2(g) + 2H2O(l) (ΔH < 0)",
         "stimulusImage": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=800&q=80",
         "sections": [
           {
@@ -20,12 +19,6 @@
             "type": "image",
             "dataUrl": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=800&q=80",
             "caption": "Reaksi Pembakaran Hidrokarbon dalam Sistem Terbuka"
-          },
-          {
-            "id": "sec-1-1-form",
-            "type": "formula",
-            "formula": "CH4(g) + 2O2(g) -> CO2(g) + 2H2O(l) (ΔH < 0)",
-            "caption": "Persamaan Termokimia Pembakaran Metana"
           },
           {
             "id": "sec-1-1-txt",
@@ -47,14 +40,7 @@
       {
         "id": "q-1-2",
         "questionText": "Sebanyak 200 mL air dipanaskan menggunakan pembakaran 0.8 gram gas metana (Mr = 16 g/mol). Suhu air naik dari 25°C menjadi 45°C. Jika kalor jenis air 4.2 J/g°C, berapa kalor (q) yang diserap oleh air?",
-        "chemicalFormula": "q = m * c * ΔT",
         "sections": [
-          {
-            "id": "sec-1-2-form",
-            "type": "formula",
-            "formula": "q = m * c * ΔT",
-            "caption": "Rumus Kalorimetri Larutan"
-          },
           {
             "id": "sec-1-2-txt",
             "type": "text",
@@ -172,14 +158,7 @@
       {
         "id": "q-3-1",
         "questionText": "Diberikan reaksi kesetimbangan: CO2(g) + H2O(l) <=> H2CO3(aq) <=> H+(aq) + HCO3-(aq). Jika konsentrasi gas CO2 atmosfer meningkat drastis, pergeseran kesetimbangan dan dampaknya terhadap keasaman air laut adalah...",
-        "chemicalFormula": "CO2(g) + H2O(l) <=> H+(aq) + HCO3-(aq)",
         "sections": [
-          {
-            "id": "sec-3-1-form",
-            "type": "formula",
-            "formula": "CO2(g) + H2O(l) <=> H+(aq) + HCO3-(aq)",
-            "caption": "Reaksi Pelarutan Karbon Dioksida dalam Air Laut"
-          },
           {
             "id": "sec-3-1-txt",
             "type": "text",

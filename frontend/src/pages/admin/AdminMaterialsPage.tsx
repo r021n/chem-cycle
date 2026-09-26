@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useDataStore } from '../../store/dataStore';
-import { ExtendedMaterial } from '../../types/app';
+import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDataStore } from "../../store/dataStore";
+import { ExtendedMaterial } from "../../types/app";
 import {
   Search,
   Plus,
@@ -14,23 +14,22 @@ import {
   MoveDown,
   X,
   BookOpen,
-} from 'lucide-react';
-import { BlockAstViewer } from '../../components/editor/block-ast-viewer';
+} from "lucide-react";
+import { BlockAstViewer } from "../../components/editor/block-ast-viewer";
 
 export const AdminMaterialsPage: React.FC = () => {
   const navigate = useNavigate();
-  const {
-    materials,
-    deleteMaterial,
-    togglePublishMaterial,
-    reorderMaterials,
-  } = useDataStore();
+  const { materials, deleteMaterial, togglePublishMaterial, reorderMaterials } =
+    useDataStore();
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "published" | "draft"
+  >("all");
 
   // Preview & Delete Confirmation Modals
-  const [previewMaterial, setPreviewMaterial] = useState<ExtendedMaterial | null>(null);
+  const [previewMaterial, setPreviewMaterial] =
+    useState<ExtendedMaterial | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   // Filtered & sorted materials
@@ -42,24 +41,24 @@ export const AdminMaterialsPage: React.FC = () => {
     return sortedMaterials.filter((m) => {
       const matchSearch =
         m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (m.summary || '').toLowerCase().includes(searchQuery.toLowerCase());
+        (m.summary || "").toLowerCase().includes(searchQuery.toLowerCase());
       const matchStatus =
-        statusFilter === 'all' ||
-        (statusFilter === 'published' && m.isPublished) ||
-        (statusFilter === 'draft' && !m.isPublished);
+        statusFilter === "all" ||
+        (statusFilter === "published" && m.isPublished) ||
+        (statusFilter === "draft" && !m.isPublished);
       return matchSearch && matchStatus;
     });
   }, [sortedMaterials, searchQuery, statusFilter]);
 
-  const handleMoveOrder = (id: string, direction: 'up' | 'down') => {
+  const handleMoveOrder = (id: string, direction: "up" | "down") => {
     const list = [...sortedMaterials];
     const index = list.findIndex((m) => m.id === id);
-    if (direction === 'up' && index > 0) {
+    if (direction === "up" && index > 0) {
       const temp = list[index];
       list[index] = list[index - 1];
       list[index - 1] = temp;
       reorderMaterials(list.map((m) => m.id));
-    } else if (direction === 'down' && index < list.length - 1) {
+    } else if (direction === "down" && index < list.length - 1) {
       const temp = list[index];
       list[index] = list[index + 1];
       list[index + 1] = temp;
@@ -68,7 +67,7 @@ export const AdminMaterialsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto font-sans">
+    <div className="space-y-6 mx-auto font-sans">
       {/* Page Title & Add Button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <div>
@@ -82,7 +81,7 @@ export const AdminMaterialsPage: React.FC = () => {
 
         <button
           type="button"
-          onClick={() => navigate('/admin/materi/baru')}
+          onClick={() => navigate("/admin/materi/baru")}
           className="px-4 py-2.5 bg-chem-forest hover:bg-chem-moss text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
         >
           <Plus className="w-4 h-4 text-chem-glow" />
@@ -106,7 +105,9 @@ export const AdminMaterialsPage: React.FC = () => {
         <div className="w-full sm:w-48">
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as 'all' | 'published' | 'draft')}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as "all" | "published" | "draft")
+            }
             className="w-full py-2 px-3 text-xs bg-white border border-slate-200 rounded-xl cursor-pointer shadow-2xs focus:outline-none"
           >
             <option value="all">Semua Status</option>
@@ -137,16 +138,21 @@ export const AdminMaterialsPage: React.FC = () => {
                 </tr>
               ) : (
                 filteredMaterials.map((mat, idx) => (
-                  <tr key={mat.id} className="hover:bg-slate-50/70 transition-colors">
+                  <tr
+                    key={mat.id}
+                    className="hover:bg-slate-50/70 transition-colors"
+                  >
                     {/* Urutan */}
                     <td className="py-3 px-4 font-mono font-bold">
                       <div className="flex items-center gap-1">
-                        <span className="w-4 text-center">{mat.orderIndex}</span>
+                        <span className="w-4 text-center">
+                          {mat.orderIndex}
+                        </span>
                         <div className="flex flex-col">
                           <button
                             type="button"
                             disabled={idx === 0}
-                            onClick={() => handleMoveOrder(mat.id, 'up')}
+                            onClick={() => handleMoveOrder(mat.id, "up")}
                             className="text-slate-400 hover:text-chem-forest disabled:opacity-20 cursor-pointer"
                             title="Geser Naik"
                           >
@@ -155,7 +161,7 @@ export const AdminMaterialsPage: React.FC = () => {
                           <button
                             type="button"
                             disabled={idx === filteredMaterials.length - 1}
-                            onClick={() => handleMoveOrder(mat.id, 'down')}
+                            onClick={() => handleMoveOrder(mat.id, "down")}
                             className="text-slate-400 hover:text-chem-forest disabled:opacity-20 cursor-pointer"
                             title="Geser Turun"
                           >
@@ -199,8 +205,8 @@ export const AdminMaterialsPage: React.FC = () => {
                         onClick={() => togglePublishMaterial(mat.id)}
                         className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold cursor-pointer transition-all ${
                           mat.isPublished
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : 'bg-slate-100 text-slate-600 border border-slate-200'
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            : "bg-slate-100 text-slate-600 border border-slate-200"
                         }`}
                       >
                         {mat.isPublished ? (
@@ -230,7 +236,9 @@ export const AdminMaterialsPage: React.FC = () => {
                         </button>
                         <button
                           type="button"
-                          onClick={() => navigate(`/admin/materi/${mat.id}/edit`)}
+                          onClick={() =>
+                            navigate(`/admin/materi/${mat.id}/edit`)
+                          }
                           className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg cursor-pointer"
                           title="Edit"
                         >
@@ -279,7 +287,9 @@ export const AdminMaterialsPage: React.FC = () => {
                 />
               )}
               {previewMaterial.summary && (
-                <p className="text-xs text-slate-500 italic">{previewMaterial.summary}</p>
+                <p className="text-xs text-slate-500 italic">
+                  {previewMaterial.summary}
+                </p>
               )}
               <div className="prose max-w-none">
                 <BlockAstViewer contentJson={previewMaterial.contentJson} />

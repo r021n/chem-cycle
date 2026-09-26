@@ -106,27 +106,29 @@ export const AdminQuizzesPage: React.FC = () => {
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs">
-        <div className="md:col-span-8 relative">
+      <div className="flex flex-col sm:flex-row items-center gap-3">
+        <div className="relative flex-1 w-full">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari judul paket, topik, atau deskripsi..."
-            className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-chem-sage"
+            className="w-full pl-9 pr-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-chem-sage shadow-2xs"
           />
         </div>
 
-        <div className="md:col-span-4">
+        <div className="w-full sm:w-48">
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as 'all' | 'published' | 'draft')}
-            className="w-full py-2 px-3 text-xs bg-slate-50 border border-slate-200 rounded-xl cursor-pointer"
+            onChange={(e) =>
+              setStatusFilter(e.target.value as "all" | "published" | "draft")
+            }
+            className="w-full py-2 px-3 text-xs bg-white border border-slate-200 rounded-xl cursor-pointer shadow-2xs focus:outline-none"
           >
-            <option value="all">Semua Status Publikasi</option>
-            <option value="published">Hanya Terbit (Published)</option>
-            <option value="draft">Hanya Draf (Draft)</option>
+            <option value="all">Semua Status</option>
+            <option value="published">Terbit</option>
+            <option value="draft">Draf</option>
           </select>
         </div>
       </div>

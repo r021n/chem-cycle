@@ -22,14 +22,12 @@ export interface BlockAstNode {
     | 'image'
     | 'video'
     | 'divider'
-    | 'formula'
     | 'callout';
   props?: {
     level?: 1 | 2 | 3;
     url?: string;
     caption?: string;
     previewUrl?: string;
-    formula?: string;
     text?: string;
     emoji?: string;
   };

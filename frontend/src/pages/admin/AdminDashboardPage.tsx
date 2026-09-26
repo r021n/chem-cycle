@@ -1,6 +1,6 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { useDataStore } from '../../store/dataStore';
+import React from "react";
+import { Link } from "react-router-dom";
+import { useDataStore } from "../../store/dataStore";
 import {
   BookOpen,
   FlaskConical,
@@ -11,8 +11,8 @@ import {
   Sparkles,
   ArrowRight,
   Layers,
-} from 'lucide-react';
-import { formatDate } from '../../lib/utils';
+} from "lucide-react";
+import { formatDate } from "../../lib/utils";
 
 export const AdminDashboardPage: React.FC = () => {
   const { materials, activities, quizzes, logs, settings } = useDataStore();
@@ -24,40 +24,43 @@ export const AdminDashboardPage: React.FC = () => {
   const publishedActivities = activities.filter((a) => a.isPublished).length;
 
   const totalQuizzes = quizzes.length;
-  const totalQuestions = quizzes.reduce((sum, q) => sum + (q.questions?.length || 0), 0);
+  const totalQuestions = quizzes.reduce(
+    (sum, q) => sum + (q.questions?.length || 0),
+    0,
+  );
 
   const metrics = [
     {
-      title: 'Materi Pembelajaran',
+      title: "Materi Pembelajaran",
       value: totalMaterials,
       subtext: `${publishedMaterials} Terbit • ${totalMaterials - publishedMaterials} Draf`,
       icon: BookOpen,
-      color: 'bg-emerald-500 text-white',
-      link: '/admin/materi',
+      color: "bg-emerald-500 text-white",
+      link: "/admin/materi",
     },
     {
-      title: 'Modul Aktivitas Virtual',
+      title: "Modul Aktivitas Virtual",
       value: totalActivities,
       subtext: `${publishedActivities} Aktif Publik`,
       icon: FlaskConical,
-      color: 'bg-blue-500 text-white',
-      link: '/admin/aktivitas',
+      color: "bg-blue-500 text-white",
+      link: "/admin/aktivitas",
     },
     {
-      title: 'Paket Latihan Soal',
+      title: "Paket Latihan Soal",
       value: totalQuizzes,
       subtext: `${totalQuestions} Butir Bank Soal`,
       icon: CheckCircle2,
-      color: 'bg-amber-500 text-white',
-      link: '/admin/kuis',
+      color: "bg-amber-500 text-white",
+      link: "/admin/kuis",
     },
     {
-      title: 'Audit Jejak Pembaruan',
+      title: "Audit Jejak Pembaruan",
       value: logs.length,
-      subtext: 'Aktivitas CMS Terpantau',
+      subtext: "Aktivitas CMS Terpantau",
       icon: History,
-      color: 'bg-purple-500 text-white',
-      link: '#logs',
+      color: "bg-purple-500 text-white",
+      link: "#logs",
     },
   ];
 
@@ -71,10 +74,12 @@ export const AdminDashboardPage: React.FC = () => {
             <span>Sistem Manajemen Konten Kurikulum 2026</span>
           </div>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold text-white">
-            Selamat Datang, {settings.adminProfile.name}
+            Selamat Datang, {settings.adminProfile?.name || "Administrator"}
           </h1>
           <p className="text-xs sm:text-sm text-chem-glow/80 leading-relaxed">
-            Kelola materi kimia inklusif, simulasi interaktif, lembar kerja reflektif, serta paket evaluasi mandiri dari satu pusat kendali terintegrasi.
+            Kelola materi kimia inklusif, simulasi interaktif, lembar kerja
+            reflektif, serta paket evaluasi mandiri dari satu pusat kendali
+            terintegrasi.
           </p>
         </div>
 
@@ -110,7 +115,9 @@ export const AdminDashboardPage: React.FC = () => {
                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                   {m.title}
                 </span>
-                <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${m.color} shadow-xs group-hover:scale-105 transition-transform`}>
+                <div
+                  className={`w-10 h-10 rounded-2xl flex items-center justify-center ${m.color} shadow-xs group-hover:scale-105 transition-transform`}
+                >
                   <Icon className="w-5 h-5" />
                 </div>
               </div>
@@ -186,13 +193,19 @@ export const AdminDashboardPage: React.FC = () => {
           </div>
 
           <div className="p-4 bg-chem-subtle/70 rounded-2xl border border-chem-border text-[11px] text-chem-ash leading-relaxed">
-            <span className="font-bold text-chem-dark block mb-1">Status Sinkronisasi Data:</span>
-            Penyimpanan aktif menggunakan berkas JSON terstruktur yang disinkronkan secara aman ke media persisten browser.
+            <span className="font-bold text-chem-dark block mb-1">
+              Status Sinkronisasi Data:
+            </span>
+            Penyimpanan aktif menggunakan berkas JSON terstruktur yang
+            disinkronkan secara aman ke media persisten browser.
           </div>
         </div>
 
         {/* 3. LOG PEMBARUAN KONTEN (8 Cols) */}
-        <div id="logs" className="lg:col-span-8 bg-white p-6 rounded-3xl border border-slate-200 shadow-2xs space-y-4">
+        <div
+          id="logs"
+          className="lg:col-span-8 bg-white p-6 rounded-3xl border border-slate-200 shadow-2xs space-y-4"
+        >
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
               <History className="w-5 h-5 text-chem-forest" />
@@ -212,17 +225,20 @@ export const AdminDashboardPage: React.FC = () => {
               </p>
             ) : (
               logs.map((log) => (
-                <div key={log.id} className="py-3.5 flex items-center justify-between gap-4">
+                <div
+                  key={log.id}
+                  className="py-3.5 flex items-center justify-between gap-4"
+                >
                   <div className="flex items-center gap-3">
                     <span
                       className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-md uppercase ${
-                        log.action === 'create'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : log.action === 'publish'
-                          ? 'bg-blue-100 text-blue-800'
-                          : log.action === 'delete'
-                          ? 'bg-rose-100 text-rose-800'
-                          : 'bg-amber-100 text-amber-800'
+                        log.action === "create"
+                          ? "bg-emerald-100 text-emerald-800"
+                          : log.action === "publish"
+                            ? "bg-blue-100 text-blue-800"
+                            : log.action === "delete"
+                              ? "bg-rose-100 text-rose-800"
+                              : "bg-amber-100 text-amber-800"
                       }`}
                     >
                       {log.action}

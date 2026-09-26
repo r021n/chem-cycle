@@ -27,7 +27,7 @@ const navItems = [
 export const AdminSidebar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout, settings } = useDataStore();
+  const { logout } = useDataStore();
   const {
     sidebarCollapsed,
     toggleSidebar,
@@ -137,33 +137,12 @@ export const AdminSidebar: React.FC = () => {
           </nav>
         </div>
 
-        {/* Sidebar Footer: User profile & Public Portal link */}
+        {/* Sidebar Footer: Public Portal link & Logout */}
         <div
-          className={`border-t border-white/10 space-y-4 ${collapsed ? "p-3" : "p-6"}`}
+          className={`border-t border-white/10 space-y-2 ${collapsed ? "p-3" : "p-4"}`}
         >
-          <div
-            className={`flex items-center ${collapsed ? "justify-center" : "gap-3"}`}
-          >
-            <img
-              src={settings.adminProfile.avatarUrl}
-              alt={settings.adminProfile.name}
-              title={collapsed ? settings.adminProfile.name : undefined}
-              className="w-9 h-9 rounded-full object-cover border border-chem-mint/40 shrink-0"
-            />
-            {!collapsed && (
-              <div className="overflow-hidden">
-                <span className="text-xs font-bold text-white block truncate">
-                  {settings.adminProfile.name}
-                </span>
-                <span className="text-[10px] text-chem-glow/70 block truncate">
-                  {settings.adminProfile.role}
-                </span>
-              </div>
-            )}
-          </div>
-
           {!collapsed && (
-            <div className="space-y-1.5 pt-2 border-t border-white/10 text-xs">
+            <div className="space-y-1.5 text-xs">
               <Link
                 to="/"
                 target="_blank"
@@ -172,10 +151,7 @@ export const AdminSidebar: React.FC = () => {
               >
                 <span className="flex items-center gap-2">
                   <ExternalLink className="w-3.5 h-3.5" />
-                  <span>Lihat Portal Publik</span>
-                </span>
-                <span className="text-[10px] bg-chem-forest px-1.5 py-0.5 rounded text-chem-glow">
-                  Live
+                  <span>Lihat Beranda</span>
                 </span>
               </Link>
 
@@ -191,7 +167,7 @@ export const AdminSidebar: React.FC = () => {
           )}
 
           {collapsed && (
-            <div className="flex flex-col items-center gap-1.5 pt-2 border-t border-white/10">
+            <div className="flex flex-col items-center gap-1.5">
               <Link
                 to="/"
                 target="_blank"

@@ -17,7 +17,7 @@ describe('EcoInclusive Dynamic Architecture & Features', () => {
       expect(state.materials.length).toBeGreaterThan(0);
       expect(state.activities.length).toBeGreaterThan(0);
       expect(state.quizzes.length).toBeGreaterThan(0);
-      expect(state.settings.adminProfile.name).toBeDefined();
+      expect(state.settings.adminProfile.username).toBeDefined();
     });
 
     it('should perform Material CRUD correctly', () => {

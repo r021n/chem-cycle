@@ -8,7 +8,6 @@ import {
 export interface EditorQuestion {
   id: string;
   sections: QuizSection[];
-  chemicalFormula: string;
   choices: QuizChoice[];
   correctAnswerIds: string[];
   explanation: string;
@@ -24,8 +23,6 @@ export function createSection(type: QuizSectionType): QuizSection {
   switch (type) {
     case 'text':
       return { id: uid('sec'), type: 'text', text: '' };
-    case 'formula':
-      return { id: uid('sec'), type: 'formula', formula: '', caption: '' };
     case 'callout':
       return { id: uid('sec'), type: 'callout', text: '', emoji: '💡' };
     case 'heading':
@@ -57,11 +54,6 @@ export function deriveQuestionText(sections: QuizSection[]): string {
 
   if (textParts.length > 0) return textParts.join(' ');
 
-  const formulaSec = sections.find(
-    (s): s is Extract<QuizSection, { type: 'formula' }> => s.type === 'formula' && !!s.formula.trim()
-  );
-  if (formulaSec) return formulaSec.formula.trim();
-
   const imageCaption = sections.find(
     (s): s is Extract<QuizSection, { type: 'image' }> => s.type === 'image' && !!s.caption
   );
@@ -84,9 +76,6 @@ function legacySections(question: QuizQuestion): QuizSection[] {
   if (question.stimulusImage) {
     sections.push({ id: uid('sec'), type: 'image', dataUrl: question.stimulusImage, caption: '' });
   }
-  if (question.chemicalFormula?.trim()) {
-    sections.push({ id: uid('sec'), type: 'formula', formula: question.chemicalFormula.trim(), caption: '' });
-  }
   if (question.questionText?.trim()) {
     sections.push({ id: uid('sec'), type: 'text', text: question.questionText });
   }
@@ -97,25 +86,16 @@ function legacySections(question: QuizQuestion): QuizSection[] {
 }
 
 export function toEditorQuestion(question: QuizQuestion): EditorQuestion {
-  let sections: QuizSection[] =
+  const sections: QuizSection[] =
     question.sections && question.sections.length > 0
       ? question.sections.map((s) => ({ ...s }) as QuizSection)
       : legacySections(question);
-
-  // If question has legacy chemicalFormula but it's not yet in sections, add it as a block
-  if (question.chemicalFormula?.trim() && !sections.some((s) => s.type === 'formula')) {
-    sections = [
-      ...sections,
-      { id: uid('sec'), type: 'formula', formula: question.chemicalFormula.trim(), caption: '' },
-    ];
-  }
 
   const correctIds = getCorrectAnswerIds(question);
 
   return {
     id: question.id,
     sections,
-    chemicalFormula: question.chemicalFormula || '',
     choices:
       question.choices.length > 0
         ? question.choices.map((c) => ({ ...c }))
@@ -131,7 +111,6 @@ export function createEditorQuestion(): EditorQuestion {
   return {
     id: uid('q'),
     sections: [{ id: uid('sec'), type: 'text', text: '' }],
-    chemicalFormula: '',
     choices: [createChoice(), createChoice(), createChoice(), createChoice()],
     correctAnswerIds: [],
     explanation: '',
@@ -145,17 +124,10 @@ export function toQuizQuestion(question: EditorQuestion): QuizQuestion {
     question.choices.some((c) => c.id === id)
   );
 
-  // Extract chemical formula from block sections if present, ensuring complete sync
-  const formulaSection = question.sections.find(
-    (s): s is Extract<QuizSection, { type: 'formula' }> => s.type === 'formula' && !!s.formula.trim()
-  );
-  const resolvedFormula = formulaSection?.formula.trim() || question.chemicalFormula?.trim() || undefined;
-
   return {
     id: question.id,
     sections: question.sections,
     questionText: deriveQuestionText(question.sections),
-    chemicalFormula: resolvedFormula,
     choices: question.choices,
     correctAnswerIds,
     correctAnswerId: correctAnswerIds[0],

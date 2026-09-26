@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useDataStore } from '../../store/dataStore';
+import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDataStore } from "../../store/dataStore";
 import {
   Plus,
   Edit,
@@ -9,31 +9,33 @@ import {
   XCircle,
   Search,
   Paperclip,
-} from 'lucide-react';
+} from "lucide-react";
 
 export const AdminActivitiesPage: React.FC = () => {
   const navigate = useNavigate();
   const { activities, deleteActivity, togglePublishActivity } = useDataStore();
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "published" | "draft"
+  >("all");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const filteredActivities = useMemo(() => {
     return activities.filter((act) => {
       const matchSearch =
         act.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (act.summary || '').toLowerCase().includes(searchQuery.toLowerCase());
+        (act.summary || "").toLowerCase().includes(searchQuery.toLowerCase());
       const matchStatus =
-        statusFilter === 'all' ||
-        (statusFilter === 'published' && act.isPublished) ||
-        (statusFilter === 'draft' && !act.isPublished);
+        statusFilter === "all" ||
+        (statusFilter === "published" && act.isPublished) ||
+        (statusFilter === "draft" && !act.isPublished);
       return matchSearch && matchStatus;
     });
   }, [activities, searchQuery, statusFilter]);
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto font-sans">
+    <div className="space-y-6 mx-auto font-sans">
       {/* Page Title & Add Button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <div>
@@ -41,13 +43,14 @@ export const AdminActivitiesPage: React.FC = () => {
             Manajemen Aktivitas & Pengumuman
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Bagikan instruksi tugas, pengumuman kelas, dan lampiran berkas belajar.
+            Bagikan instruksi tugas, pengumuman kelas, dan lampiran berkas
+            belajar.
           </p>
         </div>
 
         <button
           type="button"
-          onClick={() => navigate('/admin/aktivitas/baru')}
+          onClick={() => navigate("/admin/aktivitas/baru")}
           className="px-4 py-2.5 bg-chem-forest hover:bg-chem-moss text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
         >
           <Plus className="w-4 h-4 text-chem-glow" />
@@ -71,7 +74,9 @@ export const AdminActivitiesPage: React.FC = () => {
         <div className="w-full sm:w-48">
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as 'all' | 'published' | 'draft')}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as "all" | "published" | "draft")
+            }
             className="w-full py-2 px-3 text-xs bg-white border border-slate-200 rounded-xl cursor-pointer shadow-2xs focus:outline-none"
           >
             <option value="all">Semua Status</option>
@@ -104,7 +109,10 @@ export const AdminActivitiesPage: React.FC = () => {
                 filteredActivities.map((act) => {
                   const attachmentCount = act.attachments?.length || 0;
                   return (
-                    <tr key={act.id} className="hover:bg-slate-50/70 transition-colors">
+                    <tr
+                      key={act.id}
+                      className="hover:bg-slate-50/70 transition-colors"
+                    >
                       <td className="py-3 px-4">
                         <div className="min-w-0">
                           <span className="font-semibold text-slate-900 block truncate">
@@ -135,8 +143,8 @@ export const AdminActivitiesPage: React.FC = () => {
                           onClick={() => togglePublishActivity(act.id)}
                           className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold cursor-pointer transition-all ${
                             act.isPublished
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : 'bg-slate-100 text-slate-600 border border-slate-200'
+                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                              : "bg-slate-100 text-slate-600 border border-slate-200"
                           }`}
                         >
                           {act.isPublished ? (
@@ -157,7 +165,9 @@ export const AdminActivitiesPage: React.FC = () => {
                         <div className="flex items-center justify-end gap-1">
                           <button
                             type="button"
-                            onClick={() => navigate(`/admin/aktivitas/${act.id}/edit`)}
+                            onClick={() =>
+                              navigate(`/admin/aktivitas/${act.id}/edit`)
+                            }
                             className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg cursor-pointer"
                             title="Edit"
                           >

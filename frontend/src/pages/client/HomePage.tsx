@@ -5,7 +5,6 @@ import {
   BookOpen,
   FlaskConical,
   CheckCircle2,
-  Sparkles,
   Recycle,
   GraduationCap,
   CloudRain,
@@ -13,15 +12,14 @@ import {
 } from "lucide-react";
 
 const HERO = {
-  badge: "Kurikulum Kimia Sirkular & Inklusif 2026",
   title: "Eksplorasi Kimia Hijau & Siklus Energi Terbuka",
   subtitle:
     "Platform kimia interaktif berbasis UDL dan WCAG 2.1 AA, dengan modul termokimia, kinetika, dan ekonomi sirkular.",
   bannerImage:
     "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=1400&q=80",
-  primaryCtaText: "Mulai Belajar Sekarang",
+  primaryCtaText: "Mulai Sekarang",
   primaryCtaLink: "/materi",
-  secondaryCtaText: "Buka Ruang Simulasi",
+  secondaryCtaText: "Buka Aktivitas",
   secondaryCtaLink: "/aktivitas",
 };
 
@@ -60,7 +58,8 @@ const SDG_GOALS = [
   {
     number: 4,
     title: "Pendidikan Berkualitas",
-    description: "Akses pembelajaran sains terbuka dan inklusif bagi semua profil belajar.",
+    description:
+      "Akses pembelajaran sains terbuka dan inklusif bagi semua profil belajar.",
     color: "#c5192d",
     Icon: GraduationCap,
   },
@@ -91,11 +90,6 @@ export const HomePage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Narrative */}
             <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-chem-glow/80 border border-chem-sage/40 text-chem-forest text-xs font-semibold shadow-xs">
-                <Sparkles className="w-3.5 h-3.5 text-chem-sage" />
-                <span>{HERO.badge}</span>
-              </div>
-
               <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-chem-dark leading-[1.15]">
                 {HERO.title}
               </h1>
@@ -132,7 +126,7 @@ export const HomePage: React.FC = () => {
                   alt="Laboratorium Pembelajaran Kimia Sirkular"
                   className="w-full h-80 sm:h-96 object-cover object-center group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-chem-dark/80 via-transparent to-transparent flex flex-col justify-end p-6 text-white">
+                <div className="absolute inset-0 bg-linear-to-t from-chem-dark/80 via-transparent to-transparent flex flex-col justify-end p-6 text-white">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-emerald-500 text-black font-bold">
                       Studi Kasus

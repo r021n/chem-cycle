@@ -10,7 +10,6 @@ import {
   Pilcrow,
   Trash2,
   MonitorPlay,
-  FlaskConical,
   Heading2,
   AlertCircle,
   Minus,
@@ -22,7 +21,6 @@ import {
 import { QuizSection, QuizSectionType } from '../../types/app';
 import { compressImageToDataUrl, getYoutubeEmbedUrl } from '../../lib/media';
 import { formatFileSize, cn } from '../../lib/utils';
-import { ChemFormula } from '../common/ChemFormula';
 
 export interface QuizSectionEditorProps {
   section: QuizSection;
@@ -46,13 +44,6 @@ export const BLOCK_METAS: Record<
     icon: Pilcrow,
     hint: 'Paragraf narasi atau pertanyaan',
     category: 'Dasar',
-  },
-  formula: {
-    label: 'Persamaan Kimia',
-    icon: FlaskConical,
-    hint: 'Rumus reaksi, termokimia & ionik dengan live preview',
-    category: 'Sains',
-    badge: 'Formula',
   },
   heading: {
     label: 'Subjudul',
@@ -98,26 +89,6 @@ export const BLOCK_METAS: Record<
   },
 };
 
-const QUICK_CHEM_CHIPS: { label: string; value: string; desc: string }[] = [
-  { label: '→', value: ' -> ', desc: 'Panah reaksi' },
-  { label: '⇌', value: ' <=> ', desc: 'Reaksi bolak-balik' },
-  { label: 'ΔH', value: ' (ΔH = kJ/mol)', desc: 'Entalpi' },
-  { label: '(s)', value: '(s)', desc: 'Padat' },
-  { label: '(l)', value: '(l)', desc: 'Cair' },
-  { label: '(g)', value: '(g)', desc: 'Gas' },
-  { label: '(aq)', value: '(aq)', desc: 'Larutan' },
-  { label: '⁺', value: '^+', desc: 'Kation' },
-  { label: '⁻', value: '^-', desc: 'Anion' },
-  { label: '²⁺', value: '^2+', desc: 'Ion +2' },
-  { label: '²⁻', value: '^2-', desc: 'Ion -2' },
-  { label: '³⁺', value: '^3+', desc: 'Ion +3' },
-  { label: '°C', value: '°C', desc: 'Suhu' },
-  { label: 'kJ', value: ' kJ', desc: 'Kilojoule' },
-  { label: 'H₂O', value: 'H2O', desc: 'Air' },
-  { label: 'CO₂', value: 'CO2', desc: 'Karbon dioksida' },
-  { label: 'O₂', value: 'O2', desc: 'Oksigen' },
-];
-
 const CALLOUT_EMOJIS = ['💡', '⚠️', '🧪', '📌', '🔍', '📝', '❓', '⚡'];
 
 export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
@@ -132,7 +103,6 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
   onConvertType,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const formulaInputRef = useRef<HTMLInputElement>(null);
   const [isCompressing, setIsCompressing] = useState(false);
   const [mediaError, setMediaError] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -158,27 +128,6 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
     }
   };
 
-  const insertSymbolIntoFormula = (symbol: string) => {
-    if (section.type !== 'formula') return;
-    const input = formulaInputRef.current;
-    if (!input) {
-      onChange({ ...section, formula: (section.formula || '') + symbol });
-      return;
-    }
-
-    const start = input.selectionStart ?? input.value.length;
-    const end = input.selectionEnd ?? input.value.length;
-    const current = section.formula || '';
-    const updated = current.substring(0, start) + symbol + current.substring(end);
-    onChange({ ...section, formula: updated });
-
-    window.setTimeout(() => {
-      input.focus();
-      const nextPos = start + symbol.length;
-      input.setSelectionRange(nextPos, nextPos);
-    }, 10);
-  };
-
   const convertBlock = (targetType: QuizSectionType) => {
     if (targetType === section.type) {
       setIsConvertMenuOpen(false);
@@ -196,16 +145,11 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
     let currentText = '';
     if (section.type === 'text' || section.type === 'callout' || section.type === 'heading') {
       currentText = section.text || '';
-    } else if (section.type === 'formula') {
-      currentText = section.formula || '';
     }
 
     switch (targetType) {
       case 'text':
         onChange({ id: section.id, type: 'text', text: currentText });
-        break;
-      case 'formula':
-        onChange({ id: section.id, type: 'formula', formula: currentText, caption: '' });
         break;
       case 'heading':
         onChange({ id: section.id, type: 'heading', text: currentText, level: 2 });
@@ -245,71 +189,6 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
             placeholder="Tulis teks stimulus, pengantar kasus, atau kalimat soal..."
             className="w-full text-sm text-slate-800 leading-relaxed bg-transparent resize-y focus:outline-none placeholder:text-slate-400 font-sans"
           />
-        );
-
-      case 'formula':
-        return (
-          <div className="space-y-3">
-            {/* Input & Helper toolbar */}
-            <div className="space-y-2">
-              <div className="relative">
-                <input
-                  ref={formulaInputRef}
-                  type="text"
-                  value={section.formula}
-                  onChange={(e) => onChange({ ...section, formula: e.target.value })}
-                  placeholder="Contoh: CH4(g) + 2O2(g) -> CO2(g) + 2H2O(l) (ΔH = -890.4 kJ)"
-                  className="w-full text-xs sm:text-sm font-mono p-3 pr-8 bg-slate-50 border border-chem-sage/40 rounded-xl focus:outline-none focus:border-chem-forest focus:ring-1 focus:ring-chem-sage text-slate-900"
-                />
-              </div>
-
-              {/* Chemistry Symbols Palette */}
-              <div className="flex flex-wrap items-center gap-1.5 p-2 bg-slate-50/80 rounded-xl border border-slate-200">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1 mr-1">
-                  <Sparkles className="w-3 h-3 text-chem-sage" /> Simbol Cepat:
-                </span>
-                {QUICK_CHEM_CHIPS.map((chip) => (
-                  <button
-                    key={chip.label}
-                    type="button"
-                    title={chip.desc}
-                    onClick={() => insertSymbolIntoFormula(chip.value)}
-                    className="px-2 py-1 bg-white hover:bg-chem-glow/50 hover:text-chem-forest border border-slate-200 hover:border-chem-sage rounded-lg text-xs font-mono font-semibold text-slate-700 transition-colors cursor-pointer"
-                  >
-                    {chip.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Live Visual Chemical Formula Preview */}
-            <div className="rounded-xl border border-chem-sage/30 bg-chem-glow/20 p-3.5 flex flex-col items-center justify-center text-center space-y-1.5 transition-all">
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-chem-forest/80">
-                Pratinjau Live Persamaan Reaksi
-              </span>
-              {section.formula?.trim() ? (
-                <div className="overflow-x-auto max-w-full py-1">
-                  <ChemFormula
-                    formula={section.formula}
-                    className="text-base sm:text-lg font-bold text-chem-forest"
-                  />
-                </div>
-              ) : (
-                <span className="text-xs text-slate-400 italic">
-                  Ketik persamaan atau klik tombol simbol di atas untuk melihat rumus terformat otomatis...
-                </span>
-              )}
-            </div>
-
-            {/* Optional caption */}
-            <input
-              type="text"
-              value={section.caption || ''}
-              onChange={(e) => onChange({ ...section, caption: e.target.value })}
-              placeholder="Keterangan rumus/reaksi kimia (opsional)..."
-              className="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-chem-sage text-slate-700"
-            />
-          </div>
         );
 
       case 'heading':
@@ -558,9 +437,7 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
     <div
       className={cn(
         'group/block relative rounded-2xl border transition-all',
-        section.type === 'formula'
-          ? 'bg-emerald-50/20 border-emerald-200/80 shadow-2xs'
-          : section.type === 'callout'
+        section.type === 'callout'
           ? 'bg-amber-50/30 border-amber-200/60'
           : section.type === 'divider'
           ? 'border-transparent bg-transparent'
@@ -687,9 +564,7 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
             <span
               className={cn(
                 'w-5 h-5 rounded-md flex items-center justify-center text-xs',
-                section.type === 'formula'
-                  ? 'bg-emerald-100 text-emerald-800'
-                  : section.type === 'callout'
+                section.type === 'callout'
                   ? 'bg-amber-100 text-amber-800'
                   : 'bg-slate-100 text-slate-600'
               )}

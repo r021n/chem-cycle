@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDataStore } from '../../store/dataStore';
-import { ChemFormula } from '../../components/common/ChemFormula';
 import { QuizSectionViewer } from '../../components/editor/quiz-section-viewer';
 import { getCorrectAnswerIds } from '../../lib/quiz';
 import {
@@ -283,12 +282,6 @@ export const QuizPlayerPage: React.FC = () => {
                       </h3>
                     </div>
                   </>
-                )}
-
-                {currentQ.chemicalFormula && !currentQ.sections?.some((s) => s.type === 'formula') && (
-                  <div className="p-3 bg-chem-subtle/80 rounded-xl border border-chem-border">
-                    <ChemFormula formula={currentQ.chemicalFormula} className="text-sm font-bold text-chem-forest" />
-                  </div>
                 )}
 
                 {isCurrentMulti && !isCurrentSubmitted && (

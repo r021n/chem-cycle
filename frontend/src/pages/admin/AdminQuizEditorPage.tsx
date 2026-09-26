@@ -180,15 +180,10 @@ export const AdminQuizEditorPage: React.FC = () => {
         let currentText = '';
         if (current.type === 'text' || current.type === 'callout' || current.type === 'heading') {
           currentText = current.text || '';
-        } else if (current.type === 'formula') {
-          currentText = current.formula || '';
         }
 
         let converted: QuizSection;
         switch (newType) {
-          case 'formula':
-            converted = { id: current.id, type: 'formula', formula: currentText, caption: '' };
-            break;
           case 'heading':
             converted = { id: current.id, type: 'heading', text: currentText, level: 2 };
             break;
@@ -332,7 +327,6 @@ export const AdminQuizEditorPage: React.FC = () => {
       (s) =>
         (s.type === 'text' && s.text.trim()) ||
         (s.type === 'heading' && s.text.trim()) ||
-        (s.type === 'formula' && s.formula.trim()) ||
         (s.type === 'callout' && s.text.trim())
     );
     const hasMedia = q.sections.some(
@@ -620,7 +614,6 @@ export const AdminQuizEditorPage: React.FC = () => {
               const isOpen = openIds.includes(question.id);
               const isComplete = checkQuestionComplete(question);
               const summary = deriveQuestionText(question.sections);
-              const hasFormula = question.sections.some((s) => s.type === 'formula');
 
               return (
                 <div
@@ -646,12 +639,6 @@ export const AdminQuizEditorPage: React.FC = () => {
                       <span className="text-xs text-slate-700 font-medium truncate">
                         {summary || '(Belum ada teks soal)'}
                       </span>
-                      {hasFormula && (
-                        <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full shrink-0">
-                          <FlaskConical className="w-3 h-3 text-emerald-600" />
-                          Rumus Kimia
-                        </span>
-                      )}
                       {!isComplete && (
                         <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
                           <AlertTriangle className="w-3 h-3" />
@@ -710,7 +697,7 @@ export const AdminQuizEditorPage: React.FC = () => {
                             Kanvas Blok Soal &amp; Stimulus (Notion)
                           </span>
                           <span className="text-[11px] text-slate-400">
-                            Susun teks, persamaan kimia, atau gambar secara dinamis
+                            Susun teks, gambar, atau media secara dinamis
                           </span>
                         </div>
 
@@ -819,18 +806,6 @@ export const AdminQuizEditorPage: React.FC = () => {
                               <Plus className="w-4 h-4 text-chem-forest" />
                               <span>Tambah Blok Baru</span>
                             </button>
-
-                            {/* Shortcut: Tambah Persamaan Kimia langsung jika belum ada */}
-                            {!hasFormula && (
-                              <button
-                                type="button"
-                                onClick={() => addSection(question.id, 'formula')}
-                                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-colors cursor-pointer"
-                              >
-                                <FlaskConical className="w-3.5 h-3.5 text-emerald-700" />
-                                <span>+ Persamaan Kimia</span>
-                              </button>
-                            )}
                           </div>
 
                           {/* Notion Add Block Menu Popup */}
@@ -1123,7 +1098,7 @@ export const AdminQuizEditorPage: React.FC = () => {
 
             {currentPreviewQ ? (
               <div className="space-y-6 max-w-3xl mx-auto">
-                {/* Block Viewer renders all blocks including formula, image, youtube, list, callout */}
+                {/* Block Viewer renders all blocks including image, youtube, list, callout */}
                 <div className="bg-slate-50/60 p-6 rounded-2xl border border-slate-200 space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-mono font-bold uppercase text-chem-forest">

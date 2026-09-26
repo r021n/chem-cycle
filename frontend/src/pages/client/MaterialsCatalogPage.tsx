@@ -1,11 +1,11 @@
-import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { useDataStore } from '../../store/dataStore';
-import { Search, BookOpen, ChevronRight, Home } from 'lucide-react';
+import React, { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
+import { useDataStore } from "../../store/dataStore";
+import { Search, BookOpen, ChevronRight, Home } from "lucide-react";
 
 export const MaterialsCatalogPage: React.FC = () => {
   const { materials } = useDataStore();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   const publishedMaterials = useMemo(() => {
     return [...materials]
@@ -18,7 +18,7 @@ export const MaterialsCatalogPage: React.FC = () => {
     return publishedMaterials.filter(
       (m) =>
         m.title.toLowerCase().includes(q) ||
-        (m.summary || '').toLowerCase().includes(q)
+        (m.summary || "").toLowerCase().includes(q),
     );
   }, [publishedMaterials, searchQuery]);
 
@@ -45,12 +45,13 @@ export const MaterialsCatalogPage: React.FC = () => {
             Katalog Modul Pembelajaran
           </h1>
           <p className="text-xs sm:text-sm text-chem-ash max-w-2xl leading-relaxed">
-            Eksplorasi modul materi kimia terbuka secara bertahap dan terstruktur.
+            Eksplorasi modul materi kimia terbuka secara bertahap dan
+            terstruktur.
           </p>
         </div>
 
         <div className="bg-white p-4 rounded-3xl border border-chem-border shadow-subtle">
-          <div className="relative w-full md:w-96">
+          <div className="relative w-full">
             <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-chem-ash" />
             <input
               type="text"

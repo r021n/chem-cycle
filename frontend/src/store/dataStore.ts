@@ -8,6 +8,7 @@ import {
   ContentLog,
   MaterialComment,
 } from '../types/app';
+import { BlockAstNode } from '../types/material';
 
 import rawMaterials from '../data/materials.json';
 import rawActivities from '../data/activities.json';
@@ -64,7 +65,56 @@ function sanitizeActivities(saved: ActivityModule[], seed: ActivityModule[]): Ac
     saveToStorage('activities', seed);
     return seed;
   }
-  return saved;
+  return stripRemovedBlocks(saved);
+}
+
+// Blok 'formula' (persamaan kimia) sudah dihapus dari aplikasi; data lama di
+// localStorage masih bisa memilikinya, jadi dibersihkan saat dimuat.
+function stripRemovedBlocks<T extends { contentJson?: string | BlockAstNode[] }>(items: T[]): T[] {
+  return items.map((item) => {
+    const raw = item.contentJson;
+    if (raw === undefined) return item;
+
+    let blocks: unknown;
+    if (typeof raw === 'string') {
+      try {
+        blocks = JSON.parse(raw);
+      } catch {
+        return item;
+      }
+    } else {
+      blocks = raw;
+    }
+    if (!Array.isArray(blocks)) return item;
+
+    const filtered = blocks.filter(
+      (b) => !(b && typeof b === 'object' && (b as { type?: string }).type === 'formula')
+    );
+    if (filtered.length === blocks.length) return item;
+
+    return {
+      ...item,
+      contentJson:
+        typeof raw === 'string' ? JSON.stringify(filtered) : (filtered as BlockAstNode[]),
+    };
+  });
+}
+
+function stripRemovedQuizFields(quizzes: QuizPackage[]): QuizPackage[] {
+  return quizzes.map((pkg) => ({
+    ...pkg,
+    questions: (pkg.questions ?? []).map((question) => {
+      const { chemicalFormula: _legacyFormula, ...rest } = question as QuizQuestion & {
+        chemicalFormula?: string;
+      };
+      return {
+        ...rest,
+        sections: question.sections?.filter(
+          (s) => (s as { type?: string }).type !== 'formula'
+        ),
+      };
+    }),
+  }));
 }
 
 interface DataStoreState {
@@ -117,14 +167,18 @@ interface DataStoreState {
 
 export const useDataStore = create<DataStoreState>((set, get) => ({
   materials: mergeSeedComments(
-    loadFromStorage<ExtendedMaterial[]>('materials', rawMaterials as unknown as ExtendedMaterial[]),
+    stripRemovedBlocks(
+      loadFromStorage<ExtendedMaterial[]>('materials', rawMaterials as unknown as ExtendedMaterial[])
+    ),
     rawMaterials as unknown as ExtendedMaterial[]
   ),
   activities: sanitizeActivities(
     loadFromStorage<ActivityModule[]>('activities', rawActivities as unknown as ActivityModule[]),
     rawActivities as unknown as ActivityModule[]
   ),
-  quizzes: loadFromStorage<QuizPackage[]>('quizzes', rawQuizzes as unknown as QuizPackage[]),
+  quizzes: stripRemovedQuizFields(
+    loadFromStorage<QuizPackage[]>('quizzes', rawQuizzes as unknown as QuizPackage[])
+  ),
   settings: loadFromStorage<SiteSettings>('settings', rawSettings as unknown as SiteSettings),
   logs: loadFromStorage<ContentLog[]>('logs', rawLogs as unknown as ContentLog[]),
   isAuthenticated: !!localStorage.getItem(`${STORAGE_KEY_PREFIX}auth_token`),
@@ -150,7 +204,7 @@ export const useDataStore = create<DataStoreState>((set, get) => ({
   },
 
   pushLog: (action, entityType, entityTitle) => {
-    const author = get().settings.adminProfile.name || 'Admin';
+    const author = get().settings.adminProfile?.name || 'Admin';
     const newLog: ContentLog = {
       id: `log-${Date.now()}`,
       action,
