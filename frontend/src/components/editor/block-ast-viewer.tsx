@@ -87,7 +87,7 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({ contentJson, cla
   };
 
   return (
-    <div className={`space-y-4 text-slate-800 leading-relaxed ${className || ''}`}>
+    <div className={`space-y-4 text-slate-800 leading-relaxed break-words ${className || ''}`}>
       {blocks.map((block, index) => {
         switch (block.type) {
           case 'heading': {
@@ -96,7 +96,7 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({ contentJson, cla
               return (
                 <h1
                   key={block.id || index}
-                  className="text-2xl font-bold text-slate-900 mt-6 mb-3 border-b border-slate-200 pb-2"
+                  className="text-xl sm:text-2xl font-bold text-slate-900 mt-6 mb-3 border-b border-slate-200 pb-2"
                 >
                   {renderInlineContent(block.content)}
                 </h1>
@@ -170,12 +170,12 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({ contentJson, cla
             if (!rawSrc) return null;
             const src = resolveMediaUrl(rawSrc);
             return (
-              <figure key={block.id || index} className="my-6 rounded-xl border border-slate-200 p-2 bg-white shadow-xs">
+              <figure key={block.id || index} className="my-6 rounded-xl border border-slate-200 p-1.5 sm:p-2 bg-white shadow-xs">
                 <img
                   src={src}
                   alt={block.props?.caption || 'Ilustrasi kimia'}
                   onClick={() => setSelectedImage(src)}
-                  className="w-full max-h-[500px] object-contain rounded-lg cursor-pointer hover:opacity-95 transition-opacity"
+                  className="w-full max-h-[320px] sm:max-h-[500px] object-contain rounded-lg cursor-pointer hover:opacity-95 transition-opacity"
                 />
                 {block.props?.caption && (
                   <figcaption className="text-xs text-slate-500 mt-2 text-center">

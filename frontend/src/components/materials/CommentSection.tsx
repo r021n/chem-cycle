@@ -119,8 +119,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ materialId }) =>
 
   return (
     <section aria-labelledby="comments-heading" className="pt-10 mt-10 border-t border-chem-border">
-      <div className="flex items-center gap-2 mb-6">
-        <MessageSquare className="w-5 h-5 text-chem-sage" />
+      <div className="flex flex-wrap items-center gap-2 mb-6">
+        <MessageSquare className="w-5 h-5 text-chem-sage shrink-0" />
         <h2 id="comments-heading" className="font-serif text-xl font-bold text-chem-dark">
           Komentar Pembaca
         </h2>
@@ -156,7 +156,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ materialId }) =>
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Nama Anda"
-              className="w-full px-4 py-2.5 bg-white text-xs text-chem-dark rounded-xl border border-chem-border focus:border-chem-sage focus:outline-none transition-colors"
+              className="w-full px-4 py-3 sm:py-2.5 bg-white text-sm sm:text-xs text-chem-dark rounded-xl border border-chem-border focus:border-chem-sage focus:outline-none transition-colors"
             />
           </div>
           <div className="space-y-1.5">
@@ -170,7 +170,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ materialId }) =>
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="nama@email.com"
-              className="w-full px-4 py-2.5 bg-white text-xs text-chem-dark rounded-xl border border-chem-border focus:border-chem-sage focus:outline-none transition-colors"
+              className="w-full px-4 py-3 sm:py-2.5 bg-white text-sm sm:text-xs text-chem-dark rounded-xl border border-chem-border focus:border-chem-sage focus:outline-none transition-colors"
             />
           </div>
         </div>
@@ -187,7 +187,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ materialId }) =>
             onChange={(e) => setBody(e.target.value)}
             rows={4}
             placeholder="Tuliskan tanggapan, pertanyaan, atau hasil refleksi Anda..."
-            className="w-full px-4 py-3 bg-white text-xs text-chem-dark rounded-xl border border-chem-border focus:border-chem-sage focus:outline-none transition-colors resize-y leading-relaxed"
+            className="w-full px-4 py-3 bg-white text-sm sm:text-xs text-chem-dark rounded-xl border border-chem-border focus:border-chem-sage focus:outline-none transition-colors resize-y leading-relaxed"
           />
         </div>
 
@@ -205,7 +205,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ materialId }) =>
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-1">
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 pt-1">
           {cooldown > 0 ? (
             <span className="text-[11px] font-mono text-chem-ash">
               Cooldown spam: tunggu {cooldown}s
@@ -217,7 +217,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ materialId }) =>
           <button
             type="submit"
             disabled={submitting || cooldown > 0}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-chem-forest hover:bg-chem-moss disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 w-full sm:w-auto min-h-11 px-5 py-2.5 bg-chem-forest hover:bg-chem-moss disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer"
           >
             {submitting ? (
               <>
@@ -245,9 +245,9 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ materialId }) =>
           Belum ada komentar. Jadilah yang pertama memberikan tanggapan.
         </p>
       ) : (
-        <ul className="space-y-8">
+        <ul className="space-y-6 sm:space-y-8">
           {comments.map((c) => (
-            <li key={c.id} className="flex items-start gap-4">
+            <li key={c.id} className="flex items-start gap-3 sm:gap-4">
               <div className="w-10 h-10 rounded-full bg-chem-glow border border-chem-sage/40 flex items-center justify-center shrink-0">
                 <span className="text-xs font-bold text-chem-forest">{getInitials(c.name)}</span>
               </div>

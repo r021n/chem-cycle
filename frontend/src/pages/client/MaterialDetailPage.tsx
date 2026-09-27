@@ -62,28 +62,29 @@ export const MaterialDetailPage: React.FC = () => {
     <div className="min-h-screen bg-chem-paper lab-grid-bg text-chem-dark py-8 font-sans">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb Navigation */}
-        <div className="flex items-center justify-between mb-8">
-          <nav className="flex items-center gap-2 text-xs text-chem-ash" aria-label="Breadcrumb">
-            <Link to="/" className="hover:text-chem-forest flex items-center gap-1 transition-colors">
+        <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
+          <nav className="hidden sm:flex items-center gap-2 text-xs text-chem-ash min-w-0" aria-label="Breadcrumb">
+            <Link to="/" className="hover:text-chem-forest flex items-center gap-1 transition-colors shrink-0">
               <Home className="w-3.5 h-3.5" />
               <span>Beranda</span>
             </Link>
-            <ChevronRight className="w-3.5 h-3.5 text-chem-border" />
-            <Link to="/materi" className="hover:text-chem-forest transition-colors">
+            <ChevronRight className="w-3.5 h-3.5 text-chem-border shrink-0" />
+            <Link to="/materi" className="hover:text-chem-forest transition-colors shrink-0">
               Katalog Materi
             </Link>
-            <ChevronRight className="w-3.5 h-3.5 text-chem-border" />
-            <span className="font-semibold text-chem-dark line-clamp-1 max-w-[200px]">
+            <ChevronRight className="w-3.5 h-3.5 text-chem-border shrink-0" />
+            <span className="font-semibold text-chem-dark truncate">
               {material.title}
             </span>
           </nav>
 
           <Link
             to="/materi"
-            className="text-xs font-semibold text-chem-forest hover:text-chem-moss flex items-center gap-1"
+            className="text-xs font-semibold text-chem-forest hover:text-chem-moss flex items-center gap-1 min-h-9 shrink-0"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Katalog</span>
+            <span className="sm:hidden">Katalog Materi</span>
           </Link>
         </div>
 
@@ -103,12 +104,12 @@ export const MaterialDetailPage: React.FC = () => {
             )}
 
             {/* Byline & Meta */}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-3 mt-6 pb-6 border-b border-chem-border text-xs text-chem-ash">
+            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 sm:gap-x-4 sm:gap-y-3 mt-6 pb-6 border-b border-chem-border text-xs text-chem-ash">
               <span>Diperbarui {formatDate(material.updatedAt || material.createdAt)}</span>
               <button
                 type="button"
                 onClick={() => setScreenReaderActive(true)}
-                className="ml-auto inline-flex items-center gap-1.5 px-3 py-2 bg-chem-glow/60 hover:bg-chem-glow text-chem-forest font-semibold rounded-xl border border-chem-sage/30 transition-colors cursor-pointer"
+                className="sm:ml-auto inline-flex items-center justify-center gap-1.5 px-4 min-h-11 sm:min-h-0 sm:py-2 bg-chem-glow/60 hover:bg-chem-glow text-chem-forest font-semibold rounded-xl border border-chem-sage/30 transition-colors cursor-pointer"
               >
                 <Volume2 className="w-4 h-4 text-chem-sage" />
                 <span>Dengarkan (TTS)</span>
@@ -122,7 +123,7 @@ export const MaterialDetailPage: React.FC = () => {
               <img
                 src={resolveMediaUrl(material.coverUrl)}
                 alt={material.title}
-                className="w-full h-56 sm:h-80 object-cover rounded-2xl"
+                className="w-full h-52 sm:h-80 object-cover rounded-2xl"
               />
             </figure>
           )}
@@ -138,11 +139,11 @@ export const MaterialDetailPage: React.FC = () => {
           </div>
 
           {/* Prev / Next Navigation */}
-          <nav className="mt-12 pt-6 border-t border-chem-border grid grid-cols-1 sm:grid-cols-2 gap-6" aria-label="Navigasi Antar Bab">
+          <nav className="mt-12 pt-6 border-t border-chem-border grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6" aria-label="Navigasi Antar Bab">
             {prevMaterial ? (
               <Link
                 to={`/materi/${prevMaterial.slug || prevMaterial.id}`}
-                className="group text-left"
+                className="group text-left bg-white border border-chem-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0"
               >
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
                   <ChevronLeft className="w-3.5 h-3.5" />
@@ -153,7 +154,7 @@ export const MaterialDetailPage: React.FC = () => {
                 </span>
               </Link>
             ) : (
-              <Link to="/materi" className="group text-left">
+              <Link to="/materi" className="group text-left bg-white border border-chem-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0">
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
                   <ArrowLeft className="w-3.5 h-3.5" />
                   Katalog Materi
@@ -167,7 +168,7 @@ export const MaterialDetailPage: React.FC = () => {
             {nextMaterial ? (
               <Link
                 to={`/materi/${nextMaterial.slug || nextMaterial.id}`}
-                className="group text-right sm:col-start-2"
+                className="group text-left sm:text-right sm:col-start-2 bg-white border border-chem-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0"
               >
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
                   Bab Selanjutnya
@@ -178,7 +179,7 @@ export const MaterialDetailPage: React.FC = () => {
                 </span>
               </Link>
             ) : (
-              <Link to="/aktivitas" className="group text-right sm:col-start-2">
+              <Link to="/aktivitas" className="group text-left sm:text-right sm:col-start-2 bg-white border border-chem-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0">
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
                   Langkah Berikutnya
                   <ChevronRight className="w-3.5 h-3.5" />

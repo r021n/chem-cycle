@@ -48,7 +48,7 @@ export const QuizCatalogPage: React.FC = () => {
 
         {/* Dynamic Quiz Packages Grid */}
         {publishedQuizzes.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-chem-border p-12 text-center text-chem-ash">
+          <div className="bg-white rounded-3xl border border-chem-border p-8 sm:p-12 text-center text-chem-ash">
             <HelpCircle className="w-12 h-12 mx-auto text-chem-sage mb-3 opacity-60" />
             <h3 className="font-serif text-lg font-bold text-chem-dark">
               {isLoading ? 'Memuat paket latihan soal...' : 'Belum Ada Latihan Soal'}
@@ -60,58 +60,106 @@ export const QuizCatalogPage: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {publishedQuizzes.map((quiz) => (
-              <Link
-                key={quiz.id}
-                to={`/kuis/${quiz.id}`}
-                className="bg-white rounded-3xl border border-chem-border p-5 shadow-subtle hover:shadow-float hover:border-chem-sage transition-all flex flex-col gap-3 group"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono font-bold uppercase px-3 py-1 rounded-full bg-chem-glow text-chem-forest border border-chem-sage/40">
-                    {quiz.topic}
-                  </span>
-                  <span
-                    className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
-                      quiz.difficulty === 'Dasar'
-                        ? 'bg-blue-100 text-blue-800'
-                        : quiz.difficulty === 'Menengah'
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : 'bg-amber-100 text-amber-800'
-                    }`}
+          <>
+            {/* Mobile: compact rows */}
+            <ul className="md:hidden space-y-3">
+              {publishedQuizzes.map((quiz) => (
+                <li key={quiz.id}>
+                  <Link
+                    to={`/kuis/${quiz.id}`}
+                    className="flex items-center gap-3.5 bg-white rounded-2xl border border-chem-border p-3.5 shadow-subtle active:border-chem-sage transition-colors"
                   >
-                    {quiz.difficulty}
-                  </span>
-                </div>
+                    <div className="w-[88px] h-[88px] shrink-0 rounded-xl bg-chem-glow/60 border border-chem-sage/30 flex flex-col items-center justify-center">
+                      <HelpCircle className="w-6 h-6 text-chem-forest" />
+                      <span className="text-[10px] font-mono font-bold text-chem-forest mt-1">
+                        {quiz.questionsCount ?? quiz.questions?.length ?? 0} soal
+                      </span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-chem-glow text-chem-forest border border-chem-sage/40">
+                          {quiz.topic}
+                        </span>
+                        <span
+                          className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+                            quiz.difficulty === 'Dasar'
+                              ? 'bg-blue-100 text-blue-800'
+                              : quiz.difficulty === 'Menengah'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}
+                        >
+                          {quiz.difficulty}
+                        </span>
+                      </div>
+                      <h3 className="font-serif text-sm font-bold text-chem-dark leading-snug line-clamp-2 mt-1">
+                        {quiz.title}
+                      </h3>
+                      <div className="flex items-center gap-1 text-[10px] text-chem-ash mt-1.5">
+                        <Clock className="w-3 h-3 text-chem-sage" />
+                        <span>{quiz.durationMinutes} menit</span>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-chem-ash shrink-0" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
 
-                <div>
-                  <h3 className="font-serif text-lg font-bold text-chem-dark group-hover:text-chem-forest transition-colors leading-snug">
-                    {quiz.title}
-                  </h3>
-                  <p className="text-xs text-chem-ash mt-2 leading-relaxed line-clamp-2">
-                    {quiz.description}
-                  </p>
-                </div>
+            {/* Tablet & desktop: card grid */}
+            <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6">
+              {publishedQuizzes.map((quiz) => (
+                <Link
+                  key={quiz.id}
+                  to={`/kuis/${quiz.id}`}
+                  className="bg-white rounded-3xl border border-chem-border p-5 shadow-subtle hover:shadow-float hover:border-chem-sage transition-all flex flex-col gap-3 group"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-mono font-bold uppercase px-3 py-1 rounded-full bg-chem-glow text-chem-forest border border-chem-sage/40">
+                      {quiz.topic}
+                    </span>
+                    <span
+                      className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                        quiz.difficulty === 'Dasar'
+                          ? 'bg-blue-100 text-blue-800'
+                          : quiz.difficulty === 'Menengah'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-amber-100 text-amber-800'
+                      }`}
+                    >
+                      {quiz.difficulty}
+                    </span>
+                  </div>
 
-                <div className="mt-auto pt-1 flex items-center justify-between text-xs font-bold text-chem-forest">
-                  <span className="flex items-center gap-3 text-chem-ash font-medium">
-                    <span className="flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-chem-sage" />
-                      {quiz.durationMinutes} mnt
+                  <div>
+                    <h3 className="font-serif text-lg font-bold text-chem-dark group-hover:text-chem-forest transition-colors leading-snug">
+                      {quiz.title}
+                    </h3>
+                    <p className="text-xs text-chem-ash mt-2 leading-relaxed line-clamp-2">
+                      {quiz.description}
+                    </p>
+                  </div>
+
+                  <div className="mt-auto pt-1 flex items-center justify-between gap-2 text-xs font-bold text-chem-forest">
+                    <span className="flex items-center gap-3 text-chem-ash font-medium">
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-chem-sage" />
+                        {quiz.durationMinutes} mnt
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <HelpCircle className="w-3.5 h-3.5 text-chem-sage" />
+                        {quiz.questionsCount ?? quiz.questions?.length ?? 0} soal
+                      </span>
                     </span>
-                    <span className="flex items-center gap-1.5">
-                      <HelpCircle className="w-3.5 h-3.5 text-chem-sage" />
-                      {quiz.questionsCount ?? quiz.questions?.length ?? 0} soal
+                    <span className="flex items-center gap-1">
+                      Mulai
+                      <ChevronRight className="w-4 h-4" />
                     </span>
-                  </span>
-                  <span className="flex items-center gap-1">
-                    Mulai
-                    <ChevronRight className="w-4 h-4" />
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>

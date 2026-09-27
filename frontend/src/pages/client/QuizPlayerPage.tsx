@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useDataStore } from "../../store/dataStore";
 import { QuizSectionViewer } from "../../components/editor/quiz-section-viewer";
@@ -116,6 +116,23 @@ export const QuizPlayerPage: React.FC = () => {
   const questions = useMemo(() => quiz?.questions || [], [quiz]);
   const currentQ = questions[currentQuestionIndex];
   const totalQuestions = questions.length;
+
+  const stepperRef = useRef<HTMLDivElement>(null);
+  const currentStepRef = useRef<HTMLButtonElement>(null);
+
+  // Keep the active step pill visible inside the mobile scroll strip
+  useEffect(() => {
+    const container = stepperRef.current;
+    const step = currentStepRef.current;
+    if (!container || !step) return;
+    if (container.scrollWidth <= container.clientWidth) return;
+    const targetLeft =
+      step.offsetLeft - container.clientWidth / 2 + step.clientWidth / 2;
+    container.scrollTo({
+      left: Math.max(0, targetLeft),
+      behavior: "smooth",
+    });
+  }, [currentQuestionIndex, totalQuestions]);
 
   const currentSelectedChoices = currentQ
     ? selectedAnswers[currentQ.id] || []
@@ -261,35 +278,35 @@ export const QuizPlayerPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-chem-paper lab-grid-bg text-chem-dark py-8 font-sans">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pb-32 md:pb-8">
         {/* Navigation Breadcrumb */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <nav
-            className="flex items-center gap-2 text-xs text-chem-ash"
+            className="flex items-center gap-2 text-xs text-chem-ash min-w-0"
             aria-label="Breadcrumb"
           >
             <Link
               to="/kuis"
-              className="hover:text-chem-forest transition-colors"
+              className="hover:text-chem-forest transition-colors shrink-0 min-h-9 inline-flex items-center"
             >
               Kuis
             </Link>
-            <ChevronRight className="w-3.5 h-3.5 text-chem-border" />
-            <span className="font-semibold text-chem-dark truncate max-w-[200px]">
+            <ChevronRight className="w-3.5 h-3.5 text-chem-border shrink-0" />
+            <span className="font-semibold text-chem-dark truncate">
               {quiz.title}
             </span>
           </nav>
 
-          <span className="text-xs font-semibold text-chem-forest bg-chem-glow/60 px-3 py-1 rounded-full border border-chem-sage/30">
+          <span className="text-xs font-semibold text-chem-forest bg-chem-glow/60 px-3 py-1 rounded-full border border-chem-sage/30 shrink-0">
             {quiz.topic}
           </span>
         </div>
 
         {/* 1. SCORE SUMMARY CARD (IF COMPLETED) */}
         {isQuizCompleted ? (
-          <div className="bg-white rounded-3xl border border-chem-border p-8 shadow-float text-center space-y-6 animate-in fade-in">
+          <div className="bg-white rounded-3xl border border-chem-border p-6 sm:p-8 shadow-float text-center space-y-6">
             <div className="w-20 h-20 rounded-full mx-auto flex items-center justify-center bg-chem-glow text-chem-forest shadow-subtle">
-              <Award className="w-10 h-10 text-chem-forest animate-bounce-short" />
+              <Award className="w-10 h-10 text-chem-forest" />
             </div>
 
             <div className="space-y-2">
@@ -319,11 +336,11 @@ export const QuizPlayerPage: React.FC = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="pt-6 flex flex-wrap items-center justify-center gap-4 border-t border-chem-border">
+            <div className="pt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 border-t border-chem-border">
               <button
                 type="button"
                 onClick={handleRestartQuiz}
-                className="px-6 py-3 bg-white hover:bg-chem-subtle text-chem-dark border border-chem-border rounded-2xl text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer"
+                className="px-6 min-h-12 bg-white hover:bg-chem-subtle text-chem-dark border border-chem-border rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <RotateCcw className="w-4 h-4 text-chem-sage" />
                 <span>Ulangi Latihan</span>
@@ -331,7 +348,7 @@ export const QuizPlayerPage: React.FC = () => {
 
               <Link
                 to="/kuis"
-                className="px-6 py-3 bg-chem-forest hover:bg-chem-moss text-white rounded-2xl text-xs font-bold flex items-center gap-2 transition-colors shadow-xs"
+                className="px-6 min-h-12 bg-chem-forest hover:bg-chem-moss text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-colors shadow-xs"
               >
                 <span>Kembali ke Menu Kuis</span>
                 <ArrowRight className="w-4 h-4 text-chem-glow" />
@@ -341,13 +358,21 @@ export const QuizPlayerPage: React.FC = () => {
         ) : (
           <>
             {/* 2. STEPPER / QUESTION TRACKER */}
-            <div className="bg-white p-5 rounded-3xl border border-chem-border shadow-subtle space-y-3">
-              <span className="text-xs font-bold text-chem-forest">
-                Soal {currentQuestionIndex + 1}/{totalQuestions}
-              </span>
+            <div className="bg-white p-4 sm:p-5 rounded-3xl border border-chem-border shadow-subtle space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-bold text-chem-forest">
+                  Soal {currentQuestionIndex + 1}/{totalQuestions}
+                </span>
+                <span className="text-[10px] text-chem-ash">
+                  Ketuk nomor untuk berpindah soal
+                </span>
+              </div>
 
-              {/* Step indicator pills */}
-              <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5">
+              {/* Step indicator pills — horizontal scroll on mobile, grid on sm+ */}
+              <div
+                ref={stepperRef}
+                className="flex sm:grid sm:grid-cols-10 gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 snap-x scroll-smooth"
+              >
                 {questions.map((q, idx) => {
                   const isSubmitted = !!submittedAnswers[q.id];
                   const selection = selectedAnswers[q.id] || [];
@@ -370,9 +395,10 @@ export const QuizPlayerPage: React.FC = () => {
                   return (
                     <button
                       key={q.id}
+                      ref={isCurrent ? currentStepRef : undefined}
                       type="button"
                       onClick={() => setCurrentQuestionIndex(idx)}
-                      className={`h-9 rounded-xl border text-xs flex items-center justify-center transition-all cursor-pointer ${bgClass}`}
+                      className={`h-9 w-9 sm:w-full shrink-0 snap-center rounded-xl border text-xs flex items-center justify-center transition-all cursor-pointer ${bgClass}`}
                     >
                       {idx + 1}
                     </button>
@@ -383,7 +409,7 @@ export const QuizPlayerPage: React.FC = () => {
 
             {/* 3. DYNAMIC QUESTION CARD */}
             {currentQ && (
-              <div className="bg-white rounded-3xl border border-chem-border shadow-subtle p-6 sm:p-8 space-y-6">
+              <div className="bg-white rounded-3xl border border-chem-border shadow-subtle p-5 sm:p-8 space-y-6">
                 {/* Question content sections (Notion-style blocks) */}
                 {currentQ.sections && currentQ.sections.length > 0 ? (
                   <QuizSectionViewer sections={currentQ.sections} />
@@ -478,9 +504,9 @@ export const QuizPlayerPage: React.FC = () => {
                   })}
                 </div>
 
-                {/* Submit button if not yet submitted */}
+                {/* Submit button if not yet submitted (desktop; mobile uses sticky action bar) */}
                 {!isCurrentSubmitted && (
-                  <div className="pt-4 flex justify-end">
+                  <div className="pt-4 hidden md:flex justify-end">
                     <button
                       type="button"
                       onClick={handleSubmitCurrent}
@@ -495,7 +521,7 @@ export const QuizPlayerPage: React.FC = () => {
                 {/* 4. INSTANT FEEDBACK ENGINE */}
                 {isCurrentSubmitted && (
                   <div
-                    className={`p-6 rounded-2xl border space-y-3 animate-in fade-in ${
+                    className={`p-4 sm:p-6 rounded-2xl border space-y-3 ${
                       isCurrentCorrect
                         ? "bg-emerald-50/80 border-emerald-300 text-emerald-950"
                         : "bg-rose-50/80 border-rose-300 text-rose-950"
@@ -526,8 +552,8 @@ export const QuizPlayerPage: React.FC = () => {
               </div>
             )}
 
-            {/* Stepper Navigation Buttons */}
-            <div className="flex items-center justify-between pt-4">
+            {/* Stepper Navigation Buttons (desktop) */}
+            <div className="hidden md:flex items-center justify-between pt-4">
               <button
                 type="button"
                 onClick={handlePrevQuestion}
@@ -552,6 +578,47 @@ export const QuizPlayerPage: React.FC = () => {
               </button>
             </div>
           </>
+        )}
+
+        {/* Mobile sticky action bar */}
+        {!isQuizCompleted && (
+          <div className="md:hidden fixed inset-x-0 bottom-0 z-30 bg-white/95 backdrop-blur-md border-t border-chem-border px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handlePrevQuestion}
+                disabled={currentQuestionIndex === 0}
+                aria-label="Soal sebelumnya"
+                className="min-h-12 min-w-12 shrink-0 rounded-2xl bg-white border border-chem-border text-chem-dark hover:bg-chem-subtle disabled:opacity-30 flex items-center justify-center cursor-pointer transition-colors"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              {!isCurrentSubmitted ? (
+                <button
+                  type="button"
+                  onClick={handleSubmitCurrent}
+                  disabled={currentSelectedChoices.length === 0}
+                  className="flex-1 min-h-12 px-4 bg-chem-forest hover:bg-chem-moss disabled:opacity-40 text-white rounded-2xl text-sm font-bold transition-all shadow-xs cursor-pointer"
+                >
+                  Pilih Jawaban
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleNextQuestion}
+                  className="flex-1 min-h-12 px-4 bg-chem-forest hover:bg-chem-moss text-white rounded-2xl text-sm font-bold flex items-center justify-center gap-2 cursor-pointer transition-all shadow-xs"
+                >
+                  <span>
+                    {currentQuestionIndex === totalQuestions - 1
+                      ? "Selesaikan Kuis"
+                      : "Berikutnya"}
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-chem-glow" />
+                </button>
+              )}
+            </div>
+          </div>
         )}
       </div>
     </div>

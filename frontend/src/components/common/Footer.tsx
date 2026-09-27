@@ -7,9 +7,9 @@ export const Footer: React.FC = () => {
   const { language } = useAccessibilityStore();
 
   return (
-    <footer className="bg-chem-dark text-white border-t border-chem-forest/40 pt-16 pb-12 font-sans">
+    <footer className="bg-chem-dark text-white border-t border-chem-forest/40 pt-12 pb-10 sm:pt-16 sm:pb-12 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-white/10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-10 pb-10 sm:pb-12 border-b border-white/10">
           {/* Identity & Mission */}
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
@@ -54,7 +54,7 @@ export const Footer: React.FC = () => {
                 : "Circular & green chemistry learning portal engineered around Universal Design for Learning (UDL) and WCAG 2.1 AA standards for equitable STEM education."}
             </p>
 
-            <div className="flex items-center gap-3 pt-2">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 pt-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 text-[11px] font-medium">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                 WCAG 2.1 AA Compliant
@@ -71,16 +71,16 @@ export const Footer: React.FC = () => {
             <h4 className="text-xs font-bold uppercase tracking-wider text-chem-mint">
               {language === "id" ? "Navigasi Portal" : "Navigation"}
             </h4>
-            <ul className="space-y-2 text-xs text-white/70">
+            <ul className="space-y-2.5 sm:space-y-2 text-xs text-white/70">
               <li>
-                <Link to="/" className="hover:text-chem-glow transition-colors">
+                <Link to="/" className="hover:text-chem-glow transition-colors inline-flex min-h-8 items-center">
                   {language === "id" ? "Beranda Utama" : "Home"}
                 </Link>
               </li>
               <li>
                 <Link
                   to="/materi"
-                  className="hover:text-chem-glow transition-colors"
+                  className="hover:text-chem-glow transition-colors inline-flex min-h-8 items-center"
                 >
                   {language === "id"
                     ? "Katalog Materi Belajar"
@@ -90,7 +90,7 @@ export const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/aktivitas"
-                  className="hover:text-chem-glow transition-colors"
+                  className="hover:text-chem-glow transition-colors inline-flex min-h-8 items-center"
                 >
                   {language === "id"
                     ? "Ruang Modul & Simulasi"
@@ -100,7 +100,7 @@ export const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/kuis"
-                  className="hover:text-chem-glow transition-colors"
+                  className="hover:text-chem-glow transition-colors inline-flex min-h-8 items-center"
                 >
                   {language === "id"
                     ? "Latihan Soal & Evaluasi"
@@ -144,7 +144,7 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom copyright and metadata */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-white/50">
+        <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-[11px] text-white/50 text-center sm:text-left">
           <p>
             © {new Date().getFullYear()} EcoInclusive. Seluruh hak cipta materi
             edukasi dilindungi.

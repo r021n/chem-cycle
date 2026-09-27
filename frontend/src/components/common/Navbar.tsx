@@ -45,9 +45,13 @@ export const Navbar: React.FC = () => {
     return false;
   };
 
+  React.useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
   return (
     <header className="sticky top-0 z-40 bg-chem-paper/95 backdrop-blur-md border-b border-chem-border transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3">
         {/* Brand Identity */}
         <Link
           to="/"
@@ -124,16 +128,18 @@ export const Navbar: React.FC = () => {
           <button
             type="button"
             onClick={toggleOpen}
-            className="p-2 text-chem-forest bg-chem-glow/70 rounded-xl border border-chem-sage/40"
+            className="min-h-11 min-w-11 flex items-center justify-center text-chem-forest bg-chem-glow/70 rounded-xl border border-chem-sage/40"
             title="Aksesibilitas"
+            aria-label="Pengaturan Aksesibilitas"
           >
             <Accessibility className="w-5 h-5" />
           </button>
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-chem-ash hover:text-chem-dark bg-chem-subtle rounded-xl border border-chem-border cursor-pointer"
-            aria-label="Toggle menu"
+            className="min-h-11 min-w-11 flex items-center justify-center text-chem-ash hover:text-chem-dark bg-chem-subtle rounded-xl border border-chem-border cursor-pointer"
+            aria-label={mobileMenuOpen ? "Tutup menu" : "Buka menu"}
+            aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? (
               <X className="w-6 h-6" />
@@ -146,7 +152,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-chem-border bg-chem-paper/98 backdrop-blur-lg px-4 pt-3 pb-6 space-y-2 animate-in fade-in slide-in-from-top-2">
+        <div className="md:hidden border-t border-chem-border bg-chem-paper/98 backdrop-blur-lg px-4 pt-3 pb-6 space-y-1.5">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.to);
@@ -155,14 +161,14 @@ export const Navbar: React.FC = () => {
                 key={item.to}
                 to={item.to}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold transition-colors ${
+                className={`flex items-center gap-3 px-4 min-h-12 rounded-2xl text-sm font-semibold transition-colors ${
                   active
                     ? "bg-chem-forest text-white"
                     : "text-chem-dark hover:bg-chem-subtle"
                 }`}
               >
                 <Icon
-                  className={`w-4 h-4 ${active ? "text-chem-glow" : "text-chem-sage"}`}
+                  className={`w-5 h-5 shrink-0 ${active ? "text-chem-glow" : "text-chem-sage"}`}
                 />
                 <span>{item.label}</span>
               </Link>
@@ -176,9 +182,9 @@ export const Navbar: React.FC = () => {
                 setMobileMenuOpen(false);
                 toggleOpen();
               }}
-              className="flex items-center justify-center gap-2 w-full py-2.5 bg-chem-glow/70 text-chem-forest text-xs font-bold rounded-xl border border-chem-sage/40"
+              className="flex items-center justify-center gap-2 w-full min-h-12 bg-chem-glow/70 text-chem-forest text-sm font-bold rounded-2xl border border-chem-sage/40"
             >
-              <Accessibility className="w-4 h-4" />
+              <Accessibility className="w-5 h-5" />
               <span>Pengaturan Aksesibilitas UDL</span>
             </button>
           </div>

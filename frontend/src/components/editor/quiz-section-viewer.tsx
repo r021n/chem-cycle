@@ -17,7 +17,7 @@ export const QuizSectionViewer: React.FC<QuizSectionViewerProps> = ({
   if (!sections || sections.length === 0) return null;
 
   return (
-    <div className={`space-y-4 ${className || ''}`}>
+    <div className={`space-y-4 break-words ${className || ''}`}>
       {sections.map((section, index) => {
         switch (section.type) {
           case 'text':
@@ -68,7 +68,7 @@ export const QuizSectionViewer: React.FC<QuizSectionViewerProps> = ({
                   src={imgSrc}
                   alt={section.caption || 'Ilustrasi soal'}
                   onClick={() => setSelectedImage(imgSrc)}
-                  className="w-full max-h-[420px] object-contain rounded-xl cursor-zoom-in hover:opacity-95 transition-opacity"
+                  className="w-full max-h-[280px] sm:max-h-[420px] object-contain rounded-xl cursor-zoom-in hover:opacity-95 transition-opacity"
                 />
                 {section.caption?.trim() && (
                   <figcaption className="text-[11px] text-chem-ash text-center mt-2">

@@ -85,11 +85,11 @@ export const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-chem-paper lab-grid-bg text-chem-dark flex flex-col font-sans">
       {/* 1. HERO SECTION */}
-      <section className="relative overflow-hidden pt-12 pb-20 border-b border-chem-border/70">
+      <section className="relative overflow-hidden pt-8 pb-12 sm:pt-12 sm:pb-20 border-b border-chem-border/70">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Left Narrative */}
-            <div className="lg:col-span-7 space-y-6">
+            <div className="lg:col-span-7 space-y-5 sm:space-y-6">
               <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-chem-dark leading-[1.15]">
                 {HERO.title}
               </h1>
@@ -99,10 +99,10 @@ export const HomePage: React.FC = () => {
               </p>
 
               {/* CTAs */}
-              <div className="flex flex-wrap items-center gap-4 pt-2">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4 pt-2">
                 <Link
                   to={HERO.primaryCtaLink}
-                  className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-chem-forest hover:bg-chem-moss text-white rounded-2xl text-xs font-bold shadow-float transition-all hover:scale-[1.02] cursor-pointer"
+                  className="inline-flex items-center justify-center gap-2.5 px-6 py-4 sm:py-3.5 bg-chem-forest hover:bg-chem-moss text-white rounded-2xl text-xs font-bold shadow-float transition-all hover:scale-[1.02] cursor-pointer"
                 >
                   <span>{HERO.primaryCtaText}</span>
                   <ArrowRight className="w-4 h-4 text-chem-glow" />
@@ -110,7 +110,7 @@ export const HomePage: React.FC = () => {
 
                 <Link
                   to={HERO.secondaryCtaLink}
-                  className="inline-flex items-center gap-2 px-5 py-3.5 bg-white hover:bg-chem-subtle text-chem-dark border border-chem-border rounded-2xl text-xs font-semibold transition-colors cursor-pointer"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-4 sm:py-3.5 bg-white hover:bg-chem-subtle text-chem-dark border border-chem-border rounded-2xl text-xs font-semibold transition-colors cursor-pointer"
                 >
                   <FlaskConical className="w-4 h-4 text-chem-sage" />
                   <span>{HERO.secondaryCtaText}</span>
@@ -124,15 +124,15 @@ export const HomePage: React.FC = () => {
                 <img
                   src={HERO.bannerImage}
                   alt="Laboratorium Pembelajaran Kimia Sirkular"
-                  className="w-full h-80 sm:h-96 object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-64 sm:h-80 lg:h-96 object-cover object-center group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-linear-to-t from-chem-dark/80 via-transparent to-transparent flex flex-col justify-end p-6 text-white">
+                <div className="absolute inset-0 bg-linear-to-t from-chem-dark/80 via-transparent to-transparent flex flex-col justify-end p-5 sm:p-6 text-white">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-emerald-500 text-black font-bold">
                       Studi Kasus
                     </span>
                   </div>
-                  <h3 className="font-serif text-lg font-bold text-white mt-1">
+                  <h3 className="font-serif text-base sm:text-lg font-bold text-white mt-1">
                     Reduksi Emisi Industri via Termodinamika
                   </h3>
                 </div>
@@ -143,7 +143,7 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* 2. PETA ALUR BELAJAR (LEARNING FLOW) */}
-      <section className="py-16 bg-chem-subtle/50 border-b border-chem-border">
+      <section className="py-12 sm:py-16 bg-chem-subtle/50 border-b border-chem-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <h2 className="font-serif text-2xl sm:text-3xl font-semibold text-chem-dark">
@@ -154,7 +154,7 @@ export const HomePage: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="flex flex-col gap-3 lg:grid lg:grid-cols-4 lg:gap-6">
             {LEARNING_FLOW.map((step) => {
               const StepIcon = step.Icon;
 
@@ -162,12 +162,21 @@ export const HomePage: React.FC = () => {
                 <Link
                   key={step.step}
                   to={step.route}
-                  className="bg-white p-6 rounded-3xl border border-chem-border shadow-subtle hover:shadow-float hover:border-chem-sage transition-all group flex flex-col justify-between cursor-pointer"
+                  className="group flex gap-4 lg:flex-col lg:gap-4 lg:bg-white lg:p-6 lg:rounded-3xl lg:border lg:border-chem-border lg:shadow-subtle lg:hover:shadow-float lg:hover:border-chem-sage transition-all cursor-pointer"
                 >
-                  <div className="space-y-4">
-                    <div className="w-12 h-12 rounded-2xl bg-chem-glow/70 text-chem-forest flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <div className="flex flex-col items-center shrink-0 lg:items-start">
+                    <div className="w-12 h-12 rounded-2xl bg-chem-glow/70 text-chem-forest flex items-center justify-center group-hover:scale-110 transition-transform shadow-subtle">
                       <StepIcon className="w-6 h-6 text-chem-forest" />
                     </div>
+                    {step.step < LEARNING_FLOW.length && (
+                      <div
+                        className="w-px flex-1 min-h-8 my-1 bg-chem-border lg:hidden"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-w-0 pb-1 lg:pb-0 lg:flex lg:flex-col lg:justify-between">
                     <div>
                       <h3 className="font-serif text-base font-bold text-chem-dark group-hover:text-chem-forest transition-colors">
                         {step.title}
@@ -176,11 +185,11 @@ export const HomePage: React.FC = () => {
                         {step.desc}
                       </p>
                     </div>
-                  </div>
 
-                  <div className="pt-4 mt-4 border-t border-chem-border/60 flex items-center text-xs font-semibold text-chem-forest group-hover:translate-x-1 transition-transform">
-                    <span>Langkah {step.step}</span>
-                    <ChevronRight className="w-4 h-4 ml-1 text-chem-sage" />
+                    <div className="pt-2 mt-2 lg:pt-4 lg:mt-4 lg:border-t lg:border-chem-border/60 flex items-center text-xs font-semibold text-chem-forest group-hover:translate-x-1 transition-transform">
+                      <span>Langkah {step.step}</span>
+                      <ChevronRight className="w-4 h-4 ml-1 text-chem-sage" />
+                    </div>
                   </div>
                 </Link>
               );
@@ -190,7 +199,7 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* 3. SECTION INFORMASI & DAMPAK (SDG ALIGNMENT) */}
-      <section className="py-16 bg-chem-dark text-white">
+      <section className="py-12 sm:py-16 bg-chem-dark text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           <div className="text-center max-w-2xl mx-auto space-y-3">
             <h2 className="font-serif text-2xl sm:text-3xl font-semibold text-white">

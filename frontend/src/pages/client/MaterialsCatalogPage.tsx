@@ -71,7 +71,7 @@ export const MaterialsCatalogPage: React.FC = () => {
         </div>
 
         {filteredMaterials.length === 0 ? (
-          <div className="py-20 text-center bg-white rounded-3xl border border-chem-border p-8 space-y-3">
+          <div className="py-14 sm:py-20 text-center bg-white rounded-3xl border border-chem-border p-6 sm:p-8 space-y-3">
             <BookOpen className="w-10 h-10 text-chem-ash mx-auto opacity-50" />
             <h3 className="font-serif text-lg font-bold text-chem-dark">
               Tidak ada materi yang cocok
@@ -81,44 +81,87 @@ export const MaterialsCatalogPage: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredMaterials.map((mat) => (
-              <Link
-                key={mat.id}
-                to={`/materi/${mat.slug || mat.id}`}
-                className="bg-white rounded-3xl border border-chem-border overflow-hidden shadow-subtle hover:shadow-float hover:border-chem-sage transition-all flex flex-col group"
-              >
-                {mat.coverUrl && (
-                  <div className="h-44 overflow-hidden relative bg-slate-100">
-                    <img
-                      src={resolveMediaUrl(mat.coverUrl)}
-                      alt={mat.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <span className="absolute top-3 left-3 text-[11px] font-bold bg-chem-dark/85 backdrop-blur-xs text-white px-3 py-1 rounded-full shadow-xs border border-white/20">
-                      Bab {mat.orderIndex}
-                    </span>
-                  </div>
-                )}
+          <>
+            {/* Mobile: compact rows */}
+            <ul className="md:hidden space-y-3">
+              {filteredMaterials.map((mat) => (
+                <li key={mat.id}>
+                  <Link
+                    to={`/materi/${mat.slug || mat.id}`}
+                    className="flex items-center gap-3.5 bg-white rounded-2xl border border-chem-border p-3 shadow-subtle active:border-chem-sage transition-colors"
+                  >
+                    {mat.coverUrl ? (
+                      <div className="w-[88px] h-[88px] shrink-0 rounded-xl overflow-hidden bg-slate-100">
+                        <img
+                          src={resolveMediaUrl(mat.coverUrl)}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-[88px] h-[88px] shrink-0 rounded-xl bg-chem-subtle border border-chem-border flex items-center justify-center">
+                        <BookOpen className="w-6 h-6 text-chem-sage" />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-chem-sage">
+                        Bab {mat.orderIndex}
+                      </span>
+                      <h3 className="font-serif text-sm font-bold text-chem-dark leading-snug line-clamp-2 mt-0.5">
+                        {mat.title}
+                      </h3>
+                      {mat.summary && (
+                        <p className="text-[11px] text-chem-ash line-clamp-1 leading-relaxed mt-1">
+                          {mat.summary}
+                        </p>
+                      )}
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-chem-ash shrink-0" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
 
-                <div className="p-5 flex flex-col flex-1 gap-2">
-                  <h3 className="font-serif text-lg font-bold text-chem-dark group-hover:text-chem-forest transition-colors leading-tight">
-                    {mat.title}
-                  </h3>
-                  {mat.summary && (
-                    <p className="text-xs text-chem-ash line-clamp-3 leading-relaxed">
-                      {mat.summary}
-                    </p>
+            {/* Tablet & desktop: card grid */}
+            <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredMaterials.map((mat) => (
+                <Link
+                  key={mat.id}
+                  to={`/materi/${mat.slug || mat.id}`}
+                  className="bg-white rounded-3xl border border-chem-border overflow-hidden shadow-subtle hover:shadow-float hover:border-chem-sage transition-all flex flex-col group"
+                >
+                  {mat.coverUrl && (
+                    <div className="h-44 overflow-hidden relative bg-slate-100">
+                      <img
+                        src={resolveMediaUrl(mat.coverUrl)}
+                        alt={mat.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <span className="absolute top-3 left-3 text-[11px] font-bold bg-chem-dark/85 backdrop-blur-xs text-white px-3 py-1 rounded-full shadow-xs border border-white/20">
+                        Bab {mat.orderIndex}
+                      </span>
+                    </div>
                   )}
 
-                  <div className="mt-auto pt-3 flex items-center justify-between text-xs font-bold text-chem-forest">
-                    <span>Baca Artikel</span>
-                    <ChevronRight className="w-4 h-4" />
+                  <div className="p-5 flex flex-col flex-1 gap-2">
+                    <h3 className="font-serif text-lg font-bold text-chem-dark group-hover:text-chem-forest transition-colors leading-tight">
+                      {mat.title}
+                    </h3>
+                    {mat.summary && (
+                      <p className="text-xs text-chem-ash line-clamp-3 leading-relaxed">
+                        {mat.summary}
+                      </p>
+                    )}
+
+                    <div className="mt-auto pt-3 flex items-center justify-between text-xs font-bold text-chem-forest">
+                      <span>Baca Artikel</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+                </Link>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>

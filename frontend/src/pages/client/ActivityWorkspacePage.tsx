@@ -74,37 +74,38 @@ export const ActivityWorkspacePage: React.FC = () => {
     <div className="min-h-screen bg-chem-paper lab-grid-bg text-chem-dark py-8 font-sans">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Navigation Breadcrumb */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <nav
-            className="flex items-center gap-2 text-xs text-chem-ash"
+            className="hidden sm:flex items-center gap-2 text-xs text-chem-ash min-w-0"
             aria-label="Breadcrumb"
           >
             <Link
               to="/"
-              className="hover:text-chem-forest flex items-center gap-1 transition-colors"
+              className="hover:text-chem-forest flex items-center gap-1 transition-colors shrink-0"
             >
               <Home className="w-3.5 h-3.5" />
               <span>Beranda</span>
             </Link>
-            <ChevronRight className="w-3.5 h-3.5 text-chem-border" />
+            <ChevronRight className="w-3.5 h-3.5 text-chem-border shrink-0" />
             <Link
               to="/aktivitas"
-              className="hover:text-chem-forest transition-colors"
+              className="hover:text-chem-forest transition-colors shrink-0"
             >
               Modul Aktivitas
             </Link>
-            <ChevronRight className="w-3.5 h-3.5 text-chem-border" />
-            <span className="font-semibold text-chem-dark line-clamp-1 max-w-[220px]">
+            <ChevronRight className="w-3.5 h-3.5 text-chem-border shrink-0" />
+            <span className="font-semibold text-chem-dark truncate">
               {activity.title}
             </span>
           </nav>
 
           <Link
             to="/aktivitas"
-            className="text-xs font-semibold text-chem-forest hover:text-chem-moss flex items-center gap-1"
+            className="text-xs font-semibold text-chem-forest hover:text-chem-moss flex items-center gap-1 min-h-9 shrink-0"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Katalog</span>
+            <span className="sm:hidden">Modul Aktivitas</span>
           </Link>
         </div>
 
@@ -129,7 +130,7 @@ export const ActivityWorkspacePage: React.FC = () => {
 
         {/* Google Classroom Announcement Content */}
         {activity.contentJson && (
-          <section className="bg-white rounded-3xl border border-chem-border p-6 sm:p-8 shadow-subtle">
+          <section className="bg-white rounded-3xl border border-chem-border p-5 sm:p-8 shadow-subtle">
             <div className="prose max-w-none">
               <BlockAstViewer contentJson={activity.contentJson} />
             </div>
@@ -138,9 +139,9 @@ export const ActivityWorkspacePage: React.FC = () => {
 
         {/* Attachments & Files Section */}
         {attachments.length > 0 && (
-          <section className="bg-white rounded-3xl border border-chem-border p-6 sm:p-8 shadow-subtle space-y-4">
+          <section className="bg-white rounded-3xl border border-chem-border p-5 sm:p-8 shadow-subtle space-y-4">
             <div className="flex items-center gap-2 pb-3 border-b border-chem-border/70">
-              <Paperclip className="w-4 h-4 text-chem-forest" />
+              <Paperclip className="w-4 h-4 text-chem-forest shrink-0" />
               <h2 className="font-serif text-base font-bold text-chem-dark">
                 Lampiran Berkas & Tautan Pendukung ({attachments.length})
               </h2>
@@ -153,9 +154,9 @@ export const ActivityWorkspacePage: React.FC = () => {
                   href={resolveMediaUrl(att.url)}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-3.5 p-4 rounded-2xl border border-chem-border hover:border-chem-forest bg-chem-subtle/40 hover:bg-white transition-all group shadow-2xs"
+                  className="flex items-center gap-3 sm:gap-3.5 p-3.5 sm:p-4 rounded-2xl border border-chem-border hover:border-chem-forest active:border-chem-forest bg-chem-subtle/40 hover:bg-white transition-all group shadow-2xs"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-white border border-chem-border flex items-center justify-center text-chem-forest shrink-0">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white border border-chem-border flex items-center justify-center text-chem-forest shrink-0">
                     {att.type === "link" ? (
                       <Link2 className="w-4 h-4" />
                     ) : att.type === "image" ? (
@@ -183,13 +184,13 @@ export const ActivityWorkspacePage: React.FC = () => {
 
         {/* Prev / Next Activity Navigation */}
         <nav
-          className="pt-6 border-t border-chem-border grid grid-cols-1 sm:grid-cols-2 gap-6"
+          className="pt-6 border-t border-chem-border grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6"
           aria-label="Navigasi Aktivitas"
         >
           {prevActivity ? (
             <Link
               to={`/aktivitas/${prevActivity.id}`}
-              className="group text-left"
+              className="group text-left bg-white border border-chem-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0"
             >
               <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
                 <ChevronLeft className="w-3.5 h-3.5" />
@@ -200,7 +201,7 @@ export const ActivityWorkspacePage: React.FC = () => {
               </span>
             </Link>
           ) : (
-            <Link to="/aktivitas" className="group text-left">
+            <Link to="/aktivitas" className="group text-left bg-white border border-chem-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0">
               <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
                 <ArrowLeft className="w-3.5 h-3.5" />
                 Katalog Aktivitas
@@ -214,7 +215,7 @@ export const ActivityWorkspacePage: React.FC = () => {
           {nextActivity ? (
             <Link
               to={`/aktivitas/${nextActivity.id}`}
-              className="group text-right sm:col-start-2"
+              className="group text-left sm:text-right sm:col-start-2 bg-white border border-chem-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0"
             >
               <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
                 Aktivitas Selanjutnya
@@ -225,7 +226,7 @@ export const ActivityWorkspacePage: React.FC = () => {
               </span>
             </Link>
           ) : (
-            <Link to="/kuis" className="group text-right sm:col-start-2">
+            <Link to="/kuis" className="group text-left sm:text-right sm:col-start-2 bg-white border border-chem-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0">
               <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
                 Evaluasi Belajar
                 <ChevronRight className="w-3.5 h-3.5" />
