@@ -11,8 +11,6 @@ export interface EditorQuestion {
   choices: QuizChoice[];
   correctAnswerIds: string[];
   explanation: string;
-  wrongAnswerExplanation: string;
-  conceptSummary: string;
 }
 
 export function uid(prefix: string): string {
@@ -102,8 +100,6 @@ export function toEditorQuestion(question: QuizQuestion): EditorQuestion {
         : [createChoice(), createChoice()],
     correctAnswerIds: correctIds,
     explanation: question.explanation || '',
-    wrongAnswerExplanation: question.wrongAnswerExplanation || '',
-    conceptSummary: question.conceptSummary || '',
   };
 }
 
@@ -114,8 +110,6 @@ export function createEditorQuestion(): EditorQuestion {
     choices: [createChoice(), createChoice(), createChoice(), createChoice()],
     correctAnswerIds: [],
     explanation: '',
-    wrongAnswerExplanation: '',
-    conceptSummary: '',
   };
 }
 
@@ -132,7 +126,5 @@ export function toQuizQuestion(question: EditorQuestion): QuizQuestion {
     correctAnswerIds,
     correctAnswerId: correctAnswerIds[0],
     explanation: question.explanation,
-    wrongAnswerExplanation: question.wrongAnswerExplanation.trim() || undefined,
-    conceptSummary: question.conceptSummary,
   };
 }

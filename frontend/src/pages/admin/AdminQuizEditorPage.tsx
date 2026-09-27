@@ -1305,9 +1305,9 @@ export const AdminQuizEditorPage: React.FC = () => {
                         )}
                       </div>
 
-                      {/* Explanations & Concept Reinforcement */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-5 border-t border-slate-200">
-                        <div className="space-y-1 sm:col-span-1">
+                      {/* Pembahasan Soal */}
+                      <div className="pt-5 border-t border-slate-200">
+                        <div className="space-y-1">
                           <label className="text-xs font-semibold text-slate-700 flex items-center gap-1">
                             <HelpCircle className="w-3.5 h-3.5 text-chem-forest" />
                             Pembahasan Soal (Wajib)
@@ -1322,38 +1322,6 @@ export const AdminQuizEditorPage: React.FC = () => {
                             }
                             placeholder="Penjelasan komprehensif langkah penyelesaian atau konsep yang diuji..."
                             className="w-full p-2.5 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:border-chem-sage focus:outline-none resize-y"
-                          />
-                        </div>
-                        <div className="space-y-1 sm:col-span-1">
-                          <label className="text-xs font-semibold text-slate-700">
-                            Penjelasan Jika Jawaban Siswa Salah (Opsional)
-                          </label>
-                          <textarea
-                            rows={3}
-                            value={question.wrongAnswerExplanation}
-                            onChange={(e) =>
-                              updateQuestion(question.id, {
-                                wrongAnswerExplanation: e.target.value,
-                              })
-                            }
-                            placeholder="Petunjuk spesifik saat siswa keliru memilih distractor..."
-                            className="w-full p-2.5 text-xs bg-rose-50/40 border border-rose-200 rounded-xl focus:border-rose-300 focus:outline-none resize-y text-slate-700"
-                          />
-                        </div>
-                        <div className="space-y-1 sm:col-span-2">
-                          <label className="text-xs font-semibold text-slate-700">
-                            Ringkasan Konsep Penguatan (Opsional)
-                          </label>
-                          <input
-                            type="text"
-                            value={question.conceptSummary}
-                            onChange={(e) =>
-                              updateQuestion(question.id, {
-                                conceptSummary: e.target.value,
-                              })
-                            }
-                            placeholder="Contoh: ΔH = H_produk - H_reaktan < 0 menandakan reaksi eksotermik."
-                            className="w-full p-2.5 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:border-chem-sage focus:outline-none"
                           />
                         </div>
                       </div>
@@ -1586,16 +1554,6 @@ export const AdminQuizEditorPage: React.FC = () => {
                       {currentPreviewQ.explanation ||
                         "Belum ada penjelasan yang ditambahkan."}
                     </p>
-                    {currentPreviewQ.conceptSummary && (
-                      <div className="p-3 bg-chem-glow/40 border border-chem-sage/30 rounded-xl">
-                        <span className="text-[10px] font-bold text-chem-forest uppercase tracking-wider block mb-0.5">
-                          Konsep Penguatan:
-                        </span>
-                        <p className="text-xs text-slate-800 font-medium">
-                          {currentPreviewQ.conceptSummary}
-                        </p>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>

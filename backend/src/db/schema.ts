@@ -96,8 +96,6 @@ export const quizQuestions = sqliteTable('quiz_questions', {
   choicesJson: text('choices_json').notNull().default('[]'),
   correctAnswerIdsJson: text('correct_answer_ids_json').notNull().default('[]'),
   explanation: text('explanation').notNull().default(''),
-  wrongAnswerExplanation: text('wrong_answer_explanation').default(''),
-  conceptSummary: text('concept_summary').notNull().default(''),
   createdAt: text('created_at').notNull().default(sql`(CURRENT_TIMESTAMP)`),
   updatedAt: text('updated_at').notNull().default(sql`(CURRENT_TIMESTAMP)`),
 });

@@ -90,8 +90,6 @@ async function initTables() {
       choices_json TEXT NOT NULL DEFAULT '[]',
       correct_answer_ids_json TEXT NOT NULL DEFAULT '[]',
       explanation TEXT NOT NULL DEFAULT '',
-      wrong_answer_explanation TEXT DEFAULT '',
-      concept_summary TEXT NOT NULL DEFAULT '',
       created_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP),
       updated_at TEXT NOT NULL DEFAULT (CURRENT_TIMESTAMP)
     );

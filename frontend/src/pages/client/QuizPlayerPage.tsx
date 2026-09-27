@@ -1,8 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useDataStore } from '../../store/dataStore';
-import { QuizSectionViewer } from '../../components/editor/quiz-section-viewer';
-import { getCorrectAnswerIds } from '../../lib/quiz';
+import React, { useState, useMemo, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { useDataStore } from "../../store/dataStore";
+import { QuizSectionViewer } from "../../components/editor/quiz-section-viewer";
+import { getCorrectAnswerIds } from "../../lib/quiz";
 import {
   ChevronLeft,
   ChevronRight,
@@ -11,16 +11,17 @@ import {
   RotateCcw,
   Award,
   ArrowRight,
-} from 'lucide-react';
+} from "lucide-react";
 
 const sameSelection = (a: string[], b: string[]) => {
   if (a.length !== b.length) return false;
-  const sortedA = [...a].sort().join('|');
-  const sortedB = [...b].sort().join('|');
+  const sortedA = [...a].sort().join("|");
+  const sortedB = [...b].sort().join("|");
   return sortedA === sortedB;
 };
 
-const getQuizStorageKey = (quizId: string) => `chem_cycle_quiz_progress_${quizId}`;
+const getQuizStorageKey = (quizId: string) =>
+  `chem_cycle_quiz_progress_${quizId}`;
 
 export const QuizPlayerPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -47,8 +48,12 @@ export const QuizPlayerPage: React.FC = () => {
   }, [id, quiz?.questions?.length, fetchQuizById]);
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string[]>>({});
-  const [submittedAnswers, setSubmittedAnswers] = useState<Record<string, boolean>>({});
+  const [selectedAnswers, setSelectedAnswers] = useState<
+    Record<string, string[]>
+  >({});
+  const [submittedAnswers, setSubmittedAnswers] = useState<
+    Record<string, boolean>
+  >({});
   const [isQuizCompleted, setIsQuizCompleted] = useState(false);
 
   // 1. Load saved quiz progress from client localStorage on mount
@@ -59,16 +64,17 @@ export const QuizPlayerPage: React.FC = () => {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.selectedAnswers) setSelectedAnswers(parsed.selectedAnswers);
-        if (parsed.submittedAnswers) setSubmittedAnswers(parsed.submittedAnswers);
-        if (typeof parsed.currentQuestionIndex === 'number') {
+        if (parsed.submittedAnswers)
+          setSubmittedAnswers(parsed.submittedAnswers);
+        if (typeof parsed.currentQuestionIndex === "number") {
           setCurrentQuestionIndex(parsed.currentQuestionIndex);
         }
-        if (typeof parsed.isQuizCompleted === 'boolean') {
+        if (typeof parsed.isQuizCompleted === "boolean") {
           setIsQuizCompleted(parsed.isQuizCompleted);
         }
       }
     } catch (e) {
-      console.warn('Gagal membaca progress kuis dari localStorage:', e);
+      console.warn("Gagal membaca progress kuis dari localStorage:", e);
     }
   }, [quiz?.id]);
 
@@ -76,7 +82,11 @@ export const QuizPlayerPage: React.FC = () => {
   useEffect(() => {
     if (!quiz?.id) return;
     // Don't save empty initial state if there are no answers selected or submitted yet
-    if (Object.keys(selectedAnswers).length === 0 && Object.keys(submittedAnswers).length === 0 && !isQuizCompleted) {
+    if (
+      Object.keys(selectedAnswers).length === 0 &&
+      Object.keys(submittedAnswers).length === 0 &&
+      !isQuizCompleted
+    ) {
       return;
     }
     try {
@@ -88,17 +98,28 @@ export const QuizPlayerPage: React.FC = () => {
         isQuizCompleted,
         lastSavedAt: new Date().toISOString(),
       };
-      localStorage.setItem(getQuizStorageKey(quiz.id), JSON.stringify(progress));
+      localStorage.setItem(
+        getQuizStorageKey(quiz.id),
+        JSON.stringify(progress),
+      );
     } catch (e) {
-      console.warn('Gagal menyimpan progress kuis ke localStorage:', e);
+      console.warn("Gagal menyimpan progress kuis ke localStorage:", e);
     }
-  }, [quiz?.id, selectedAnswers, submittedAnswers, currentQuestionIndex, isQuizCompleted]);
+  }, [
+    quiz?.id,
+    selectedAnswers,
+    submittedAnswers,
+    currentQuestionIndex,
+    isQuizCompleted,
+  ]);
 
   const questions = useMemo(() => quiz?.questions || [], [quiz]);
   const currentQ = questions[currentQuestionIndex];
   const totalQuestions = questions.length;
 
-  const currentSelectedChoices = currentQ ? selectedAnswers[currentQ.id] || [] : [];
+  const currentSelectedChoices = currentQ
+    ? selectedAnswers[currentQ.id] || []
+    : [];
   const isCurrentSubmitted = currentQ ? !!submittedAnswers[currentQ.id] : false;
   const currentCorrectIds = currentQ ? getCorrectAnswerIds(currentQ) : [];
   const isCurrentMulti = currentCorrectIds.length > 1;
@@ -155,11 +176,17 @@ export const QuizPlayerPage: React.FC = () => {
     let correctCount = 0;
     questions.forEach((q) => {
       const selection = selectedAnswers[q.id] || [];
-      if (selection.length > 0 && sameSelection(selection, getCorrectAnswerIds(q))) {
+      if (
+        selection.length > 0 &&
+        sameSelection(selection, getCorrectAnswerIds(q))
+      ) {
         correctCount++;
       }
     });
-    const percentage = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+    const percentage =
+      totalQuestions > 0
+        ? Math.round((correctCount / totalQuestions) * 100)
+        : 0;
     return {
       correctCount,
       totalCount: totalQuestions,
@@ -168,13 +195,20 @@ export const QuizPlayerPage: React.FC = () => {
     };
   }, [questions, selectedAnswers, totalQuestions]);
 
-  if (isLoadingQuiz && (!quiz || !quiz.questions || quiz.questions.length === 0)) {
+  if (
+    isLoadingQuiz &&
+    (!quiz || !quiz.questions || quiz.questions.length === 0)
+  ) {
     return (
       <div className="min-h-screen bg-chem-paper lab-grid-bg flex items-center justify-center p-6 font-sans">
         <div className="bg-white p-8 rounded-3xl border border-chem-border text-center max-w-md space-y-4 shadow-subtle">
           <div className="w-10 h-10 border-4 border-chem-forest border-t-transparent rounded-full animate-spin mx-auto" />
-          <h2 className="font-serif text-lg font-bold text-chem-dark">Memuat Paket Soal...</h2>
-          <p className="text-xs text-chem-ash">Menyiapkan butir soal dan petunjuk evaluasi mandiri.</p>
+          <h2 className="font-serif text-lg font-bold text-chem-dark">
+            Memuat Paket Soal...
+          </h2>
+          <p className="text-xs text-chem-ash">
+            Menyiapkan butir soal dan petunjuk evaluasi mandiri.
+          </p>
         </div>
       </div>
     );
@@ -184,13 +218,15 @@ export const QuizPlayerPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-chem-paper lab-grid-bg flex items-center justify-center p-6 font-sans">
         <div className="bg-white p-8 rounded-3xl border border-chem-border text-center max-w-md space-y-4 shadow-subtle">
-          <h2 className="font-serif text-xl font-bold text-chem-dark">Paket Soal Tidak Ditemukan</h2>
+          <h2 className="font-serif text-xl font-bold text-chem-dark">
+            Paket Soal Tidak Ditemukan
+          </h2>
           <p className="text-xs text-chem-ash">
             Paket latihan yang Anda tuju mungkin tidak tersedia.
           </p>
           <button
             type="button"
-            onClick={() => navigate('/kuis')}
+            onClick={() => navigate("/kuis")}
             className="px-5 py-2.5 bg-chem-forest text-white text-xs font-semibold rounded-xl cursor-pointer"
           >
             Kembali ke Menu Kuis
@@ -204,13 +240,16 @@ export const QuizPlayerPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-chem-paper lab-grid-bg flex items-center justify-center p-6 font-sans">
         <div className="bg-white p-8 rounded-3xl border border-chem-border text-center max-w-md space-y-4 shadow-subtle">
-          <h2 className="font-serif text-xl font-bold text-chem-dark">Belum Ada Butir Soal</h2>
+          <h2 className="font-serif text-xl font-bold text-chem-dark">
+            Belum Ada Butir Soal
+          </h2>
           <p className="text-xs text-chem-ash">
-            Paket latihan &quot;{quiz.title}&quot; belum memiliki butir soal yang diterbitkan.
+            Paket latihan &quot;{quiz.title}&quot; belum memiliki butir soal
+            yang diterbitkan.
           </p>
           <button
             type="button"
-            onClick={() => navigate('/kuis')}
+            onClick={() => navigate("/kuis")}
             className="px-5 py-2.5 bg-chem-forest text-white text-xs font-semibold rounded-xl cursor-pointer"
           >
             Kembali ke Menu Kuis
@@ -225,8 +264,14 @@ export const QuizPlayerPage: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Navigation Breadcrumb */}
         <div className="flex items-center justify-between">
-          <nav className="flex items-center gap-2 text-xs text-chem-ash" aria-label="Breadcrumb">
-            <Link to="/kuis" className="hover:text-chem-forest transition-colors">
+          <nav
+            className="flex items-center gap-2 text-xs text-chem-ash"
+            aria-label="Breadcrumb"
+          >
+            <Link
+              to="/kuis"
+              className="hover:text-chem-forest transition-colors"
+            >
               Kuis
             </Link>
             <ChevronRight className="w-3.5 h-3.5 text-chem-border" />
@@ -249,18 +294,24 @@ export const QuizPlayerPage: React.FC = () => {
 
             <div className="space-y-2">
               <h2 className="font-serif text-3xl font-bold text-chem-dark">
-                {scoreStats.passed ? 'Luar Biasa!' : 'Tetap Semangat!'}
+                {scoreStats.passed ? "Luar Biasa!" : "Tetap Semangat!"}
               </h2>
             </div>
 
             {/* Score Metrics */}
             <div className="grid grid-cols-2 gap-4 max-w-xs mx-auto pt-2">
               <div className="p-4 bg-chem-subtle rounded-2xl border border-chem-border">
-                <span className="text-[10px] text-chem-ash block uppercase font-bold">Skor Akhir</span>
-                <span className="text-3xl font-mono font-bold text-chem-forest">{scoreStats.percentage}%</span>
+                <span className="text-[10px] text-chem-ash block uppercase font-bold">
+                  Skor Akhir
+                </span>
+                <span className="text-3xl font-mono font-bold text-chem-forest">
+                  {scoreStats.percentage}%
+                </span>
               </div>
               <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200">
-                <span className="text-[10px] text-emerald-800 block uppercase font-bold">Jawaban Benar</span>
+                <span className="text-[10px] text-emerald-800 block uppercase font-bold">
+                  Jawaban Benar
+                </span>
                 <span className="text-3xl font-mono font-bold text-emerald-700">
                   {scoreStats.correctCount}/{scoreStats.totalCount}
                 </span>
@@ -301,16 +352,19 @@ export const QuizPlayerPage: React.FC = () => {
                   const isSubmitted = !!submittedAnswers[q.id];
                   const selection = selectedAnswers[q.id] || [];
                   const isCorrect =
-                    selection.length > 0 && sameSelection(selection, getCorrectAnswerIds(q));
+                    selection.length > 0 &&
+                    sameSelection(selection, getCorrectAnswerIds(q));
                   const isCurrent = idx === currentQuestionIndex;
 
-                  let bgClass = 'bg-chem-subtle text-chem-ash border-chem-border';
+                  let bgClass =
+                    "bg-chem-subtle text-chem-ash border-chem-border";
                   if (isCurrent) {
-                    bgClass = 'ring-2 ring-chem-forest bg-chem-paper text-chem-forest font-bold';
+                    bgClass =
+                      "ring-2 ring-chem-forest bg-chem-paper text-chem-forest font-bold";
                   } else if (isSubmitted) {
                     bgClass = isCorrect
-                      ? 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold'
-                      : 'bg-rose-100 text-rose-800 border-rose-300 font-bold';
+                      ? "bg-emerald-100 text-emerald-800 border-emerald-300 font-bold"
+                      : "bg-rose-100 text-rose-800 border-rose-300 font-bold";
                   }
 
                   return (
@@ -364,21 +418,28 @@ export const QuizPlayerPage: React.FC = () => {
                 {/* Multiple Choices List */}
                 <div className="space-y-3 pt-2">
                   {currentQ.choices.map((choice, choiceIndex) => {
-                    const isSelected = currentSelectedChoices.includes(choice.id);
+                    const isSelected = currentSelectedChoices.includes(
+                      choice.id,
+                    );
                     const isCorrect = currentCorrectIds.includes(choice.id);
 
-                    let choiceStyle = 'bg-white border-chem-border text-chem-dark hover:border-chem-sage hover:bg-chem-subtle/50';
+                    let choiceStyle =
+                      "bg-white border-chem-border text-chem-dark hover:border-chem-sage hover:bg-chem-subtle/50";
 
                     if (isCurrentSubmitted) {
                       if (isCorrect) {
-                        choiceStyle = 'bg-emerald-50 border-emerald-500 text-emerald-950 ring-2 ring-emerald-400';
+                        choiceStyle =
+                          "bg-emerald-50 border-emerald-500 text-emerald-950 ring-2 ring-emerald-400";
                       } else if (isSelected && !isCorrect) {
-                        choiceStyle = 'bg-rose-50 border-rose-500 text-rose-950 ring-2 ring-rose-400';
+                        choiceStyle =
+                          "bg-rose-50 border-rose-500 text-rose-950 ring-2 ring-rose-400";
                       } else {
-                        choiceStyle = 'bg-slate-50 border-slate-200 text-slate-400 opacity-60';
+                        choiceStyle =
+                          "bg-slate-50 border-slate-200 text-slate-400 opacity-60";
                       }
                     } else if (isSelected) {
-                      choiceStyle = 'bg-chem-glow/60 border-chem-forest text-chem-forest ring-2 ring-chem-forest font-semibold';
+                      choiceStyle =
+                        "bg-chem-glow/60 border-chem-forest text-chem-forest ring-2 ring-chem-forest font-semibold";
                     }
 
                     return (
@@ -392,8 +453,8 @@ export const QuizPlayerPage: React.FC = () => {
                         <div
                           className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 mt-0.5 text-xs font-mono font-bold ${
                             isSelected || (isCurrentSubmitted && isCorrect)
-                              ? 'bg-chem-forest text-white border-chem-forest'
-                              : 'border-slate-300 text-slate-500'
+                              ? "bg-chem-forest text-white border-chem-forest"
+                              : "border-slate-300 text-slate-500"
                           }`}
                         >
                           {String.fromCharCode(65 + choiceIndex)}
@@ -401,9 +462,11 @@ export const QuizPlayerPage: React.FC = () => {
                         <span className="text-xs sm:text-sm leading-relaxed flex-1">
                           {choice.text}
                         </span>
-                        {isCurrentMulti && isSelected && !isCurrentSubmitted && (
-                          <CheckCircle2 className="w-5 h-5 text-chem-forest shrink-0" />
-                        )}
+                        {isCurrentMulti &&
+                          isSelected &&
+                          !isCurrentSubmitted && (
+                            <CheckCircle2 className="w-5 h-5 text-chem-forest shrink-0" />
+                          )}
                         {isCurrentSubmitted && isCorrect && (
                           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                         )}
@@ -424,7 +487,7 @@ export const QuizPlayerPage: React.FC = () => {
                       disabled={currentSelectedChoices.length === 0}
                       className="px-6 py-3 bg-chem-forest hover:bg-chem-moss disabled:opacity-40 text-white rounded-2xl text-xs font-bold transition-all shadow-xs cursor-pointer"
                     >
-                      Kunci Jawaban & Lihat Pembahasan
+                      Pilih Jawaban
                     </button>
                   </div>
                 )}
@@ -434,8 +497,8 @@ export const QuizPlayerPage: React.FC = () => {
                   <div
                     className={`p-6 rounded-2xl border space-y-3 animate-in fade-in ${
                       isCurrentCorrect
-                        ? 'bg-emerald-50/80 border-emerald-300 text-emerald-950'
-                        : 'bg-rose-50/80 border-rose-300 text-rose-950'
+                        ? "bg-emerald-50/80 border-emerald-300 text-emerald-950"
+                        : "bg-rose-50/80 border-rose-300 text-rose-950"
                     }`}
                   >
                     <div className="flex items-center gap-2">
@@ -446,17 +509,17 @@ export const QuizPlayerPage: React.FC = () => {
                       )}
                       <span
                         className={`font-bold text-xs uppercase tracking-wider ${
-                          isCurrentCorrect ? 'text-emerald-800' : 'text-rose-800'
+                          isCurrentCorrect
+                            ? "text-emerald-800"
+                            : "text-rose-800"
                         }`}
                       >
-                        {isCurrentCorrect ? 'Benar' : 'Kurang Tepat'}
+                        {isCurrentCorrect ? "Benar" : "Kurang Tepat"}
                       </span>
                     </div>
 
                     <p className="text-xs leading-relaxed pl-7 opacity-90">
-                      {!isCurrentCorrect && currentQ.wrongAnswerExplanation?.trim()
-                        ? currentQ.wrongAnswerExplanation
-                        : currentQ.explanation}
+                      {currentQ.explanation}
                     </p>
                   </div>
                 )}
@@ -481,7 +544,9 @@ export const QuizPlayerPage: React.FC = () => {
                 className="px-6 py-3 rounded-2xl bg-chem-forest hover:bg-chem-moss text-white text-xs font-bold flex items-center gap-2 cursor-pointer transition-all shadow-xs"
               >
                 <span>
-                  {currentQuestionIndex === totalQuestions - 1 ? 'Selesaikan Kuis' : 'Berikutnya'}
+                  {currentQuestionIndex === totalQuestions - 1
+                    ? "Selesaikan Kuis"
+                    : "Berikutnya"}
                 </span>
                 <ChevronRight className="w-4 h-4 text-chem-glow" />
               </button>

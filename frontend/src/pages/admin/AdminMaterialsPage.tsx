@@ -16,6 +16,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { BlockAstViewer } from "../../components/editor/block-ast-viewer";
+import { resolveMediaUrl } from "../../lib/media";
 
 export const AdminMaterialsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -186,7 +187,7 @@ export const AdminMaterialsPage: React.FC = () => {
                       <div className="flex items-center gap-3">
                         {mat.coverUrl ? (
                           <img
-                            src={mat.coverUrl}
+                            src={resolveMediaUrl(mat.coverUrl)}
                             alt={mat.title}
                             className="w-10 h-10 rounded-lg object-cover border border-slate-200 shrink-0"
                           />
@@ -291,7 +292,7 @@ export const AdminMaterialsPage: React.FC = () => {
             <div className="p-6 overflow-y-auto space-y-4">
               {previewMaterial.coverUrl && (
                 <img
-                  src={previewMaterial.coverUrl}
+                  src={resolveMediaUrl(previewMaterial.coverUrl)}
                   alt={previewMaterial.title}
                   className="w-full h-44 object-cover rounded-xl"
                 />

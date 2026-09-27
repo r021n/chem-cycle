@@ -173,8 +173,6 @@ export interface QuizQuestion {
   correctAnswerId?: string;
   correctAnswerIds?: string[];
   explanation: string;
-  wrongAnswerExplanation?: string;
-  conceptSummary: string;
 }
 
 export interface QuizPackage {

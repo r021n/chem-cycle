@@ -38,7 +38,14 @@ app.use(
   })
 );
 
-app.use('*', secureHeaders());
+// Media/API harus dapat di-embed lintas origin (frontend dev server :5173).
+// Default Hono mengirim Cross-Origin-Resource-Policy: same-origin yang memblokir <img>.
+app.use(
+  '*',
+  secureHeaders({
+    crossOriginResourcePolicy: 'cross-origin',
+  })
+);
 app.use('*', generalRateLimiter);
 app.use(
   '*',

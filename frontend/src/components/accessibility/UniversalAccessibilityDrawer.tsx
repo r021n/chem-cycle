@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { useAccessibilityStore, ContrastMode } from '../../store/accessibilityStore';
 import {
   Accessibility,
@@ -73,21 +73,100 @@ export const UniversalAccessibilityDrawer: React.FC = () => {
     { mode: 'yellow-black', label: 'Kuning - Hitam', desc: 'Standar visibilitas WCAG AAA', bg: 'bg-black text-yellow-300 font-bold border border-yellow-400' },
   ];
 
+  const [fabPosition, setFabPosition] = useState<{ x: number; y: number } | null>(null);
+  const fabRef = useRef<HTMLDivElement | null>(null);
+  const isDraggingFabRef = useRef(false);
+
+  const handleFabPointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (e.button !== 0) return; // Only left click or primary touch
+
+    const el = fabRef.current;
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    const startPointer = { x: e.clientX, y: e.clientY };
+    const startEl = { x: rect.left, y: rect.top };
+    let hasMoved = false;
+
+    const onPointerMove = (moveEvt: PointerEvent) => {
+      const dx = moveEvt.clientX - startPointer.x;
+      const dy = moveEvt.clientY - startPointer.y;
+
+      if (!hasMoved && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+        hasMoved = true;
+        isDraggingFabRef.current = true;
+      }
+
+      if (hasMoved) {
+        const minX = 8;
+        const maxX = window.innerWidth - rect.width - 8;
+        const minY = 8;
+        const maxY = window.innerHeight - rect.height - 8;
+
+        const nextX = Math.max(minX, Math.min(maxX, startEl.x + dx));
+        const nextY = Math.max(minY, Math.min(maxY, startEl.y + dy));
+
+        setFabPosition({ x: nextX, y: nextY });
+      }
+    };
+
+    const onPointerUp = () => {
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      // Small timeout ensures onClick can verify if movement occurred
+      setTimeout(() => {
+        isDraggingFabRef.current = false;
+      }, 60);
+    };
+
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+  };
+
+  const handleFabClick = () => {
+    // Only toggle drawer if the user didn't drag the button
+    if (!isDraggingFabRef.current) {
+      toggleOpen();
+    }
+  };
+
   return (
     <>
-      {/* Global Floating Action Button (FAB) */}
-      <div className="fixed bottom-6 right-6 z-40">
+      {/* Global Floating Action Button (FAB) - Draggable */}
+      <div
+        ref={fabRef}
+        id="accessibility-fab"
+        className={`fixed z-40 isolate select-none touch-none ${
+          fabPosition ? '' : 'bottom-6 right-6'
+        }`}
+        style={
+          fabPosition
+            ? {
+                left: `${fabPosition.x}px`,
+                top: `${fabPosition.y}px`,
+                right: 'auto',
+                bottom: 'auto',
+              }
+            : undefined
+        }
+      >
         <button
           type="button"
-          onClick={toggleOpen}
-          aria-label="Buka Pengaturan Aksesibilitas Universal (Alt+A)"
-          className="group relative flex items-center gap-2.5 bg-chem-forest hover:bg-chem-moss text-white px-4 py-3.5 rounded-full shadow-float border-2 border-chem-mint/30 hover:border-chem-glow transition-all duration-200 cursor-pointer focus:outline-none focus:ring-4 focus:ring-chem-glow/50"
+          onPointerDown={handleFabPointerDown}
+          onClick={handleFabClick}
+          aria-label="Buka Pengaturan Aksesibilitas Universal (Alt+A) - Tahan & geser untuk memindahkan posisi"
+          title={
+            language === 'id'
+              ? 'Aksesibilitas (Klik untuk buka, tahan & geser untuk memindahkan)'
+              : 'Accessibility (Click to open, drag to move)'
+          }
+          className="group relative flex items-center gap-2.5 bg-chem-forest hover:bg-chem-moss active:cursor-grabbing text-white px-4 py-3.5 rounded-full shadow-float border-2 border-chem-mint/30 hover:border-chem-glow transition-colors cursor-grab focus:outline-none focus:ring-4 focus:ring-chem-glow/50"
         >
-          <Accessibility className="w-5 h-5 text-chem-glow animate-pulse group-hover:rotate-12 transition-transform" />
-          <span className="text-xs font-semibold tracking-wide hidden sm:inline">
+          <Accessibility className="w-5 h-5 text-chem-glow animate-pulse group-hover:rotate-12 transition-transform pointer-events-none" />
+          <span className="text-xs font-semibold tracking-wide hidden sm:inline pointer-events-none">
             {language === 'id' ? 'Aksesibilitas' : 'Accessibility'}
           </span>
-          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/20 text-chem-glow">
+          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/20 text-chem-glow pointer-events-none">
             UDL
           </span>
         </button>
@@ -104,7 +183,8 @@ export const UniversalAccessibilityDrawer: React.FC = () => {
 
       {/* Slide-over Drawer Panel */}
       <div
-        className={`fixed inset-y-0 right-0 z-50 w-full sm:max-w-md bg-white shadow-2xl flex flex-col border-l border-chem-border transition-transform duration-300 ease-in-out font-sans ${
+        id="accessibility-drawer"
+        className={`fixed inset-y-0 right-0 z-50 w-full sm:max-w-md bg-white shadow-2xl flex flex-col border-l border-chem-border transition-transform duration-300 ease-in-out font-sans isolate ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         role="dialog"

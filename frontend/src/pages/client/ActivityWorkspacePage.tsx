@@ -1,8 +1,8 @@
-import React, { useMemo, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useDataStore } from '../../store/dataStore';
-import { BlockAstViewer } from '../../components/editor/block-ast-viewer';
-import { resolveMediaUrl } from '../../lib/media';
+import React, { useMemo, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { useDataStore } from "../../store/dataStore";
+import { BlockAstViewer } from "../../components/editor/block-ast-viewer";
+import { resolveMediaUrl } from "../../lib/media";
 import {
   ChevronRight,
   ChevronLeft,
@@ -13,13 +13,13 @@ import {
   ArrowLeft,
   Paperclip,
   Image as ImageIcon,
-} from 'lucide-react';
+} from "lucide-react";
 
 const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+  new Date(iso).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
 
 export const ActivityWorkspacePage: React.FC = () => {
@@ -43,19 +43,22 @@ export const ActivityWorkspacePage: React.FC = () => {
   const activity = published[currentIndex];
 
   const prevActivity = currentIndex > 0 ? published[currentIndex - 1] : null;
-  const nextActivity = currentIndex < published.length - 1 ? published[currentIndex + 1] : null;
+  const nextActivity =
+    currentIndex < published.length - 1 ? published[currentIndex + 1] : null;
 
   if (!activity) {
     return (
       <div className="min-h-screen bg-chem-paper lab-grid-bg flex items-center justify-center p-6 font-sans">
         <div className="bg-white p-8 rounded-3xl border border-chem-border text-center max-w-md space-y-4 shadow-subtle">
-          <h2 className="font-serif text-xl font-bold text-chem-dark">Aktivitas Tidak Ditemukan</h2>
+          <h2 className="font-serif text-xl font-bold text-chem-dark">
+            Aktivitas Tidak Ditemukan
+          </h2>
           <p className="text-xs text-chem-ash">
             Aktivitas yang Anda tuju mungkin belum aktif atau telah diperbarui.
           </p>
           <button
             type="button"
-            onClick={() => navigate('/aktivitas')}
+            onClick={() => navigate("/aktivitas")}
             className="px-5 py-2.5 bg-chem-forest text-white text-xs font-semibold rounded-xl cursor-pointer"
           >
             Kembali ke Katalog Aktivitas
@@ -72,13 +75,22 @@ export const ActivityWorkspacePage: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Navigation Breadcrumb */}
         <div className="flex items-center justify-between">
-          <nav className="flex items-center gap-2 text-xs text-chem-ash" aria-label="Breadcrumb">
-            <Link to="/" className="hover:text-chem-forest flex items-center gap-1 transition-colors">
+          <nav
+            className="flex items-center gap-2 text-xs text-chem-ash"
+            aria-label="Breadcrumb"
+          >
+            <Link
+              to="/"
+              className="hover:text-chem-forest flex items-center gap-1 transition-colors"
+            >
               <Home className="w-3.5 h-3.5" />
               <span>Beranda</span>
             </Link>
             <ChevronRight className="w-3.5 h-3.5 text-chem-border" />
-            <Link to="/aktivitas" className="hover:text-chem-forest transition-colors">
+            <Link
+              to="/aktivitas"
+              className="hover:text-chem-forest transition-colors"
+            >
               Modul Aktivitas
             </Link>
             <ChevronRight className="w-3.5 h-3.5 text-chem-border" />
@@ -99,9 +111,6 @@ export const ActivityWorkspacePage: React.FC = () => {
         {/* Announcement Header */}
         <div className="space-y-3 pb-6 border-b border-chem-border">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-chem-sage px-2.5 py-0.5 rounded-full bg-chem-glow/60 border border-chem-sage/30">
-              Aktivitas {activity.orderIndex}
-            </span>
             <span className="text-xs text-chem-ash">
               {formatDate(activity.updatedAt || activity.createdAt)}
             </span>
@@ -147,9 +156,9 @@ export const ActivityWorkspacePage: React.FC = () => {
                   className="flex items-center gap-3.5 p-4 rounded-2xl border border-chem-border hover:border-chem-forest bg-chem-subtle/40 hover:bg-white transition-all group shadow-2xs"
                 >
                   <div className="w-10 h-10 rounded-xl bg-white border border-chem-border flex items-center justify-center text-chem-forest shrink-0">
-                    {att.type === 'link' ? (
+                    {att.type === "link" ? (
                       <Link2 className="w-4 h-4" />
-                    ) : att.type === 'image' ? (
+                    ) : att.type === "image" ? (
                       <ImageIcon className="w-4 h-4" />
                     ) : (
                       <FileText className="w-4 h-4" />
@@ -160,7 +169,9 @@ export const ActivityWorkspacePage: React.FC = () => {
                       {att.name}
                     </span>
                     <span className="text-[10px] text-chem-ash font-mono block mt-0.5">
-                      {att.type === 'link' ? 'Tautan Web' : (att.size || 'Berkas Unduhan')}
+                      {att.type === "link"
+                        ? "Tautan Web"
+                        : att.size || "Berkas Unduhan"}
                     </span>
                   </div>
                   <ExternalLink className="w-4 h-4 text-chem-ash group-hover:text-chem-forest shrink-0" />
@@ -171,7 +182,10 @@ export const ActivityWorkspacePage: React.FC = () => {
         )}
 
         {/* Prev / Next Activity Navigation */}
-        <nav className="pt-6 border-t border-chem-border grid grid-cols-1 sm:grid-cols-2 gap-6" aria-label="Navigasi Aktivitas">
+        <nav
+          className="pt-6 border-t border-chem-border grid grid-cols-1 sm:grid-cols-2 gap-6"
+          aria-label="Navigasi Aktivitas"
+        >
           {prevActivity ? (
             <Link
               to={`/aktivitas/${prevActivity.id}`}

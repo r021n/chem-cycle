@@ -16,18 +16,23 @@ export const ClientLayout: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-chem-paper text-chem-dark">
       {/* Global Accessibility Engine & Overlays */}
       <AccessibilityController />
+
+      {/* Main Accessible Page Content Container (targeted by accessibility engine) */}
+      <div id="accessible-content-root" className="flex-1 flex flex-col min-h-0 w-full">
+        {/* Global Client Navigation */}
+        <Navbar />
+
+        {/* Main Page Body */}
+        <main className="flex-1">
+          <Outlet />
+        </main>
+
+        {/* Global Client Footer */}
+        <Footer />
+      </div>
+
+      {/* Global Accessibility Drawer & Overlays (Isolated from page styles) */}
       <UniversalAccessibilityDrawer />
-
-      {/* Global Client Navigation */}
-      <Navbar />
-
-      {/* Main Page Body */}
-      <main className="flex-1">
-        <Outlet />
-      </main>
-
-      {/* Global Client Footer */}
-      <Footer />
     </div>
   );
 };

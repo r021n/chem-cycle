@@ -4,21 +4,17 @@ import {
   BookOpen,
   FlaskConical,
   CheckCircle2,
-  Lock,
   Menu,
   X,
   Accessibility,
   Home,
-  ShieldAlert,
 } from "lucide-react";
 import { useAccessibilityStore } from "../../store/accessibilityStore";
-import { useDataStore } from "../../store/dataStore";
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toggleOpen, language } = useAccessibilityStore();
-  const { isAuthenticated } = useDataStore();
 
   const navItems = [
     {
@@ -123,28 +119,6 @@ export const Navbar: React.FC = () => {
           })}
         </nav>
 
-        {/* Right Action Buttons */}
-        <div className="hidden sm:flex items-center space-x-2.5">
-          {/* Admin CMS Button */}
-          <Link
-            to={isAuthenticated ? "/admin/dashboard" : "/admin/login"}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-chem-dark bg-chem-subtle hover:bg-chem-border/60 border border-chem-border rounded-xl transition-colors"
-          >
-            {isAuthenticated ? (
-              <>
-                <ShieldAlert className="w-3.5 h-3.5 text-emerald-600" />
-                <span>CMS Panel</span>
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              </>
-            ) : (
-              <>
-                <Lock className="w-3.5 h-3.5 text-chem-ash" />
-                <span>Admin CMS</span>
-              </>
-            )}
-          </Link>
-        </div>
-
         {/* Mobile Hamburger Button */}
         <div className="flex md:hidden items-center gap-2">
           <button
@@ -207,19 +181,6 @@ export const Navbar: React.FC = () => {
               <Accessibility className="w-4 h-4" />
               <span>Pengaturan Aksesibilitas UDL</span>
             </button>
-
-            <Link
-              to={isAuthenticated ? "/admin/dashboard" : "/admin/login"}
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-center gap-2 w-full py-2.5 bg-chem-subtle text-chem-dark text-xs font-semibold rounded-xl border border-chem-border"
-            >
-              <Lock className="w-4 h-4 text-chem-ash" />
-              <span>
-                {isAuthenticated
-                  ? "Masuk ke CMS Dashboard"
-                  : "Login Administrator CMS"}
-              </span>
-            </Link>
           </div>
         </div>
       )}

@@ -22,8 +22,6 @@ const questionInputSchema = z.object({
   correctAnswerId: z.string().optional(),
   correctAnswerIds: z.array(z.string()).optional().default([]),
   explanation: z.string().optional().default(''),
-  wrongAnswerExplanation: z.string().optional().default(''),
-  conceptSummary: z.string().optional().default(''),
 });
 
 const quizPackageSchema = z.object({
@@ -78,8 +76,6 @@ quizzesRoutes.get('/', async (c) => {
           choices,
           correctAnswerIds,
           explanation: q.explanation,
-          wrongAnswerExplanation: q.wrongAnswerExplanation,
-          conceptSummary: q.conceptSummary,
         };
       });
 
@@ -129,8 +125,6 @@ quizzesRoutes.get('/admin/all', adminAuthMiddleware, async (c) => {
           choices,
           correctAnswerIds,
           explanation: q.explanation,
-          wrongAnswerExplanation: q.wrongAnswerExplanation,
-          conceptSummary: q.conceptSummary,
         };
       });
 
@@ -182,8 +176,6 @@ quizzesRoutes.get('/:id', async (c) => {
       choices,
       correctAnswerIds,
       explanation: q.explanation,
-      wrongAnswerExplanation: q.wrongAnswerExplanation,
-      conceptSummary: q.conceptSummary,
     };
   });
 
@@ -238,8 +230,6 @@ quizzesRoutes.post('/', adminAuthMiddleware, zValidator('json', quizPackageSchem
         choicesJson: JSON.stringify(q.choices || []),
         correctAnswerIdsJson: JSON.stringify(correctIds),
         explanation: q.explanation || '',
-        wrongAnswerExplanation: q.wrongAnswerExplanation || '',
-        conceptSummary: q.conceptSummary || '',
         createdAt: now,
         updatedAt: now,
       });
@@ -309,8 +299,6 @@ quizzesRoutes.put('/:id', adminAuthMiddleware, zValidator('json', quizPackageSch
         choicesJson: JSON.stringify(q.choices || []),
         correctAnswerIdsJson: JSON.stringify(correctIds),
         explanation: q.explanation || '',
-        wrongAnswerExplanation: q.wrongAnswerExplanation || '',
-        conceptSummary: q.conceptSummary || '',
         createdAt: now,
         updatedAt: now,
       });
