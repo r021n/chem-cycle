@@ -1,7 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDataStore } from '../../store/dataStore';
 import { BlockAstViewer } from '../../components/editor/block-ast-viewer';
+import { resolveMediaUrl } from '../../lib/media';
 import {
   ChevronRight,
   ChevronLeft,
@@ -24,7 +25,13 @@ const formatDate = (iso: string) =>
 export const ActivityWorkspacePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { activities } = useDataStore();
+  const { activities, fetchActivities } = useDataStore();
+
+  useEffect(() => {
+    if (activities.length === 0) {
+      fetchActivities();
+    }
+  }, [activities.length, fetchActivities]);
 
   const published = useMemo(() => {
     return [...activities]
@@ -134,7 +141,7 @@ export const ActivityWorkspacePage: React.FC = () => {
               {attachments.map((att) => (
                 <a
                   key={att.id}
-                  href={att.url}
+                  href={resolveMediaUrl(att.url)}
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-3.5 p-4 rounded-2xl border border-chem-border hover:border-chem-forest bg-chem-subtle/40 hover:bg-white transition-all group shadow-2xs"

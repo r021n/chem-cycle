@@ -55,7 +55,7 @@ export const AdminSidebar: React.FC = () => {
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-full flex-col justify-between bg-chem-dark text-white border-r border-chem-forest/40 transition-all duration-300 ease-in-out md:relative md:inset-auto md:z-auto md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-full flex-col justify-between bg-chem-dark text-white border-r border-chem-forest/40 transition-all duration-300 ease-out md:relative md:inset-auto md:z-auto md:translate-x-0 ${
           mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
         } ${collapsed ? "md:w-20" : "md:w-64"} w-64 shrink-0`}
       >
@@ -119,12 +119,13 @@ export const AdminSidebar: React.FC = () => {
                   to={item.to}
                   title={collapsed ? item.label : undefined}
                   onClick={closeMobileSidebar}
-                  className={`flex items-center rounded-2xl text-xs font-semibold transition-all ${
+                  aria-current={active ? "page" : undefined}
+                  className={`flex items-center rounded-2xl text-xs font-semibold border transition-[background-color,color,border-color,box-shadow] duration-200 ease-out ${
                     collapsed ? "justify-center p-3" : "gap-3 px-3.5 py-2.5"
                   } ${
                     active
-                      ? "bg-chem-forest text-white shadow-xs border border-chem-mint/30"
-                      : "text-white/70 hover:text-white hover:bg-white/5"
+                      ? "bg-chem-forest text-white shadow-xs border-chem-mint/30"
+                      : "border-transparent text-white/70 hover:text-white hover:bg-white/5"
                   }`}
                 >
                   <Icon

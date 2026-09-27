@@ -50,19 +50,22 @@ export const AdminMaterialsPage: React.FC = () => {
     });
   }, [sortedMaterials, searchQuery, statusFilter]);
 
-  const handleMoveOrder = (id: string, direction: "up" | "down") => {
+  const isFiltering = !!searchQuery.trim() || statusFilter !== "all";
+
+  const handleMoveOrder = async (id: string, direction: "up" | "down") => {
+    if (isFiltering) return;
     const list = [...sortedMaterials];
     const index = list.findIndex((m) => m.id === id);
     if (direction === "up" && index > 0) {
       const temp = list[index];
       list[index] = list[index - 1];
       list[index - 1] = temp;
-      reorderMaterials(list.map((m) => m.id));
+      await reorderMaterials(list.map((m) => m.id));
     } else if (direction === "down" && index < list.length - 1) {
       const temp = list[index];
       list[index] = list[index + 1];
       list[index + 1] = temp;
-      reorderMaterials(list.map((m) => m.id));
+      await reorderMaterials(list.map((m) => m.id));
     }
   };
 
@@ -123,7 +126,7 @@ export const AdminMaterialsPage: React.FC = () => {
           <table className="w-full text-left text-xs text-slate-700">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10px]">
               <tr>
-                <th className="py-3 px-4 w-16">Urutan</th>
+                <th className="py-3 px-4 w-16 text-center">Urutan</th>
                 <th className="py-3 px-4">Judul Materi</th>
                 <th className="py-3 px-4 text-center w-28">Status</th>
                 <th className="py-3 px-4 text-right w-28">Aksi</th>
@@ -143,27 +146,34 @@ export const AdminMaterialsPage: React.FC = () => {
                     className="hover:bg-slate-50/70 transition-colors"
                   >
                     {/* Urutan */}
-                    <td className="py-3 px-4 font-mono font-bold">
-                      <div className="flex items-center gap-1">
-                        <span className="w-4 text-center">
-                          {mat.orderIndex}
-                        </span>
+                    <td className="py-3 px-4 text-center">
+                      <div className="flex items-center justify-center">
                         <div className="flex flex-col">
                           <button
                             type="button"
-                            disabled={idx === 0}
+                            disabled={isFiltering || idx === 0}
                             onClick={() => handleMoveOrder(mat.id, "up")}
-                            className="text-slate-400 hover:text-chem-forest disabled:opacity-20 cursor-pointer"
-                            title="Geser Naik"
+                            className="text-slate-400 hover:text-chem-forest disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed"
+                            title={
+                              isFiltering
+                                ? "Reset filter/pencarian untuk mengubah urutan"
+                                : "Geser Naik"
+                            }
                           >
                             <MoveUp className="w-3 h-3" />
                           </button>
                           <button
                             type="button"
-                            disabled={idx === filteredMaterials.length - 1}
+                            disabled={
+                              isFiltering || idx === filteredMaterials.length - 1
+                            }
                             onClick={() => handleMoveOrder(mat.id, "down")}
-                            className="text-slate-400 hover:text-chem-forest disabled:opacity-20 cursor-pointer"
-                            title="Geser Turun"
+                            className="text-slate-400 hover:text-chem-forest disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed"
+                            title={
+                              isFiltering
+                                ? "Reset filter/pencarian untuk mengubah urutan"
+                                : "Geser Turun"
+                            }
                           >
                             <MoveDown className="w-3 h-3" />
                           </button>

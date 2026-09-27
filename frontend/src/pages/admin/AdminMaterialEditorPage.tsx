@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { NotionBlockEditor } from '../../components/editor/NotionBlockEditor';
 import { BlockAstViewer } from '../../components/editor/block-ast-viewer';
-import { compressImageToDataUrl } from '../../lib/media';
+import { uploadCompressedImage, resolveMediaUrl } from '../../lib/media';
 
 function deriveSlug(title: string): string {
   const s = title
@@ -110,8 +110,8 @@ export const AdminMaterialEditorPage: React.FC = () => {
     setCoverError('');
     setIsCompressingCover(true);
     try {
-      const dataUrl = await compressImageToDataUrl(file);
-      setCoverUrl(dataUrl);
+      const mediaUrl = await uploadCompressedImage(file);
+      setCoverUrl(mediaUrl);
     } catch (err) {
       setCoverError(err instanceof Error ? err.message : 'Gagal memproses gambar sampul.');
     } finally {
@@ -120,7 +120,7 @@ export const AdminMaterialEditorPage: React.FC = () => {
   };
 
   // Save Material (Pure Blog)
-  const handleSave = () => {
+  const handleSave = async () => {
     const finalTitle = title.trim() || 'Materi Tanpa Judul';
     const finalSlug = deriveSlug(finalTitle);
 
@@ -135,9 +135,9 @@ export const AdminMaterialEditorPage: React.FC = () => {
     };
 
     if (!isCreateNew && materialId) {
-      updateMaterial(materialId, payload);
+      await updateMaterial(materialId, payload);
     } else {
-      const created = addMaterial(payload);
+      const created = await addMaterial(payload);
       navigate(`/admin/materi/${created.id}/edit`, { replace: true });
     }
 
@@ -235,7 +235,7 @@ export const AdminMaterialEditorPage: React.FC = () => {
           <article className="space-y-8 py-4">
             {coverUrl && (
               <div className="h-60 sm:h-80 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100">
-                <img src={coverUrl} alt={title} className="w-full h-full object-cover" />
+                <img src={resolveMediaUrl(coverUrl)} alt={title} className="w-full h-full object-cover" />
               </div>
             )}
 
@@ -262,7 +262,7 @@ export const AdminMaterialEditorPage: React.FC = () => {
             <div className="group relative">
               {coverUrl ? (
                 <div className="relative h-48 sm:h-64 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100">
-                  <img src={coverUrl} alt="Sampul" className="w-full h-full object-cover" />
+                  <img src={resolveMediaUrl(coverUrl)} alt="Sampul" className="w-full h-full object-cover" />
                   <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
                     <button
                       type="button"

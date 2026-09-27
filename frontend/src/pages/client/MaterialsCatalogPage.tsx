@@ -1,11 +1,18 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useDataStore } from "../../store/dataStore";
 import { Search, BookOpen, ChevronRight, Home } from "lucide-react";
+import { resolveMediaUrl } from "../../lib/media";
 
 export const MaterialsCatalogPage: React.FC = () => {
-  const { materials } = useDataStore();
+  const { materials, fetchMaterials } = useDataStore();
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    if (materials.length === 0) {
+      fetchMaterials();
+    }
+  }, [materials.length, fetchMaterials]);
 
   const publishedMaterials = useMemo(() => {
     return [...materials]
@@ -84,7 +91,7 @@ export const MaterialsCatalogPage: React.FC = () => {
                 {mat.coverUrl && (
                   <div className="h-44 overflow-hidden relative bg-slate-100">
                     <img
-                      src={mat.coverUrl}
+                      src={resolveMediaUrl(mat.coverUrl)}
                       alt={mat.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { QuizSection } from '../../types/app';
-import { getYoutubeEmbedUrl } from '../../lib/media';
+import { getYoutubeEmbedUrl, resolveMediaUrl } from '../../lib/media';
 import { Modal } from '../ui/modal';
 
 interface QuizSectionViewerProps {
@@ -57,16 +57,17 @@ export const QuizSectionViewer: React.FC<QuizSectionViewerProps> = ({
           case 'divider':
             return <hr key={section.id || index} className="my-2 border-t border-chem-border" />;
 
-          case 'image':
+          case 'image': {
+            const imgSrc = resolveMediaUrl(section.dataUrl);
             return section.dataUrl ? (
               <figure
                 key={section.id || index}
                 className="rounded-2xl border border-chem-border bg-chem-subtle/50 p-2"
               >
                 <img
-                  src={section.dataUrl}
+                  src={imgSrc}
                   alt={section.caption || 'Ilustrasi soal'}
-                  onClick={() => setSelectedImage(section.dataUrl)}
+                  onClick={() => setSelectedImage(imgSrc)}
                   className="w-full max-h-[420px] object-contain rounded-xl cursor-zoom-in hover:opacity-95 transition-opacity"
                 />
                 {section.caption?.trim() && (
@@ -76,6 +77,7 @@ export const QuizSectionViewer: React.FC<QuizSectionViewerProps> = ({
                 )}
               </figure>
             ) : null;
+          }
 
           case 'youtube': {
             const embedUrl = getYoutubeEmbedUrl(section.url);

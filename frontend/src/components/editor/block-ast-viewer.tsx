@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BlockAstNode, BlockInlineContent } from '../../types/material';
 import { Modal } from '../ui/modal';
+import { resolveMediaUrl } from '../../lib/media';
 
 interface BlockAstViewerProps {
   contentJson: string | BlockAstNode[];
@@ -165,8 +166,9 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({ contentJson, cla
           }
 
           case 'image': {
-            const src = block.props?.url;
-            if (!src) return null;
+            const rawSrc = block.props?.url;
+            if (!rawSrc) return null;
+            const src = resolveMediaUrl(rawSrc);
             return (
               <figure key={block.id || index} className="my-6 rounded-xl border border-slate-200 p-2 bg-white shadow-xs">
                 <img

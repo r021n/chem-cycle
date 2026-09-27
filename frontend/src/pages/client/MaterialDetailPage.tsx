@@ -4,6 +4,7 @@ import { useDataStore } from '../../store/dataStore';
 import { useAccessibilityStore } from '../../store/accessibilityStore';
 import { BlockAstViewer } from '../../components/editor/block-ast-viewer';
 import { CommentSection } from '../../components/materials/CommentSection';
+import { resolveMediaUrl } from '../../lib/media';
 import {
   ChevronLeft,
   ChevronRight,
@@ -119,7 +120,7 @@ export const MaterialDetailPage: React.FC = () => {
           {material.coverUrl && (
             <figure className="mb-10">
               <img
-                src={material.coverUrl}
+                src={resolveMediaUrl(material.coverUrl)}
                 alt={material.title}
                 className="w-full h-56 sm:h-80 object-cover rounded-2xl"
               />

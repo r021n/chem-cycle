@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/common/Footer';
 import { AccessibilityController } from '../components/accessibility/AccessibilityController';
 import { UniversalAccessibilityDrawer } from '../components/accessibility/UniversalAccessibilityDrawer';
+import { useDataStore } from '../store/dataStore';
 
 export const ClientLayout: React.FC = () => {
+  const { fetchAllData } = useDataStore();
+
+  useEffect(() => {
+    fetchAllData();
+  }, [fetchAllData]);
   return (
     <div className="min-h-screen flex flex-col bg-chem-paper text-chem-dark">
       {/* Global Accessibility Engine & Overlays */}

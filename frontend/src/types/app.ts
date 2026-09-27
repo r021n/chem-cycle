@@ -186,7 +186,8 @@ export interface QuizPackage {
   difficulty: 'Dasar' | 'Menengah' | 'Lanjutan';
   isPublished: boolean;
   orderIndex: number;
-  questions: QuizQuestion[];
+  questions?: QuizQuestion[];
+  questionsCount?: number;
   createdAt: string;
   updatedAt: string;
 }

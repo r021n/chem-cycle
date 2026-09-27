@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from 'react';
-import { useDataStore } from '../../store/dataStore';
+import React, { useEffect, useState } from 'react';
 import { MaterialComment } from '../../types/app';
-import { MessageSquare, Send } from 'lucide-react';
+import { commentsApi } from '../../api/comments';
+import { ApiError } from '../../api/client';
+import { MessageSquare, Send, ShieldAlert, Loader2, CheckCircle2 } from 'lucide-react';
 
 interface CommentSectionProps {
   materialId: string;
@@ -23,37 +24,97 @@ const formatDate = (iso: string) =>
   });
 
 export const CommentSection: React.FC<CommentSectionProps> = ({ materialId }) => {
-  const { materials, addMaterialComment } = useDataStore();
+  const [comments, setComments] = useState<MaterialComment[]>([]);
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
+  // Form inputs
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [body, setBody] = useState('');
+  const [honeypot, setHoneypot] = useState(''); // Anti-bot trap field
   const [error, setError] = useState('');
+  const [cooldown, setCooldown] = useState(0);
 
-  const material = materials.find((m) => m.id === materialId);
+  // Load comments from backend on mount or when materialId changes
+  useEffect(() => {
+    let mounted = true;
+    setLoadingComments(true);
+    commentsApi
+      .getComments(materialId)
+      .then((data) => {
+        if (mounted) {
+          setComments(data);
+          setLoadingComments(false);
+        }
+      })
+      .catch((err) => {
+        console.warn('Gagal memuat komentar:', err);
+        if (mounted) setLoadingComments(false);
+      });
 
-  const comments = useMemo(() => {
-    const list: MaterialComment[] = material?.comments ?? [];
-    return [...list].sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  }, [material?.comments]);
+    return () => {
+      mounted = false;
+    };
+  }, [materialId]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Cooldown countdown timer
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCooldown((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+
+    if (cooldown > 0) {
+      setError(`Mohon tunggu ${cooldown} detik sebelum mengirim komentar berikutnya.`);
+      return;
+    }
+
     if (!name.trim() || !body.trim()) {
       setError('Nama dan kolom komentar wajib diisi.');
       return;
     }
-    addMaterialComment(materialId, {
-      name: name.trim(),
-      email: email.trim() || undefined,
-      body: body.trim(),
-    });
-    setName('');
-    setEmail('');
-    setBody('');
-    setError('');
+
+    setSubmitting(true);
+
+    try {
+      const newComment = await commentsApi.postComment(materialId, {
+        name: name.trim(),
+        email: email.trim() || undefined,
+        body: body.trim(),
+        website_hp: honeypot, // Honeypot trap
+      });
+
+      // Prepend newly posted comment
+      setComments((prev) => [newComment, ...prev]);
+      setBody('');
+      setSubmitSuccess(true);
+      setCooldown(30); // 30s cooldown before next comment
+      setTimeout(() => setSubmitSuccess(false), 3000);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status === 429) {
+          const waitTime = err.retryAfter || 60;
+          setCooldown(waitTime);
+          setError(
+            `Proteksi Anti-Spam: Anda telah mengirim beberapa komentar. Mohon tunggu ${waitTime} detik.`
+          );
+        } else {
+          setError(err.message || 'Gagal mengirim komentar.');
+        }
+      } else {
+        setError('Terjadi kesalahan jaringan saat mengirim komentar.');
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -68,6 +129,20 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ materialId }) =>
 
       {/* Identity & Comment Form */}
       <form onSubmit={handleSubmit} className="space-y-4 mb-10">
+        {/* Anti-Bot Honeypot field (hidden from human users) */}
+        <div className="hidden" aria-hidden="true" style={{ display: 'none' }}>
+          <label htmlFor="website_hp">Jangan isi kolom ini jika Anda manusia</label>
+          <input
+            id="website_hp"
+            type="text"
+            name="website_hp"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label htmlFor="comment-name" className="text-xs font-bold text-chem-dark block">
@@ -76,6 +151,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ materialId }) =>
             <input
               id="comment-name"
               type="text"
+              required
+              maxLength={60}
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Nama Anda"
@@ -89,6 +166,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ materialId }) =>
             <input
               id="comment-email"
               type="email"
+              maxLength={100}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="nama@email.com"
@@ -103,6 +181,8 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ materialId }) =>
           </label>
           <textarea
             id="comment-body"
+            required
+            maxLength={1500}
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={4}
@@ -111,21 +191,56 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ materialId }) =>
           />
         </div>
 
-        {error && <p className="text-xs text-chem-warm font-semibold">{error}</p>}
+        {error && (
+          <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-xs text-rose-800">
+            <ShieldAlert className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
 
-        <div className="flex justify-end">
+        {submitSuccess && (
+          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2 text-xs text-emerald-800 animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>Komentar Anda berhasil terkirim dan disimpan!</span>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between pt-1">
+          {cooldown > 0 ? (
+            <span className="text-[11px] font-mono text-chem-ash">
+              Cooldown spam: tunggu {cooldown}s
+            </span>
+          ) : (
+            <span className="text-[11px] text-chem-ash">Maks. 1.500 karakter</span>
+          )}
+
           <button
             type="submit"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-chem-forest hover:bg-chem-moss text-white text-xs font-bold rounded-xl transition-colors cursor-pointer"
+            disabled={submitting || cooldown > 0}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-chem-forest hover:bg-chem-moss disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer"
           >
-            <Send className="w-4 h-4" />
-            Kirim Komentar
+            {submitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Mengirim...</span>
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4" />
+                <span>Kirim Komentar</span>
+              </>
+            )}
           </button>
         </div>
       </form>
 
       {/* Comment List */}
-      {comments.length === 0 ? (
+      {loadingComments ? (
+        <div className="py-8 flex items-center justify-center gap-2 text-xs text-chem-ash">
+          <Loader2 className="w-4 h-4 animate-spin text-chem-forest" />
+          <span>Memuat tanggapan pembaca...</span>
+        </div>
+      ) : comments.length === 0 ? (
         <p className="text-xs text-chem-ash italic">
           Belum ada komentar. Jadilah yang pertama memberikan tanggapan.
         </p>

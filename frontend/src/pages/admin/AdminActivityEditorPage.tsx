@@ -19,7 +19,8 @@ import {
 import { NotionBlockEditor } from '../../components/editor/NotionBlockEditor';
 import { BlockAstViewer } from '../../components/editor/block-ast-viewer';
 import { formatFileSize } from '../../lib/utils';
-import { compressImageToDataUrl } from '../../lib/media';
+import { uploadCompressedImage, resolveMediaUrl } from '../../lib/media';
+import { mediaApi } from '../../api/media';
 
 function deriveSlug(title: string): string {
   const s = title
@@ -149,15 +150,10 @@ export const AdminActivityEditorPage: React.FC = () => {
     try {
       let fileUrl = '';
       if (file.type.startsWith('image/')) {
-        fileUrl = await compressImageToDataUrl(file);
+        fileUrl = await uploadCompressedImage(file);
       } else {
-        // Read file as data URL
-        fileUrl = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(String(reader.result));
-          reader.onerror = () => reject(new Error('Gagal membaca file'));
-          reader.readAsDataURL(file);
-        });
+        const uploadRes = await mediaApi.uploadFile(file);
+        fileUrl = uploadRes.url;
       }
 
       const newAttachment: ActivityAttachment = {
@@ -199,7 +195,7 @@ export const AdminActivityEditorPage: React.FC = () => {
   };
 
   // Save Announcement / Activity
-  const handleSave = () => {
+  const handleSave = async () => {
     const finalTitle = title.trim() || 'Aktivitas Tanpa Judul';
     const finalSlug = deriveSlug(finalTitle);
 
@@ -218,9 +214,9 @@ export const AdminActivityEditorPage: React.FC = () => {
     };
 
     if (!isCreateNew && activityId) {
-      updateActivity(activityId, payload);
+      await updateActivity(activityId, payload);
     } else {
-      const created = addActivity(payload);
+      const created = await addActivity(payload);
       navigate(`/admin/aktivitas/${created.id}/edit`, { replace: true });
     }
 
@@ -350,7 +346,7 @@ export const AdminActivityEditorPage: React.FC = () => {
                     {attachments.map((att) => (
                       <a
                         key={att.id}
-                        href={att.url}
+                        href={resolveMediaUrl(att.url)}
                         target="_blank"
                         rel="noreferrer"
                         className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:border-chem-forest bg-slate-50/70 hover:bg-slate-50 transition-colors group"
@@ -512,7 +508,7 @@ export const AdminActivityEditorPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => removeAttachment(att.id)}
-                        className="p-1 text-slate-400 hover:text-rose-600 rounded cursor-pointer shrink-0"
+                        className="p-1 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer shrink-0"
                         title="Hapus Lampiran"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

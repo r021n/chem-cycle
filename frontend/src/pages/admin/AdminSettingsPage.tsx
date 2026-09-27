@@ -17,7 +17,7 @@ export const AdminSettingsPage: React.FC = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleSaveAll = (e: React.FormEvent) => {
+  const handleSaveAll = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
 
@@ -38,12 +38,15 @@ export const AdminSettingsPage: React.FC = () => {
       return;
     }
 
-    changePassword(newPassword.trim());
-    setNewPassword("");
-    setConfirmPassword("");
-
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
+    const success = await changePassword(newPassword.trim());
+    if (success) {
+      setNewPassword("");
+      setConfirmPassword("");
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 3000);
+    } else {
+      setErrorMessage("Gagal mengubah kata sandi. Pastikan sesi admin Anda masih aktif.");
+    }
   };
 
   return (

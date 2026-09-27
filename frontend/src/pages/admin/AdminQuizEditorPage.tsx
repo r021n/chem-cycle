@@ -1,11 +1,12 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useDataStore } from '../../store/dataStore';
-import { QuizSectionType, QuizSection } from '../../types/app';
+import React, { useEffect, useRef, useState, useMemo } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useDataStore } from "../../store/dataStore";
+import { QuizSectionType, QuizSection } from "../../types/app";
 import {
   ArrowLeft,
   CheckCircle2,
   ChevronDown,
+  ChevronUp,
   ChevronRight,
   Copy,
   Plus,
@@ -19,9 +20,14 @@ import {
   Layers,
   HelpCircle,
   Check,
-} from 'lucide-react';
-import { QuizSectionEditor, BLOCK_METAS } from '../../components/editor/quiz-section-editor';
-import { QuizSectionViewer } from '../../components/editor/quiz-section-viewer';
+  Minimize2,
+  Maximize2,
+} from "lucide-react";
+import {
+  QuizSectionEditor,
+  BLOCK_METAS,
+} from "../../components/editor/quiz-section-editor";
+import { QuizSectionViewer } from "../../components/editor/quiz-section-viewer";
 import {
   EditorQuestion,
   createChoice,
@@ -31,15 +37,15 @@ import {
   toEditorQuestion,
   toQuizQuestion,
   uid,
-} from '../../lib/quiz';
-import { cn } from '../../lib/utils';
+} from "../../lib/quiz";
+import { cn } from "../../lib/utils";
 
 interface QuizMetaDraft {
   title: string;
   topic: string;
   description: string;
   durationMinutes: number;
-  difficulty: 'Dasar' | 'Menengah' | 'Lanjutan';
+  difficulty: "Dasar" | "Menengah" | "Lanjutan";
   isPublished: boolean;
 }
 
@@ -55,22 +61,99 @@ export const AdminQuizEditorPage: React.FC = () => {
 
   const loadedRef = useRef<string | null>(null);
   const [meta, setMeta] = useState<QuizMetaDraft>({
-    title: '',
-    topic: '',
-    description: '',
+    title: "",
+    topic: "",
+    description: "",
     durationMinutes: 15,
-    difficulty: 'Menengah',
+    difficulty: "Menengah",
     isPublished: true,
   });
   const [questions, setQuestions] = useState<EditorQuestion[]>([]);
   const [openIds, setOpenIds] = useState<string[]>([]);
-  const [addMenuQuestionId, setAddMenuQuestionId] = useState<string | null>(null);
-  const [insertBetweenIndex, setInsertBetweenIndex] = useState<{ qId: string; idx: number } | null>(null);
+  const [addMenuQuestionId, setAddMenuQuestionId] = useState<string | null>(
+    null,
+  );
+  const [insertBetweenIndex, setInsertBetweenIndex] = useState<{
+    qId: string;
+    idx: number;
+  } | null>(null);
+  const addMenuPopoverRef = useRef<HTMLDivElement>(null);
+  const insertBetweenPopoverRef = useRef<HTMLDivElement>(null);
+
+  // Close popovers on outside click or Escape
+  useEffect(() => {
+    if (!addMenuQuestionId && !insertBetweenIndex) return;
+
+    const handlePointerDown = (e: PointerEvent) => {
+      const target = e.target as Node;
+      if (addMenuQuestionId) {
+        if (addMenuPopoverRef.current && !addMenuPopoverRef.current.contains(target)) {
+          setAddMenuQuestionId(null);
+        }
+      }
+      if (insertBetweenIndex) {
+        if (insertBetweenPopoverRef.current && !insertBetweenPopoverRef.current.contains(target)) {
+          setInsertBetweenIndex(null);
+        }
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setAddMenuQuestionId(null);
+        setInsertBetweenIndex(null);
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [addMenuQuestionId, insertBetweenIndex]);
   const [savedAt, setSavedAt] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
+  const [activeTab, setActiveTab] = useState<"editor" | "preview">("editor");
   const [previewQuestionIndex, setPreviewQuestionIndex] = useState(0);
-  const [previewSelectedChoices, setPreviewSelectedChoices] = useState<Record<string, string[]>>({});
-  const [previewSubmitted, setPreviewSubmitted] = useState<Record<string, boolean>>({});
+  const [previewSelectedChoices, setPreviewSelectedChoices] = useState<
+    Record<string, string[]>
+  >({});
+  const [previewSubmitted, setPreviewSubmitted] = useState<
+    Record<string, boolean>
+  >({});
+  const [viewHeightMode, setViewHeightMode] = useState<
+    'compact' | 'medium' | 'full'
+  >('full');
+  const [collapsedSectionIds, setCollapsedSectionIds] = useState<
+    Record<string, boolean>
+  >({});
+
+  const toggleSectionCollapse = (sectionId: string) => {
+    setCollapsedSectionIds((prev) => ({
+      ...prev,
+      [sectionId]: !prev[sectionId],
+    }));
+  };
+
+  const isAllQuestionSectionsCollapsed = (q: EditorQuestion) => {
+    return (
+      q.sections.length > 0 &&
+      q.sections.every((s) => !!collapsedSectionIds[s.id])
+    );
+  };
+
+  const toggleCollapseAllSections = (questionId: string) => {
+    const q = questions.find((item) => item.id === questionId);
+    if (!q || q.sections.length === 0) return;
+    const allCol = isAllQuestionSectionsCollapsed(q);
+    setCollapsedSectionIds((prev) => {
+      const next = { ...prev };
+      q.sections.forEach((s) => {
+        next[s.id] = !allCol;
+      });
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (!quizId || loadedRef.current === quizId) return;
@@ -85,38 +168,52 @@ export const AdminQuizEditorPage: React.FC = () => {
       difficulty: target.difficulty,
       isPublished: target.isPublished,
     });
-    const editorQuestions = target.questions.map(toEditorQuestion);
+    const editorQuestions = (target.questions || []).map(toEditorQuestion);
     setQuestions(editorQuestions);
     setOpenIds(editorQuestions.length > 0 ? [editorQuestions[0].id] : []);
   }, [quizId, quizzes]);
 
-  const updateQuestion = (questionId: string, patch: Partial<EditorQuestion>) => {
-    setQuestions((prev) => prev.map((q) => (q.id === questionId ? { ...q, ...patch } : q)));
+  const updateQuestion = (
+    questionId: string,
+    patch: Partial<EditorQuestion>,
+  ) => {
+    setQuestions((prev) =>
+      prev.map((q) => (q.id === questionId ? { ...q, ...patch } : q)),
+    );
   };
 
-  const updateSection = (questionId: string, sectionIndex: number, section: QuizSection) => {
+  const updateSection = (
+    questionId: string,
+    sectionIndex: number,
+    section: QuizSection,
+  ) => {
     setQuestions((prev) =>
       prev.map((q) => {
         if (q.id !== questionId) return q;
         const sections = [...q.sections];
         sections[sectionIndex] = section;
         return { ...q, sections };
-      })
+      }),
     );
   };
 
-  const moveSection = (questionId: string, sectionIndex: number, direction: 'up' | 'down') => {
+  const moveSection = (
+    questionId: string,
+    sectionIndex: number,
+    direction: "up" | "down",
+  ) => {
     setQuestions((prev) =>
       prev.map((q) => {
         if (q.id !== questionId) return q;
         const sections = [...q.sections];
-        const targetIndex = direction === 'up' ? sectionIndex - 1 : sectionIndex + 1;
+        const targetIndex =
+          direction === "up" ? sectionIndex - 1 : sectionIndex + 1;
         if (targetIndex < 0 || targetIndex >= sections.length) return q;
         const temp = sections[sectionIndex];
         sections[sectionIndex] = sections[targetIndex];
         sections[targetIndex] = temp;
         return { ...q, sections };
-      })
+      }),
     );
   };
 
@@ -130,9 +227,9 @@ export const AdminQuizEditorPage: React.FC = () => {
           sections:
             sections.length > 0
               ? sections
-              : [{ id: uid('sec'), type: 'text', text: '' } as QuizSection],
+              : [{ id: uid("sec"), type: "text", text: "" } as QuizSection],
         };
-      })
+      }),
     );
   };
 
@@ -142,22 +239,26 @@ export const AdminQuizEditorPage: React.FC = () => {
         if (q.id !== questionId) return q;
         const target = q.sections[sectionIndex];
         const copy = JSON.parse(JSON.stringify(target));
-        copy.id = uid('sec');
+        copy.id = uid("sec");
         const next = [...q.sections];
         next.splice(sectionIndex + 1, 0, copy);
         return { ...q, sections: next };
-      })
+      }),
     );
   };
 
-  const insertSectionAt = (questionId: string, index: number, type: QuizSectionType) => {
+  const insertSectionAt = (
+    questionId: string,
+    index: number,
+    type: QuizSectionType,
+  ) => {
     setQuestions((prev) =>
       prev.map((q) => {
         if (q.id !== questionId) return q;
         const next = [...q.sections];
         next.splice(index, 0, createSection(type));
         return { ...q, sections: next };
-      })
+      }),
     );
     setInsertBetweenIndex(null);
     setAddMenuQuestionId(null);
@@ -166,55 +267,88 @@ export const AdminQuizEditorPage: React.FC = () => {
   const addSection = (questionId: string, type: QuizSectionType) => {
     setQuestions((prev) =>
       prev.map((q) =>
-        q.id === questionId ? { ...q, sections: [...q.sections, createSection(type)] } : q
-      )
+        q.id === questionId
+          ? { ...q, sections: [...q.sections, createSection(type)] }
+          : q,
+      ),
     );
     setAddMenuQuestionId(null);
   };
 
-  const convertSectionType = (questionId: string, sectionIndex: number, newType: QuizSectionType) => {
+  const convertSectionType = (
+    questionId: string,
+    sectionIndex: number,
+    newType: QuizSectionType,
+  ) => {
     setQuestions((prev) =>
       prev.map((q) => {
         if (q.id !== questionId) return q;
         const current = q.sections[sectionIndex];
-        let currentText = '';
-        if (current.type === 'text' || current.type === 'callout' || current.type === 'heading') {
-          currentText = current.text || '';
+        let currentText = "";
+        if (
+          current.type === "text" ||
+          current.type === "callout" ||
+          current.type === "heading"
+        ) {
+          currentText = current.text || "";
         }
 
         let converted: QuizSection;
         switch (newType) {
-          case 'heading':
-            converted = { id: current.id, type: 'heading', text: currentText, level: 2 };
+          case "heading":
+            converted = {
+              id: current.id,
+              type: "heading",
+              text: currentText,
+              level: 2,
+            };
             break;
-          case 'callout':
-            converted = { id: current.id, type: 'callout', text: currentText, emoji: '💡' };
+          case "callout":
+            converted = {
+              id: current.id,
+              type: "callout",
+              text: currentText,
+              emoji: "💡",
+            };
             break;
-          case 'orderedList':
-            converted = { id: current.id, type: 'orderedList', items: currentText ? [currentText] : [''] };
+          case "orderedList":
+            converted = {
+              id: current.id,
+              type: "orderedList",
+              items: currentText ? [currentText] : [""],
+            };
             break;
-          case 'unorderedList':
-            converted = { id: current.id, type: 'unorderedList', items: currentText ? [currentText] : [''] };
+          case "unorderedList":
+            converted = {
+              id: current.id,
+              type: "unorderedList",
+              items: currentText ? [currentText] : [""],
+            };
             break;
-          case 'divider':
-            converted = { id: current.id, type: 'divider' };
+          case "divider":
+            converted = { id: current.id, type: "divider" };
             break;
-          case 'image':
-            converted = { id: current.id, type: 'image', dataUrl: '', caption: currentText };
+          case "image":
+            converted = {
+              id: current.id,
+              type: "image",
+              dataUrl: "",
+              caption: currentText,
+            };
             break;
-          case 'youtube':
-            converted = { id: current.id, type: 'youtube', url: '' };
+          case "youtube":
+            converted = { id: current.id, type: "youtube", url: "" };
             break;
-          case 'text':
+          case "text":
           default:
-            converted = { id: current.id, type: 'text', text: currentText };
+            converted = { id: current.id, type: "text", text: currentText };
             break;
         }
 
         const sections = [...q.sections];
         sections[sectionIndex] = converted;
         return { ...q, sections };
-      })
+      }),
     );
   };
 
@@ -232,7 +366,7 @@ export const AdminQuizEditorPage: React.FC = () => {
           choices: trimmed,
           correctAnswerIds: q.correctAnswerIds.filter((id) => validIds.has(id)),
         };
-      })
+      }),
     );
   };
 
@@ -245,9 +379,11 @@ export const AdminQuizEditorPage: React.FC = () => {
         return {
           ...q,
           choices,
-          correctAnswerIds: q.correctAnswerIds.filter((id) => id !== removed.id),
+          correctAnswerIds: q.correctAnswerIds.filter(
+            (id) => id !== removed.id,
+          ),
         };
-      })
+      }),
     );
   };
 
@@ -262,7 +398,7 @@ export const AdminQuizEditorPage: React.FC = () => {
             ? q.correctAnswerIds.filter((id) => id !== choiceId)
             : [...q.correctAnswerIds, choiceId],
         };
-      })
+      }),
     );
   };
 
@@ -273,8 +409,8 @@ export const AdminQuizEditorPage: React.FC = () => {
     setAddMenuQuestionId(null);
     window.setTimeout(() => {
       document.getElementById(`question-${newQuestion.id}`)?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
+        behavior: "smooth",
+        block: "start",
       });
     }, 60);
   };
@@ -286,9 +422,11 @@ export const AdminQuizEditorPage: React.FC = () => {
       const source = prev[index];
       const copy: EditorQuestion = {
         ...source,
-        id: uid('q'),
-        sections: source.sections.map((s) => ({ ...s, id: uid('sec') } as QuizSection)),
-        choices: source.choices.map((c) => ({ ...c, id: uid('opt') })),
+        id: uid("q"),
+        sections: source.sections.map(
+          (s) => ({ ...s, id: uid("sec") }) as QuizSection,
+        ),
+        choices: source.choices.map((c) => ({ ...c, id: uid("opt") })),
         correctAnswerIds: [...source.correctAnswerIds],
       };
       const next = [...prev];
@@ -303,11 +441,12 @@ export const AdminQuizEditorPage: React.FC = () => {
     setOpenIds((prev) => prev.filter((id) => id !== questionId));
   };
 
-  const moveQuestion = (questionId: string, direction: 'up' | 'down') => {
+  const moveQuestion = (questionId: string, direction: "up" | "down") => {
     setQuestions((prev) => {
       const index = prev.findIndex((q) => q.id === questionId);
-      const targetIndex = direction === 'up' ? index - 1 : index + 1;
-      if (index < 0 || targetIndex < 0 || targetIndex >= prev.length) return prev;
+      const targetIndex = direction === "up" ? index - 1 : index + 1;
+      if (index < 0 || targetIndex < 0 || targetIndex >= prev.length)
+        return prev;
       const next = [...prev];
       const temp = next[index];
       next[index] = next[targetIndex];
@@ -318,19 +457,23 @@ export const AdminQuizEditorPage: React.FC = () => {
 
   const toggleOpen = (questionId: string) => {
     setOpenIds((prev) =>
-      prev.includes(questionId) ? prev.filter((id) => id !== questionId) : [...prev, questionId]
+      prev.includes(questionId)
+        ? prev.filter((id) => id !== questionId)
+        : [...prev, questionId],
     );
   };
 
   const checkQuestionComplete = (q: EditorQuestion) => {
     const hasText = q.sections.some(
       (s) =>
-        (s.type === 'text' && s.text.trim()) ||
-        (s.type === 'heading' && s.text.trim()) ||
-        (s.type === 'callout' && s.text.trim())
+        (s.type === "text" && s.text.trim()) ||
+        (s.type === "heading" && s.text.trim()) ||
+        (s.type === "callout" && s.text.trim()),
     );
     const hasMedia = q.sections.some(
-      (s) => (s.type === 'image' && s.dataUrl) || (s.type === 'youtube' && s.url.trim())
+      (s) =>
+        (s.type === "image" && s.dataUrl) ||
+        (s.type === "youtube" && s.url.trim()),
     );
     const hasChoice = q.choices.some((c) => c.text.trim());
     const hasCorrect = q.correctAnswerIds.length > 0;
@@ -344,27 +487,29 @@ export const AdminQuizEditorPage: React.FC = () => {
       .filter((item) => !item.complete);
   }, [questions]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!quiz) return;
-    updateQuiz(quiz.id, {
+    await updateQuiz(quiz.id, {
       ...meta,
       questions: questions.map(toQuizQuestion),
     });
     setSavedAt(new Date().toISOString());
   };
 
-  const handleSaveAndBack = () => {
-    handleSave();
-    navigate('/admin/kuis');
+  const handleSaveAndBack = async () => {
+    await handleSave();
+    navigate("/admin/kuis");
   };
 
   if (!quiz) {
     return (
       <div className="space-y-6 max-w-3xl mx-auto">
         <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-2xs text-center space-y-4">
-          <h1 className="font-serif text-xl font-bold text-slate-900">Paket Kuis Tidak Ditemukan</h1>
+          <h1 className="font-serif text-xl font-bold text-slate-900">
+            Kuis Tidak Ditemukan
+          </h1>
           <p className="text-xs text-slate-500">
-            Paket latihan yang ingin Anda edit mungkin sudah dihapus.
+            Kuis latihan yang ingin Anda edit mungkin sudah dihapus.
           </p>
           <Link
             to="/admin/kuis"
@@ -401,14 +546,16 @@ export const AdminQuizEditorPage: React.FC = () => {
             </h1>
           </div>
           <p className="text-xs text-slate-500">
-            {quiz.title || 'Paket kuis'} · {questions.length} butir soal
+            {quiz.title || "Paket kuis"} · {questions.length} butir soal
             {incompleteQuestions.length > 0 ? (
               <span className="text-amber-600 font-semibold ml-2 inline-flex items-center gap-1">
-                <AlertTriangle className="w-3 h-3" /> {incompleteQuestions.length} butir belum lengkap
+                <AlertTriangle className="w-3 h-3" />{" "}
+                {incompleteQuestions.length} butir belum lengkap
               </span>
             ) : (
               <span className="text-emerald-700 font-semibold ml-2 inline-flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" /> Semua butir siap dipublikasikan
+                <CheckCircle2 className="w-3 h-3" /> Semua butir siap
+                dipublikasikan
               </span>
             )}
           </p>
@@ -419,7 +566,11 @@ export const AdminQuizEditorPage: React.FC = () => {
           {savedAt && (
             <span className="hidden sm:flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
               <CheckCircle2 className="w-3.5 h-3.5" />
-              Tersimpan {new Date(savedAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+              Tersimpan{" "}
+              {new Date(savedAt).toLocaleTimeString("id-ID", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </span>
           )}
           <button
@@ -445,12 +596,12 @@ export const AdminQuizEditorPage: React.FC = () => {
         <div className="flex items-center gap-1">
           <button
             type="button"
-            onClick={() => setActiveTab('editor')}
+            onClick={() => setActiveTab("editor")}
             className={cn(
-              'px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer',
-              activeTab === 'editor'
-                ? 'bg-white text-slate-900 shadow-2xs border border-slate-200'
-                : 'text-slate-500 hover:text-slate-800'
+              "px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer",
+              activeTab === "editor"
+                ? "bg-white text-slate-900 shadow-2xs border border-slate-200"
+                : "text-slate-500 hover:text-slate-800",
             )}
           >
             <Edit3 className="w-3.5 h-3.5 text-chem-forest" />
@@ -459,42 +610,41 @@ export const AdminQuizEditorPage: React.FC = () => {
           <button
             type="button"
             onClick={() => {
-              setActiveTab('preview');
+              setActiveTab("preview");
               setPreviewSubmitted({});
               setPreviewSelectedChoices({});
             }}
             className={cn(
-              'px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer',
-              activeTab === 'preview'
-                ? 'bg-white text-slate-900 shadow-2xs border border-slate-200'
-                : 'text-slate-500 hover:text-slate-800'
+              "px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer",
+              activeTab === "preview"
+                ? "bg-white text-slate-900 shadow-2xs border border-slate-200"
+                : "text-slate-500 hover:text-slate-800",
             )}
           >
             <Eye className="w-3.5 h-3.5 text-chem-forest" />
-            <span>Pratinjau Nyata Siswa</span>
+            <span>Pratinjau</span>
           </button>
         </div>
-
-        <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-slate-500 px-3">
-          <Sparkles className="w-3 h-3 text-chem-sage" />
-          <span>Rumus kimia terintegrasi penuh dalam block section</span>
-        </span>
       </div>
 
-      {activeTab === 'editor' ? (
+      {activeTab === "editor" ? (
         <>
           {/* Package Metadata Notion Box */}
           <div className="bg-white rounded-3xl border border-slate-200 shadow-2xs p-5 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-chem-forest flex items-center gap-1.5">
                 <Layers className="w-3.5 h-3.5" />
-                Informasi Paket Kuis
+                Informasi Kuis
               </span>
-              <span className="text-[11px] text-slate-400">Atur judul dan parameter kuis</span>
+              <span className="text-[11px] text-slate-400">
+                Atur judul dan parameter kuis
+              </span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1 sm:col-span-2">
-                <label className="text-xs font-semibold text-slate-700">Judul Paket Latihan</label>
+                <label className="text-xs font-semibold text-slate-700">
+                  Judul Soal Latihan
+                </label>
                 <input
                   type="text"
                   value={meta.title}
@@ -504,7 +654,9 @@ export const AdminQuizEditorPage: React.FC = () => {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Topik Pembelajaran</label>
+                <label className="text-xs font-semibold text-slate-700">
+                  Topik Pembelajaran
+                </label>
                 <input
                   type="text"
                   value={meta.topic}
@@ -514,10 +666,17 @@ export const AdminQuizEditorPage: React.FC = () => {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Tingkat Kesulitan</label>
+                <label className="text-xs font-semibold text-slate-700">
+                  Tingkat Kesulitan
+                </label>
                 <select
                   value={meta.difficulty}
-                  onChange={(e) => setMeta({ ...meta, difficulty: e.target.value as QuizMetaDraft['difficulty'] })}
+                  onChange={(e) =>
+                    setMeta({
+                      ...meta,
+                      difficulty: e.target.value as QuizMetaDraft["difficulty"],
+                    })
+                  }
                   className="w-full p-2.5 text-xs bg-slate-50 border border-slate-300 rounded-xl cursor-pointer"
                 >
                   <option value="Dasar">Dasar</option>
@@ -526,12 +685,19 @@ export const AdminQuizEditorPage: React.FC = () => {
                 </select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-slate-700">Durasi Pengerjaan (Menit)</label>
+                <label className="text-xs font-semibold text-slate-700">
+                  Durasi Pengerjaan (Menit)
+                </label>
                 <input
                   type="number"
                   min={1}
                   value={meta.durationMinutes}
-                  onChange={(e) => setMeta({ ...meta, durationMinutes: Number(e.target.value) })}
+                  onChange={(e) =>
+                    setMeta({
+                      ...meta,
+                      durationMinutes: Number(e.target.value),
+                    })
+                  }
                   className="w-full p-2.5 text-xs bg-slate-50 border border-slate-300 rounded-xl font-mono"
                 />
               </div>
@@ -540,18 +706,24 @@ export const AdminQuizEditorPage: React.FC = () => {
                   <input
                     type="checkbox"
                     checked={meta.isPublished}
-                    onChange={(e) => setMeta({ ...meta, isPublished: e.target.checked })}
+                    onChange={(e) =>
+                      setMeta({ ...meta, isPublished: e.target.checked })
+                    }
                     className="w-4 h-4 rounded text-chem-forest focus:ring-chem-sage cursor-pointer"
                   />
-                  <span>Publikasikan paket ini untuk siswa</span>
+                  <span>Publikasikan kuis ini untuk siswa</span>
                 </label>
               </div>
               <div className="space-y-1 sm:col-span-2">
-                <label className="text-xs font-semibold text-slate-700">Deskripsi Paket</label>
+                <label className="text-xs font-semibold text-slate-700">
+                  Deskripsi Kuis
+                </label>
                 <textarea
                   rows={2}
                   value={meta.description}
-                  onChange={(e) => setMeta({ ...meta, description: e.target.value })}
+                  onChange={(e) =>
+                    setMeta({ ...meta, description: e.target.value })
+                  }
                   placeholder="Tujuan latihan, kompetensi dasar, atau panduan pengerjaan..."
                   className="w-full p-2.5 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:border-chem-sage focus:outline-none leading-relaxed"
                 />
@@ -574,23 +746,30 @@ export const AdminQuizEditorPage: React.FC = () => {
                     type="button"
                     onClick={() => {
                       if (!isOpen) setOpenIds((prev) => [...prev, q.id]);
-                      document.getElementById(`question-${q.id}`)?.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center',
-                      });
+                      document
+                        .getElementById(`question-${q.id}`)
+                        ?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "center",
+                        });
                     }}
                     className={cn(
-                      'shrink-0 px-3 py-1.5 rounded-xl text-xs font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer border',
+                      "shrink-0 px-3 py-1.5 rounded-xl text-xs font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer border",
                       isOpen
-                        ? 'bg-chem-forest text-white border-chem-forest shadow-xs'
+                        ? "bg-chem-forest text-white border-chem-forest shadow-xs"
                         : isComplete
-                        ? 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
-                        : 'bg-amber-50 text-amber-900 border-amber-200'
+                          ? "bg-white hover:bg-slate-50 text-slate-700 border-slate-200"
+                          : "bg-amber-50 text-amber-900 border-amber-200",
                     )}
                   >
                     <span>Soal {idx + 1}</span>
                     {isComplete ? (
-                      <Check className={cn('w-3 h-3', isOpen ? 'text-chem-glow' : 'text-emerald-600')} />
+                      <Check
+                        className={cn(
+                          "w-3 h-3",
+                          isOpen ? "text-chem-glow" : "text-emerald-600",
+                        )}
+                      />
                     ) : (
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                     )}
@@ -637,7 +816,7 @@ export const AdminQuizEditorPage: React.FC = () => {
                         Soal {questionIndex + 1}
                       </span>
                       <span className="text-xs text-slate-700 font-medium truncate">
-                        {summary || '(Belum ada teks soal)'}
+                        {summary || "(Belum ada teks soal)"}
                       </span>
                       {!isComplete && (
                         <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
@@ -652,16 +831,16 @@ export const AdminQuizEditorPage: React.FC = () => {
                       <button
                         type="button"
                         disabled={questionIndex === 0}
-                        onClick={() => moveQuestion(question.id, 'up')}
+                        onClick={() => moveQuestion(question.id, "up")}
                         className="p-1.5 text-slate-400 hover:text-chem-forest hover:bg-white rounded-lg disabled:opacity-25 cursor-pointer"
                         title="Geser Soal Naik"
                       >
-                        <ChevronDown className="w-4 h-4 rotate-180" />
+                        <ChevronUp className="w-4 h-4" />
                       </button>
                       <button
                         type="button"
                         disabled={questionIndex === questions.length - 1}
-                        onClick={() => moveQuestion(question.id, 'down')}
+                        onClick={() => moveQuestion(question.id, "down")}
                         className="p-1.5 text-slate-400 hover:text-chem-forest hover:bg-white rounded-lg disabled:opacity-25 cursor-pointer"
                         title="Geser Soal Turun"
                       >
@@ -691,14 +870,83 @@ export const AdminQuizEditorPage: React.FC = () => {
                     <div className="p-6 space-y-6">
                       {/* Notion Block Canvas for Question & Stimulus */}
                       <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold uppercase tracking-wider text-chem-forest flex items-center gap-1.5">
+                        {/* Block Canvas Header with Density & View Height Controls */}
+                        <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-chem-forest">
                             <Sparkles className="w-3.5 h-3.5" />
-                            Kanvas Blok Soal &amp; Stimulus (Notion)
-                          </span>
-                          <span className="text-[11px] text-slate-400">
-                            Susun teks, gambar, atau media secara dinamis
-                          </span>
+                            <span>Kanvas Blok Soal &amp; Stimulus</span>
+                            <span className="text-[11px] font-normal text-slate-400">
+                              ({question.sections.length} blok)
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1">
+                              <span className="text-[11px] font-medium text-slate-500">
+                                Tinggi View:
+                              </span>
+                              <div className="inline-flex items-center rounded-lg bg-slate-100 p-0.5 text-[11px] font-semibold">
+                                <button
+                                  type="button"
+                                  onClick={() => setViewHeightMode('full')}
+                                  className={cn(
+                                    'px-2 py-0.5 rounded-md transition-colors cursor-pointer',
+                                    viewHeightMode === 'full'
+                                      ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                                      : 'text-slate-500 hover:text-slate-800'
+                                  )}
+                                  title="Tampilan Dinamis (mengikuti panjang teks secara alami - default)"
+                                >
+                                  Dinamis
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setViewHeightMode('medium')}
+                                  className={cn(
+                                    'px-2 py-0.5 rounded-md transition-colors cursor-pointer',
+                                    viewHeightMode === 'medium'
+                                      ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                                      : 'text-slate-500 hover:text-slate-800'
+                                  )}
+                                  title="Tampilan Sedang (~260px per blok)"
+                                >
+                                  Sedang
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setViewHeightMode('compact')}
+                                  className={cn(
+                                    'px-2 py-0.5 rounded-md transition-colors cursor-pointer',
+                                    viewHeightMode === 'compact'
+                                      ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                                      : 'text-slate-500 hover:text-slate-800'
+                                  )}
+                                  title="Tampilan Kompak (~140px per blok)"
+                                >
+                                  Kompak
+                                </button>
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => toggleCollapseAllSections(question.id)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-[11px] font-medium text-slate-600 cursor-pointer transition-colors"
+                              title="Ciutkan atau bentangkan semua blok dalam soal ini"
+                            >
+                              {isAllQuestionSectionsCollapsed(question) ? (
+                                <>
+                                  <Maximize2 className="w-3 h-3 text-chem-forest" />
+                                  <span>Bentangkan Semua</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Minimize2 className="w-3 h-3 text-slate-500" />
+                                  <span>Ciutkan Semua</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
                         </div>
 
                         {/* Block List with In-between inserters */}
@@ -713,10 +961,15 @@ export const AdminQuizEditorPage: React.FC = () => {
                                     type="button"
                                     onClick={() =>
                                       setInsertBetweenIndex(
-                                        insertBetweenIndex?.qId === question.id &&
-                                          insertBetweenIndex?.idx === sectionIndex
+                                        insertBetweenIndex?.qId ===
+                                          question.id &&
+                                          insertBetweenIndex?.idx ===
+                                            sectionIndex
                                           ? null
-                                          : { qId: question.id, idx: sectionIndex }
+                                          : {
+                                              qId: question.id,
+                                              idx: sectionIndex,
+                                            },
                                       )
                                     }
                                     className="absolute opacity-0 group-hover/inserter:opacity-100 transition-opacity bg-white hover:bg-chem-glow/50 text-slate-500 hover:text-chem-forest border border-slate-300 hover:border-chem-sage px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 cursor-pointer shadow-2xs"
@@ -727,28 +980,44 @@ export const AdminQuizEditorPage: React.FC = () => {
 
                                   {/* Inserter Popover */}
                                   {insertBetweenIndex?.qId === question.id &&
-                                    insertBetweenIndex?.idx === sectionIndex && (
-                                      <div className="absolute z-30 top-6 w-80 p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl grid grid-cols-1 gap-1 text-xs">
+                                    insertBetweenIndex?.idx ===
+                                      sectionIndex && (
+                                      <div
+                                        ref={insertBetweenPopoverRef}
+                                        className="absolute z-30 top-6 left-1/2 -translate-x-1/2 w-80 p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl grid grid-cols-1 gap-1 text-xs"
+                                      >
                                         <div className="flex items-center justify-between pb-1 mb-1 border-b border-slate-100">
                                           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                                             Pilih Jenis Blok:
                                           </span>
                                           <button
                                             type="button"
-                                            onClick={() => setInsertBetweenIndex(null)}
+                                            onClick={() =>
+                                              setInsertBetweenIndex(null)
+                                            }
                                             className="text-slate-400 hover:text-slate-600 text-[10px] font-bold"
                                           >
                                             Tutup
                                           </button>
                                         </div>
-                                        {(Object.keys(BLOCK_METAS) as QuizSectionType[]).map((t) => {
+                                        {(
+                                          Object.keys(
+                                            BLOCK_METAS,
+                                          ) as QuizSectionType[]
+                                        ).map((t) => {
                                           const opt = BLOCK_METAS[t];
                                           const OptIcon = opt.icon;
                                           return (
                                             <button
                                               key={t}
                                               type="button"
-                                              onClick={() => insertSectionAt(question.id, sectionIndex, t)}
+                                              onClick={() =>
+                                                insertSectionAt(
+                                                  question.id,
+                                                  sectionIndex,
+                                                  t,
+                                                )
+                                              }
                                               className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-slate-50 text-left cursor-pointer transition-colors"
                                             >
                                               <span className="w-7 h-7 rounded-lg bg-chem-glow/60 border border-chem-sage/30 text-chem-forest flex items-center justify-center shrink-0">
@@ -782,12 +1051,37 @@ export const AdminQuizEditorPage: React.FC = () => {
                                 section={section}
                                 index={sectionIndex}
                                 total={question.sections.length}
-                                onChange={(next) => updateSection(question.id, sectionIndex, next)}
-                                onMove={(dir) => moveSection(question.id, sectionIndex, dir)}
-                                onDelete={() => deleteSection(question.id, sectionIndex)}
-                                onDuplicate={() => duplicateSection(question.id, sectionIndex)}
-                                onInsertBelow={(type) => insertSectionAt(question.id, sectionIndex + 1, type)}
-                                onConvertType={(newType) => convertSectionType(question.id, sectionIndex, newType)}
+                                onChange={(next) =>
+                                  updateSection(question.id, sectionIndex, next)
+                                }
+                                onMove={(dir) =>
+                                  moveSection(question.id, sectionIndex, dir)
+                                }
+                                onDelete={() =>
+                                  deleteSection(question.id, sectionIndex)
+                                }
+                                onDuplicate={() =>
+                                  duplicateSection(question.id, sectionIndex)
+                                }
+                                onInsertBelow={(type) =>
+                                  insertSectionAt(
+                                    question.id,
+                                    sectionIndex + 1,
+                                    type,
+                                  )
+                                }
+                                onConvertType={(newType) =>
+                                  convertSectionType(
+                                    question.id,
+                                    sectionIndex,
+                                    newType,
+                                  )
+                                }
+                                viewHeightMode={viewHeightMode}
+                                isCollapsed={!!collapsedSectionIds[section.id]}
+                                onToggleCollapse={() =>
+                                  toggleSectionCollapse(section.id)
+                                }
                               />
                             </div>
                           ))}
@@ -795,22 +1089,27 @@ export const AdminQuizEditorPage: React.FC = () => {
 
                         {/* Add Block at Bottom Button & Notion Popover */}
                         <div className="relative pt-1">
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setAddMenuQuestionId(addMenuQuestionId === question.id ? null : question.id)
-                              }
-                              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-dashed border-slate-300 text-xs font-semibold text-slate-600 hover:border-chem-sage hover:text-chem-forest hover:bg-chem-glow/30 transition-all cursor-pointer"
-                            >
-                              <Plus className="w-4 h-4 text-chem-forest" />
-                              <span>Tambah Blok Baru</span>
-                            </button>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setAddMenuQuestionId(
+                                addMenuQuestionId === question.id
+                                  ? null
+                                  : question.id,
+                              )
+                            }
+                            className="w-full py-2.5 px-3 rounded-2xl border border-dashed border-slate-300 hover:border-chem-sage hover:bg-chem-glow/20 text-xs font-semibold text-slate-600 hover:text-chem-forest flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                          >
+                            <Plus className="w-4 h-4 text-chem-forest" />
+                            <span>Tambah Blok Baru</span>
+                          </button>
 
                           {/* Notion Add Block Menu Popup */}
                           {addMenuQuestionId === question.id && (
-                            <div className="absolute z-30 left-0 mt-2 w-80 p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl grid grid-cols-1 gap-1 text-xs">
+                            <div
+                              ref={addMenuPopoverRef}
+                              className="absolute z-30 left-1/2 -translate-x-1/2 bottom-full mb-3 w-80 p-3 bg-white border border-slate-200 rounded-2xl shadow-2xl grid grid-cols-1 gap-1 text-xs"
+                            >
                               <div className="flex items-center justify-between pb-1.5 mb-1 border-b border-slate-100">
                                 <span className="text-[10px] font-bold uppercase tracking-wider text-chem-forest">
                                   Pilih Jenis Blok Notion:
@@ -823,7 +1122,9 @@ export const AdminQuizEditorPage: React.FC = () => {
                                   Tutup
                                 </button>
                               </div>
-                              {(Object.keys(BLOCK_METAS) as QuizSectionType[]).map((t) => {
+                              {(
+                                Object.keys(BLOCK_METAS) as QuizSectionType[]
+                              ).map((t) => {
                                 const opt = BLOCK_METAS[t];
                                 const OptIcon = opt.icon;
                                 return (
@@ -868,7 +1169,8 @@ export const AdminQuizEditorPage: React.FC = () => {
                             </span>
                             {question.correctAnswerIds.length > 1 && (
                               <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                                Multi Jawaban Benar ({question.correctAnswerIds.length})
+                                Multi Jawaban Benar (
+                                {question.correctAnswerIds.length})
                               </span>
                             )}
                           </div>
@@ -878,57 +1180,81 @@ export const AdminQuizEditorPage: React.FC = () => {
                             </label>
                             <select
                               value={question.choices.length}
-                              onChange={(e) => setChoiceCount(question.id, Number(e.target.value))}
+                              onChange={(e) =>
+                                setChoiceCount(
+                                  question.id,
+                                  Number(e.target.value),
+                                )
+                              }
                               className="p-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg font-mono cursor-pointer"
                             >
-                              {Array.from({ length: MAX_CHOICES - MIN_CHOICES + 1 }, (_, i) => i + MIN_CHOICES).map(
-                                (n) => (
-                                  <option key={n} value={n}>
-                                    {n} opsi
-                                  </option>
-                                )
-                              )}
+                              {Array.from(
+                                { length: MAX_CHOICES - MIN_CHOICES + 1 },
+                                (_, i) => i + MIN_CHOICES,
+                              ).map((n) => (
+                                <option key={n} value={n}>
+                                  {n} opsi
+                                </option>
+                              ))}
                             </select>
                           </div>
                         </div>
 
                         <p className="text-[11px] text-slate-500">
-                          Klik huruf opsi <span className="font-bold text-emerald-700">(A, B, C...)</span> untuk
-                          menandai jawaban yang benar. Anda dapat memilih lebih dari satu jika soal bersifat multi-jawaban.
+                          Klik huruf opsi{" "}
+                          <span className="font-bold text-emerald-700">
+                            (A, B, C...)
+                          </span>{" "}
+                          untuk menandai jawaban yang benar. Anda dapat memilih
+                          lebih dari satu jika soal bersifat multi-jawaban.
                         </p>
 
                         <div className="space-y-2">
                           {question.choices.map((choice, choiceIndex) => {
-                            const isCorrect = question.correctAnswerIds.includes(choice.id);
+                            const isCorrect =
+                              question.correctAnswerIds.includes(choice.id);
                             return (
                               <div
                                 key={choice.id}
                                 className={cn(
-                                  'flex items-center gap-2.5 p-2 rounded-xl border transition-colors',
+                                  "flex items-center gap-2.5 p-2 rounded-xl border transition-colors",
                                   isCorrect
-                                    ? 'bg-emerald-50/70 border-emerald-300 ring-1 ring-emerald-300'
-                                    : 'bg-slate-50 border-slate-200'
+                                    ? "bg-emerald-50/70 border-emerald-300 ring-1 ring-emerald-300"
+                                    : "bg-slate-50 border-slate-200",
                                 )}
                               >
                                 <button
                                   type="button"
-                                  onClick={() => toggleCorrect(question.id, choice.id)}
+                                  onClick={() =>
+                                    toggleCorrect(question.id, choice.id)
+                                  }
                                   className={cn(
-                                    'shrink-0 w-8 h-8 rounded-lg border-2 text-xs font-mono font-bold flex items-center justify-center cursor-pointer transition-all',
+                                    "shrink-0 w-8 h-8 rounded-lg border-2 text-xs font-mono font-bold flex items-center justify-center cursor-pointer transition-all",
                                     isCorrect
-                                      ? 'bg-emerald-600 border-emerald-600 text-white shadow-2xs'
-                                      : 'bg-white border-slate-300 text-slate-500 hover:border-emerald-400 hover:text-emerald-700'
+                                      ? "bg-emerald-600 border-emerald-600 text-white shadow-2xs"
+                                      : "bg-white border-slate-300 text-slate-500 hover:border-emerald-400 hover:text-emerald-700",
                                   )}
-                                  title={isCorrect ? 'Klik untuk membatalkan status benar' : 'Klik untuk menandai sebagai jawaban benar'}
+                                  title={
+                                    isCorrect
+                                      ? "Klik untuk membatalkan status benar"
+                                      : "Klik untuk menandai sebagai jawaban benar"
+                                  }
                                 >
-                                  {isCorrect ? <CheckCircle2 className="w-4 h-4" /> : String.fromCharCode(65 + choiceIndex)}
+                                  {isCorrect ? (
+                                    <CheckCircle2 className="w-4 h-4" />
+                                  ) : (
+                                    String.fromCharCode(65 + choiceIndex)
+                                  )}
                                 </button>
                                 <input
                                   type="text"
                                   value={choice.text}
                                   onChange={(e) => {
                                     const choices = [...question.choices];
-                                    choices[choiceIndex] = { ...choice, text: e.target.value };
+                                    choices[choiceIndex] = {
+                                      ...choice,
+                                      text: e.target.value,
+                                    };
                                     updateQuestion(question.id, { choices });
                                   }}
                                   placeholder={`Teks pilihan ${String.fromCharCode(65 + choiceIndex)}...`}
@@ -936,8 +1262,12 @@ export const AdminQuizEditorPage: React.FC = () => {
                                 />
                                 <button
                                   type="button"
-                                  disabled={question.choices.length <= MIN_CHOICES}
-                                  onClick={() => removeChoice(question.id, choiceIndex)}
+                                  disabled={
+                                    question.choices.length <= MIN_CHOICES
+                                  }
+                                  onClick={() =>
+                                    removeChoice(question.id, choiceIndex)
+                                  }
                                   className="p-1.5 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg disabled:opacity-25 cursor-pointer"
                                   title="Hapus Opsi Ini"
                                 >
@@ -951,7 +1281,12 @@ export const AdminQuizEditorPage: React.FC = () => {
                         {question.choices.length < MAX_CHOICES && (
                           <button
                             type="button"
-                            onClick={() => setChoiceCount(question.id, question.choices.length + 1)}
+                            onClick={() =>
+                              setChoiceCount(
+                                question.id,
+                                question.choices.length + 1,
+                              )
+                            }
                             className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-slate-600 hover:text-chem-forest px-3 py-1.5 rounded-lg hover:bg-slate-100 cursor-pointer"
                           >
                             <Plus className="w-3.5 h-3.5" />
@@ -962,7 +1297,10 @@ export const AdminQuizEditorPage: React.FC = () => {
                         {question.correctAnswerIds.length === 0 && (
                           <div className="text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 flex items-center gap-2">
                             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                            <span>Tandai minimal satu pilihan sebagai jawaban benar sebelum menyimpan paket kuis.</span>
+                            <span>
+                              Tandai minimal satu pilihan sebagai jawaban benar
+                              sebelum menyimpan kuis.
+                            </span>
                           </div>
                         )}
                       </div>
@@ -977,7 +1315,11 @@ export const AdminQuizEditorPage: React.FC = () => {
                           <textarea
                             rows={3}
                             value={question.explanation}
-                            onChange={(e) => updateQuestion(question.id, { explanation: e.target.value })}
+                            onChange={(e) =>
+                              updateQuestion(question.id, {
+                                explanation: e.target.value,
+                              })
+                            }
                             placeholder="Penjelasan komprehensif langkah penyelesaian atau konsep yang diuji..."
                             className="w-full p-2.5 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:border-chem-sage focus:outline-none resize-y"
                           />
@@ -990,7 +1332,9 @@ export const AdminQuizEditorPage: React.FC = () => {
                             rows={3}
                             value={question.wrongAnswerExplanation}
                             onChange={(e) =>
-                              updateQuestion(question.id, { wrongAnswerExplanation: e.target.value })
+                              updateQuestion(question.id, {
+                                wrongAnswerExplanation: e.target.value,
+                              })
                             }
                             placeholder="Petunjuk spesifik saat siswa keliru memilih distractor..."
                             className="w-full p-2.5 text-xs bg-rose-50/40 border border-rose-200 rounded-xl focus:border-rose-300 focus:outline-none resize-y text-slate-700"
@@ -1003,7 +1347,11 @@ export const AdminQuizEditorPage: React.FC = () => {
                           <input
                             type="text"
                             value={question.conceptSummary}
-                            onChange={(e) => updateQuestion(question.id, { conceptSummary: e.target.value })}
+                            onChange={(e) =>
+                              updateQuestion(question.id, {
+                                conceptSummary: e.target.value,
+                              })
+                            }
                             placeholder="Contoh: ΔH = H_produk - H_reaktan < 0 menandakan reaksi eksotermik."
                             className="w-full p-2.5 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:border-chem-sage focus:outline-none"
                           />
@@ -1021,9 +1369,13 @@ export const AdminQuizEditorPage: React.FC = () => {
                   <Plus className="w-6 h-6" />
                 </span>
                 <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-slate-800">Paket Kuis Masih Kosong</h3>
+                  <h3 className="text-sm font-bold text-slate-800">
+                    Kuis Masih Kosong
+                  </h3>
                   <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                    Mulai dengan menambahkan butir soal pertama. Setiap butir soal dapat berisi teks, rumus kimia, gambar, atau video berbasis blok.
+                    Mulai dengan menambahkan butir soal pertama. Setiap butir
+                    soal dapat berisi teks, rumus kimia, gambar, atau video
+                    berbasis blok.
                   </p>
                 </div>
                 <button
@@ -1065,14 +1417,12 @@ export const AdminQuizEditorPage: React.FC = () => {
           <div className="bg-white rounded-3xl border border-slate-200 shadow-2xs p-6 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
               <div className="space-y-1">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-chem-forest bg-chem-glow/60 border border-chem-sage/30 px-2.5 py-0.5 rounded-full">
-                  Pratinjau Interaktif Siswa
-                </span>
                 <h2 className="font-serif text-xl font-bold text-slate-900">
-                  {meta.title || 'Paket Kuis Tanpa Judul'}
+                  {meta.title || "Kuis Tanpa Judul"}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Topik: {meta.topic || '-'} · Tingkat: {meta.difficulty} · Durasi: {meta.durationMinutes} Menit
+                  Topik: {meta.topic || "-"} · Tingkat: {meta.difficulty} ·
+                  Durasi: {meta.durationMinutes} Menit
                 </p>
               </div>
 
@@ -1084,10 +1434,10 @@ export const AdminQuizEditorPage: React.FC = () => {
                     type="button"
                     onClick={() => setPreviewQuestionIndex(idx)}
                     className={cn(
-                      'w-8 h-8 rounded-xl text-xs font-mono font-bold flex items-center justify-center transition-all cursor-pointer border',
+                      "w-8 h-8 rounded-xl text-xs font-mono font-bold flex items-center justify-center transition-all cursor-pointer border",
                       previewQuestionIndex === idx
-                        ? 'bg-chem-forest text-white border-chem-forest shadow-xs'
-                        : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                        ? "bg-chem-forest text-white border-chem-forest shadow-xs"
+                        : "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200",
                     )}
                   >
                     {idx + 1}
@@ -1121,21 +1471,29 @@ export const AdminQuizEditorPage: React.FC = () => {
                   </span>
                   <div className="space-y-2">
                     {currentPreviewQ.choices.map((choice, choiceIdx) => {
-                      const selected = (previewSelectedChoices[currentPreviewQ.id] || []).includes(choice.id);
+                      const selected = (
+                        previewSelectedChoices[currentPreviewQ.id] || []
+                      ).includes(choice.id);
                       const submitted = !!previewSubmitted[currentPreviewQ.id];
-                      const isCorrect = currentPreviewQ.correctAnswerIds.includes(choice.id);
+                      const isCorrect =
+                        currentPreviewQ.correctAnswerIds.includes(choice.id);
 
-                      let style = 'bg-white border-slate-200 hover:border-chem-sage text-slate-800';
+                      let style =
+                        "bg-white border-slate-200 hover:border-chem-sage text-slate-800";
                       if (submitted) {
                         if (isCorrect) {
-                          style = 'bg-emerald-50 border-emerald-500 text-emerald-950 ring-2 ring-emerald-400';
+                          style =
+                            "bg-emerald-50 border-emerald-500 text-emerald-950 ring-2 ring-emerald-400";
                         } else if (selected && !isCorrect) {
-                          style = 'bg-rose-50 border-rose-500 text-rose-950 ring-2 ring-rose-400';
+                          style =
+                            "bg-rose-50 border-rose-500 text-rose-950 ring-2 ring-rose-400";
                         } else {
-                          style = 'bg-slate-50 border-slate-200 text-slate-400 opacity-60';
+                          style =
+                            "bg-slate-50 border-slate-200 text-slate-400 opacity-60";
                         }
                       } else if (selected) {
-                        style = 'bg-chem-glow/60 border-chem-forest text-chem-forest ring-2 ring-chem-forest font-semibold';
+                        style =
+                          "bg-chem-glow/60 border-chem-forest text-chem-forest ring-2 ring-chem-forest font-semibold";
                       }
 
                       return (
@@ -1144,8 +1502,10 @@ export const AdminQuizEditorPage: React.FC = () => {
                           type="button"
                           disabled={submitted}
                           onClick={() => {
-                            const cur = previewSelectedChoices[currentPreviewQ.id] || [];
-                            const isMulti = currentPreviewQ.correctAnswerIds.length > 1;
+                            const cur =
+                              previewSelectedChoices[currentPreviewQ.id] || [];
+                            const isMulti =
+                              currentPreviewQ.correctAnswerIds.length > 1;
                             const next = isMulti
                               ? cur.includes(choice.id)
                                 ? cur.filter((id) => id !== choice.id)
@@ -1157,15 +1517,16 @@ export const AdminQuizEditorPage: React.FC = () => {
                             });
                           }}
                           className={cn(
-                            'w-full text-left p-3.5 rounded-xl border flex items-center gap-3 transition-all cursor-pointer',
-                            style
+                            "w-full text-left p-3.5 rounded-xl border flex items-center gap-3 transition-all cursor-pointer",
+                            style,
                           )}
                         >
                           <span className="w-7 h-7 rounded-lg border flex items-center justify-center font-mono font-bold text-xs shrink-0">
                             {String.fromCharCode(65 + choiceIdx)}
                           </span>
                           <span className="text-xs sm:text-sm flex-1 leading-relaxed">
-                            {choice.text || `(Pilihan ${String.fromCharCode(65 + choiceIdx)})`}
+                            {choice.text ||
+                              `(Pilihan ${String.fromCharCode(65 + choiceIdx)})`}
                           </span>
                         </button>
                       );
@@ -1180,13 +1541,19 @@ export const AdminQuizEditorPage: React.FC = () => {
                     onClick={() => {
                       setPreviewSubmitted({
                         ...previewSubmitted,
-                        [currentPreviewQ.id]: !previewSubmitted[currentPreviewQ.id],
+                        [currentPreviewQ.id]:
+                          !previewSubmitted[currentPreviewQ.id],
                       });
                     }}
-                    disabled={(previewSelectedChoices[currentPreviewQ.id] || []).length === 0}
+                    disabled={
+                      (previewSelectedChoices[currentPreviewQ.id] || [])
+                        .length === 0
+                    }
                     className="px-4 py-2 bg-chem-forest hover:bg-chem-moss disabled:opacity-40 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
                   >
-                    {previewSubmitted[currentPreviewQ.id] ? 'Coba Jawab Lagi' : 'Kunci & Cek Jawaban'}
+                    {previewSubmitted[currentPreviewQ.id]
+                      ? "Coba Jawab Lagi"
+                      : "Kunci & Cek Jawaban"}
                   </button>
 
                   <div className="flex items-center gap-2">
@@ -1216,7 +1583,8 @@ export const AdminQuizEditorPage: React.FC = () => {
                       Pembahasan &amp; Kunci Jawaban
                     </span>
                     <p className="text-xs sm:text-sm text-slate-800 leading-relaxed whitespace-pre-wrap">
-                      {currentPreviewQ.explanation || 'Belum ada penjelasan yang ditambahkan.'}
+                      {currentPreviewQ.explanation ||
+                        "Belum ada penjelasan yang ditambahkan."}
                     </p>
                     {currentPreviewQ.conceptSummary && (
                       <div className="p-3 bg-chem-glow/40 border border-chem-sage/30 rounded-xl">
@@ -1232,7 +1600,9 @@ export const AdminQuizEditorPage: React.FC = () => {
                 )}
               </div>
             ) : (
-              <p className="text-center text-xs text-slate-500 py-10">Belum ada butir soal untuk ditampilkan.</p>
+              <p className="text-center text-xs text-slate-500 py-10">
+                Belum ada butir soal untuk ditampilkan.
+              </p>
             )}
           </div>
         </div>

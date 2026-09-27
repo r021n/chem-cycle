@@ -13,6 +13,7 @@ export const AdminLoginPage: React.FC = () => {
   const [resetModalOpen, setResetModalOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetSuccess, setResetSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // If already logged in, redirect
   React.useEffect(() => {
@@ -21,14 +22,21 @@ export const AdminLoginPage: React.FC = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
-    const success = login(usernameOrEmail.trim(), password);
-    if (success) {
-      navigate('/admin/dashboard');
-    } else {
-      setErrorMsg('Kredensial tidak valid. Gunakan email/username dan kata sandi pengelola.');
+    setIsSubmitting(true);
+    try {
+      const success = await login(usernameOrEmail.trim(), password);
+      if (success) {
+        navigate('/admin/dashboard');
+      } else {
+        setErrorMsg('Kredensial tidak valid. Gunakan email/username dan kata sandi pengelola.');
+      }
+    } catch {
+      setErrorMsg('Gagal menghubungkan ke server backend.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -137,9 +145,10 @@ export const AdminLoginPage: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full py-3.5 px-4 bg-chem-forest hover:bg-chem-moss text-white rounded-2xl text-xs font-bold shadow-float transition-all cursor-pointer flex items-center justify-center gap-2 mt-2"
+            disabled={isSubmitting}
+            className="w-full py-3.5 px-4 bg-chem-forest hover:bg-chem-moss disabled:opacity-50 text-white rounded-2xl text-xs font-bold shadow-float transition-all cursor-pointer flex items-center justify-center gap-2 mt-2"
           >
-            <span>Masuk ke Dashboard CMS</span>
+            <span>{isSubmitting ? 'Memverifikasi...' : 'Masuk ke Dashboard CMS'}</span>
             <ArrowRight className="w-4 h-4 text-chem-glow" />
           </button>
         </form>

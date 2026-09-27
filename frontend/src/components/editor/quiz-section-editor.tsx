@@ -1,7 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   ChevronDown,
   ChevronUp,
+  ChevronRight,
   Image as ImageIcon,
   Link2,
   List,
@@ -32,6 +33,9 @@ export interface QuizSectionEditorProps {
   onDuplicate?: () => void;
   onInsertBelow?: (type: QuizSectionType) => void;
   onConvertType?: (newType: QuizSectionType) => void;
+  viewHeightMode?: 'compact' | 'medium' | 'full';
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -91,6 +95,26 @@ export const BLOCK_METAS: Record<
 
 const CALLOUT_EMOJIS = ['💡', '⚠️', '🧪', '📌', '🔍', '📝', '❓', '⚡'];
 
+function getSectionSnippet(section: QuizSection): string {
+  if (section.type === 'text' || section.type === 'heading' || section.type === 'callout') {
+    return section.text ? section.text.replace(/\s+/g, ' ').slice(0, 65) : '(Teks kosong)';
+  }
+  if (section.type === 'image') {
+    return section.caption || (section.dataUrl ? 'Gambar stimulus' : '(Gambar belum diunggah)');
+  }
+  if (section.type === 'youtube') {
+    return section.url ? 'Video YouTube' : '(Tautan video kosong)';
+  }
+  if (section.type === 'orderedList' || section.type === 'unorderedList') {
+    const items = (section.items || []).filter(Boolean);
+    return items.length > 0 ? items.join(', ').slice(0, 65) : '(Daftar butir kosong)';
+  }
+  if (section.type === 'divider') {
+    return 'Garis Pembatas';
+  }
+  return '(Blok kosong)';
+}
+
 export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
   section,
   index,
@@ -101,13 +125,63 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
   onDuplicate,
   onInsertBelow,
   onConvertType,
+  viewHeightMode = 'full',
+  isCollapsed = false,
+  onToggleCollapse,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const insertMenuRef = useRef<HTMLDivElement>(null);
   const [isCompressing, setIsCompressing] = useState(false);
   const [mediaError, setMediaError] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isConvertMenuOpen, setIsConvertMenuOpen] = useState(false);
   const [isInsertMenuOpen, setIsInsertMenuOpen] = useState(false);
+
+  // Close menus on outside click or Escape
+  useEffect(() => {
+    if (!isMenuOpen && !isConvertMenuOpen && !isInsertMenuOpen) return;
+
+    const handlePointerDown = (e: PointerEvent) => {
+      const target = e.target as Node;
+      if (isMenuOpen || isConvertMenuOpen) {
+        if (menuRef.current && !menuRef.current.contains(target)) {
+          setIsMenuOpen(false);
+          setIsConvertMenuOpen(false);
+        }
+      }
+      if (isInsertMenuOpen) {
+        if (insertMenuRef.current && !insertMenuRef.current.contains(target)) {
+          setIsInsertMenuOpen(false);
+        }
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsMenuOpen(false);
+        setIsConvertMenuOpen(false);
+        setIsInsertMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isMenuOpen, isConvertMenuOpen, isInsertMenuOpen]);
+
+  const autoGrow = (el: HTMLTextAreaElement | null) => {
+    if (!el) return;
+    if (viewHeightMode === 'full') {
+      el.style.height = 'auto';
+      el.style.height = `${Math.max(el.scrollHeight, 28)}px`;
+    } else {
+      el.style.height = '';
+    }
+  };
 
   const meta = BLOCK_METAS[section.type] || BLOCK_METAS.text;
   const Icon = meta.icon;
@@ -183,7 +257,9 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
       case 'text':
         return (
           <textarea
-            rows={2}
+            ref={(el) => autoGrow(el)}
+            onInput={(e) => autoGrow(e.currentTarget)}
+            rows={viewHeightMode === 'compact' ? 2 : viewHeightMode === 'medium' ? 3 : Math.max(1, (section.text || '').split('\n').length)}
             value={section.text}
             onChange={(e) => onChange({ ...section, text: e.target.value })}
             placeholder="Tulis teks stimulus, pengantar kasus, atau kalimat soal..."
@@ -247,7 +323,9 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
                 {section.emoji || '💡'}
               </span>
               <textarea
-                rows={2}
+                ref={(el) => autoGrow(el)}
+                onInput={(e) => autoGrow(e.currentTarget)}
+                rows={viewHeightMode === 'compact' ? 2 : viewHeightMode === 'medium' ? 3 : Math.max(1, (section.text || '').split('\n').length)}
                 value={section.text}
                 onChange={(e) => onChange({ ...section, text: e.target.value })}
                 placeholder="Tulis catatan, petunjuk soal, atau fakta penting di sini..."
@@ -277,7 +355,14 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
                 <img
                   src={section.dataUrl}
                   alt={section.caption || 'Pratinjau gambar'}
-                  className="w-full max-h-64 object-contain rounded-lg bg-white shadow-2xs"
+                  className={cn(
+                    'w-full object-contain rounded-lg bg-white shadow-2xs',
+                    viewHeightMode === 'compact'
+                      ? 'max-h-28'
+                      : viewHeightMode === 'medium'
+                      ? 'max-h-48'
+                      : 'max-h-64'
+                  )}
                 />
                 <div className="flex items-center justify-between gap-2 text-[10px] text-slate-500 font-mono">
                   <span>{formatFileSize(byteSize)} (terkompresi, maks 300 KB BLOB)</span>
@@ -445,22 +530,41 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
       )}
     >
       {/* Top Block Header with Notion Handles */}
-      <div className="flex items-center justify-between gap-2 px-3 pt-2 pb-1.5">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-2 px-3 pt-2 pb-1.5 border-b border-slate-100">
+        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+          {/* Collapse / Expand Toggle Button */}
+          {onToggleCollapse && (
+            <button
+              type="button"
+              onClick={onToggleCollapse}
+              className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center cursor-pointer transition-colors shrink-0"
+              title={isCollapsed ? 'Bentangkan Blok' : 'Ciutkan Blok'}
+            >
+              {isCollapsed ? (
+                <ChevronRight className="w-3.5 h-3.5" />
+              ) : (
+                <ChevronDown className="w-3.5 h-3.5" />
+              )}
+            </button>
+          )}
+
           {/* Notion Gutter Action Button */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center gap-0.5 cursor-pointer transition-colors"
               title="Menu Aksi Blok"
             >
-              <GripVertical className="w-4 h-4" />
+              <GripVertical className="w-3.5 h-3.5" />
             </button>
 
             {/* Notion Action Menu Popover */}
             {isMenuOpen && (
-              <div className="absolute z-30 left-0 mt-1 w-52 bg-white rounded-xl border border-slate-200 shadow-xl p-1.5 space-y-1 text-xs text-slate-700">
+              <div
+                ref={menuRef}
+                className="absolute z-30 left-7 top-0 w-52 bg-white rounded-xl border border-slate-200 shadow-xl p-1.5 space-y-1 text-xs text-slate-700"
+              >
                 <button
                   type="button"
                   disabled={index === 0}
@@ -526,7 +630,10 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
 
             {/* Notion "Turn into" Submenu */}
             {isConvertMenuOpen && (
-              <div className="absolute z-30 left-0 mt-1 w-64 bg-white rounded-xl border border-slate-200 shadow-xl p-2 space-y-1 text-xs">
+              <div
+                ref={menuRef}
+                className="absolute z-30 left-7 top-0 w-64 bg-white rounded-xl border border-slate-200 shadow-xl p-2 space-y-1 text-xs"
+              >
                 <span className="block px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                   Ubah Blok Menjadi:
                 </span>
@@ -560,7 +667,7 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
           </div>
 
           {/* Block Type Badge */}
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-600">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-700 shrink-0">
             <span
               className={cn(
                 'w-5 h-5 rounded-md flex items-center justify-center text-xs',
@@ -578,15 +685,22 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
               </span>
             )}
           </span>
+
+          {/* Snippet preview when collapsed */}
+          {isCollapsed && (
+            <span className="text-xs text-slate-400 truncate italic select-none ml-1">
+              "{getSectionSnippet(section)}"
+            </span>
+          )}
         </div>
 
         {/* Right Quick Controls */}
-        <div className="flex items-center gap-0.5 opacity-40 group-hover/block:opacity-100 transition-opacity">
+        <div className="flex items-center gap-0.5 opacity-60 group-hover/block:opacity-100 transition-opacity shrink-0">
           <button
             type="button"
             disabled={index === 0}
             onClick={() => onMove('up')}
-            className="p-1 text-slate-400 hover:text-chem-forest hover:bg-slate-100 rounded disabled:opacity-25 cursor-pointer"
+            className="p-1 text-slate-400 hover:text-chem-forest hover:bg-slate-100 rounded-md disabled:opacity-25 transition-colors cursor-pointer"
             title="Geser Naik"
           >
             <ChevronUp className="w-3.5 h-3.5" />
@@ -595,23 +709,36 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
             type="button"
             disabled={index === total - 1}
             onClick={() => onMove('down')}
-            className="p-1 text-slate-400 hover:text-chem-forest hover:bg-slate-100 rounded disabled:opacity-25 cursor-pointer"
+            className="p-1 text-slate-400 hover:text-chem-forest hover:bg-slate-100 rounded-md disabled:opacity-25 transition-colors cursor-pointer"
             title="Geser Turun"
           >
             <ChevronDown className="w-3.5 h-3.5" />
           </button>
+          {onDuplicate && (
+            <button
+              type="button"
+              onClick={onDuplicate}
+              className="p-1 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors cursor-pointer"
+              title="Duplikasi Blok"
+            >
+              <Copy className="w-3.5 h-3.5" />
+            </button>
+          )}
           {onInsertBelow && (
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setIsInsertMenuOpen(!isInsertMenuOpen)}
-                className="p-1 text-slate-400 hover:text-chem-forest hover:bg-slate-100 rounded cursor-pointer"
+                className="p-1 text-slate-400 hover:text-chem-forest hover:bg-emerald-50 rounded-md transition-colors cursor-pointer"
                 title="Sisipkan Blok di Bawah"
               >
                 <Plus className="w-3.5 h-3.5" />
               </button>
               {isInsertMenuOpen && (
-                <div className="absolute z-30 right-0 mt-1 w-64 bg-white rounded-xl border border-slate-200 shadow-xl p-2 space-y-1 text-xs">
+                <div
+                  ref={insertMenuRef}
+                  className="absolute z-30 right-full top-0 mr-2 w-64 bg-white rounded-xl border border-slate-200 shadow-xl p-2 space-y-1 text-xs"
+                >
                   <span className="block px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                     Sisipkan Blok di Bawah:
                   </span>
@@ -645,7 +772,7 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
           <button
             type="button"
             onClick={onDelete}
-            className="p-1 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded cursor-pointer"
+            className="p-1 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
             title="Hapus Blok"
           >
             <Trash2 className="w-3.5 h-3.5" />
@@ -653,8 +780,19 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
         </div>
       </div>
 
-      {/* Block Body Content */}
-      <div className="px-3 pb-3 pt-1">{renderBody()}</div>
+      {/* Block Body Content (Hidden when collapsed) */}
+      {!isCollapsed && (
+        <div
+          className={cn(
+            'px-3 pb-3 pt-2 transition-all',
+            viewHeightMode === 'compact' && 'max-h-36 overflow-y-auto pr-2',
+            viewHeightMode === 'medium' && 'max-h-64 overflow-y-auto pr-2',
+            viewHeightMode === 'full' && 'max-h-none'
+          )}
+        >
+          {renderBody()}
+        </div>
+      )}
     </div>
   );
 };

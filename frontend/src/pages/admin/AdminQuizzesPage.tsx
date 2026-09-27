@@ -22,6 +22,7 @@ export const AdminQuizzesPage: React.FC = () => {
   const navigate = useNavigate();
 
   const [isPacketEditorOpen, setIsPacketEditorOpen] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   // Search & filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -179,7 +180,7 @@ export const AdminQuizzesPage: React.FC = () => {
                       <td className="py-3.5 px-4 font-medium text-slate-600">{q.difficulty}</td>
 
                       <td className="py-3.5 px-4 text-center font-mono font-bold text-slate-700">
-                        {q.questions?.length || 0}
+                        {q.questionsCount ?? q.questions?.length ?? 0}
                       </td>
 
                       <td className="py-3.5 px-4">
@@ -225,7 +226,7 @@ export const AdminQuizzesPage: React.FC = () => {
                           </button>
                           <button
                             type="button"
-                            onClick={() => deleteQuiz(q.id)}
+                            onClick={() => setDeleteConfirmId(q.id)}
                             className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg cursor-pointer"
                             title="Hapus Paket"
                           >
@@ -334,6 +335,39 @@ export const AdminQuizzesPage: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-slate-200 max-w-sm w-full p-5 space-y-3 shadow-2xl">
+            <h3 className="font-serif text-base font-bold text-slate-900">
+              Hapus Paket Soal Ini?
+            </h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Paket soal yang dihapus tidak dapat dikembalikan.
+            </p>
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirmId(null)}
+                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  deleteQuiz(deleteConfirmId);
+                  setDeleteConfirmId(null);
+                }}
+                className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold cursor-pointer"
+              >
+                Hapus
+              </button>
+            </div>
           </div>
         </div>
       )}

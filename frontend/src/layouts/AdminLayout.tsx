@@ -11,12 +11,14 @@ export const AdminLayout: React.FC = () => {
   const { isAuthenticated } = useDataStore();
   const { mobileSidebarOpen, toggleMobileSidebar } = useUIStore();
 
-  // Route guard
+  // Route guard & auth check
   React.useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/admin/login', { replace: true });
-    }
-  }, [isAuthenticated, navigate]);
+    useDataStore.getState().checkAuth().then((valid) => {
+      if (!valid) {
+        navigate('/admin/login', { replace: true });
+      }
+    });
+  }, [navigate]);
 
   // Close the mobile sidebar drawer whenever the route changes
   React.useEffect(() => {

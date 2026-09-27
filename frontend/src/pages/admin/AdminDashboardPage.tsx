@@ -25,7 +25,7 @@ export const AdminDashboardPage: React.FC = () => {
 
   const totalQuizzes = quizzes.length;
   const totalQuestions = quizzes.reduce(
-    (sum, q) => sum + (q.questions?.length || 0),
+    (sum, q) => sum + (q.questionsCount ?? q.questions?.length ?? 0),
     0,
   );
 

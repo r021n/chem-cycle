@@ -1,3 +1,5 @@
+import { mediaApi, resolveMediaUrl } from '../api/media';
+
 export const MAX_MEDIA_BYTES = 300 * 1024;
 
 const MAX_DIMENSION = 1600;
@@ -59,16 +61,16 @@ export function getYoutubeEmbedUrl(url?: string): string | null {
   return null;
 }
 
-export async function compressImageToDataUrl(
+export async function compressImageToBlob(
   file: File,
   maxBytes: number = MAX_MEDIA_BYTES
-): Promise<string> {
+): Promise<Blob> {
   if (!file.type.startsWith('image/')) {
     throw new Error('Berkas yang dipilih bukan gambar.');
   }
 
   if (file.size <= maxBytes && !file.type.includes('svg')) {
-    return blobToDataUrl(file);
+    return file;
   }
 
   const objectUrl = URL.createObjectURL(file);
@@ -101,7 +103,7 @@ export async function compressImageToDataUrl(
         if (!blob) continue;
         if (!lastBlob || blob.size < lastBlob.size) lastBlob = blob;
         if (blob.size <= maxBytes) {
-          return blobToDataUrl(blob);
+          return blob;
         }
       }
 
@@ -111,7 +113,7 @@ export async function compressImageToDataUrl(
     }
 
     if (lastBlob && lastBlob.size <= maxBytes) {
-      return blobToDataUrl(lastBlob);
+      return lastBlob;
     }
 
     throw new Error('Ukuran gambar masih melebihi 300 KB setelah kompresi. Coba gambar lain.');
@@ -119,3 +121,22 @@ export async function compressImageToDataUrl(
     URL.revokeObjectURL(objectUrl);
   }
 }
+
+export async function compressImageToDataUrl(
+  file: File,
+  maxBytes: number = MAX_MEDIA_BYTES
+): Promise<string> {
+  const blob = await compressImageToBlob(file, maxBytes);
+  return blobToDataUrl(blob);
+}
+
+export async function uploadCompressedImage(
+  file: File,
+  maxBytes: number = MAX_MEDIA_BYTES
+): Promise<string> {
+  const blob = await compressImageToBlob(file, maxBytes);
+  const result = await mediaApi.uploadMediaBlob(blob, file.name);
+  return result.url;
+}
+
+export { resolveMediaUrl };
