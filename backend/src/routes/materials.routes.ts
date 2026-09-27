@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { eq, or, asc } from 'drizzle-orm';
-import { db } from '../db/index.js';
+import { getDb } from '../db/index.js';
 import { materials, auditLogs } from '../db/schema.js';
 import { adminAuthMiddleware, AdminPayload } from '../middleware/auth.js';
 import { generateSlug } from '../utils/hash.js';
@@ -27,7 +27,7 @@ const materialSchema = z.object({
 
 // GET /api/materials (Public - Published only)
 materialsRoutes.get('/', async (c) => {
-  const items = await db
+  const items = await getDb()
     .select()
     .from(materials)
     .where(eq(materials.isPublished, true))
@@ -56,7 +56,7 @@ materialsRoutes.get('/', async (c) => {
 
 // GET /api/materials/admin/all (Protected - Includes drafts)
 materialsRoutes.get('/admin/all', adminAuthMiddleware, async (c) => {
-  const items = await db
+  const items = await getDb()
     .select()
     .from(materials)
     .orderBy(asc(materials.orderIndex))
@@ -86,7 +86,7 @@ materialsRoutes.get('/admin/all', adminAuthMiddleware, async (c) => {
 materialsRoutes.get('/:idOrSlug', async (c) => {
   const param = c.req.param('idOrSlug');
 
-  const item = await db
+  const item = await getDb()
     .select()
     .from(materials)
     .where(or(eq(materials.id, param), eq(materials.slug, param)))
@@ -131,7 +131,7 @@ materialsRoutes.post('/', adminAuthMiddleware, zValidator('json', materialSchema
     ? JSON.stringify(body.learningObjectives)
     : null;
 
-  await db.insert(materials).values({
+  await getDb().insert(materials).values({
     id,
     title: body.title,
     slug,
@@ -147,7 +147,7 @@ materialsRoutes.post('/', adminAuthMiddleware, zValidator('json', materialSchema
   });
 
   // Log action
-  await db.insert(auditLogs).values({
+  await getDb().insert(auditLogs).values({
     id: `log-${Date.now()}`,
     action: 'create',
     entityType: 'Materi',
@@ -175,7 +175,7 @@ materialsRoutes.put(
     const { orderedIds } = c.req.valid('json');
 
     for (let index = 0; index < orderedIds.length; index++) {
-      await db
+      await getDb()
         .update(materials)
         .set({ orderIndex: index + 1, updatedAt: new Date().toISOString() })
         .where(eq(materials.id, orderedIds[index]));
@@ -195,7 +195,7 @@ materialsRoutes.put(
     const body = c.req.valid('json');
     const admin = c.get('admin');
 
-    const existing = await db.select().from(materials).where(eq(materials.id, id)).get();
+    const existing = await getDb().select().from(materials).where(eq(materials.id, id)).get();
     if (!existing) {
       return c.json({ success: false, message: 'Materi tidak ditemukan' }, 404);
     }
@@ -219,9 +219,9 @@ materialsRoutes.put(
       updates.learningObjectivesJson = JSON.stringify(body.learningObjectives);
     }
 
-    await db.update(materials).set(updates).where(eq(materials.id, id));
+    await getDb().update(materials).set(updates).where(eq(materials.id, id));
 
-    await db.insert(auditLogs).values({
+    await getDb().insert(auditLogs).values({
       id: `log-${Date.now()}`,
       action: 'update',
       entityType: 'Materi',
@@ -239,14 +239,14 @@ materialsRoutes.delete('/:id', adminAuthMiddleware, async (c) => {
   const id = c.req.param('id');
   const admin = c.get('admin');
 
-  const existing = await db.select().from(materials).where(eq(materials.id, id)).get();
+  const existing = await getDb().select().from(materials).where(eq(materials.id, id)).get();
   if (!existing) {
     return c.json({ success: false, message: 'Materi tidak ditemukan' }, 404);
   }
 
-  await db.delete(materials).where(eq(materials.id, id));
+  await getDb().delete(materials).where(eq(materials.id, id));
 
-  await db.insert(auditLogs).values({
+  await getDb().insert(auditLogs).values({
     id: `log-${Date.now()}`,
     action: 'delete',
     entityType: 'Materi',
@@ -263,18 +263,18 @@ materialsRoutes.patch('/:id/publish', adminAuthMiddleware, async (c) => {
   const id = c.req.param('id');
   const admin = c.get('admin');
 
-  const existing = await db.select().from(materials).where(eq(materials.id, id)).get();
+  const existing = await getDb().select().from(materials).where(eq(materials.id, id)).get();
   if (!existing) {
     return c.json({ success: false, message: 'Materi tidak ditemukan' }, 404);
   }
 
   const newStatus = !existing.isPublished;
-  await db
+  await getDb()
     .update(materials)
     .set({ isPublished: newStatus, updatedAt: new Date().toISOString() })
     .where(eq(materials.id, id));
 
-  await db.insert(auditLogs).values({
+  await getDb().insert(auditLogs).values({
     id: `log-${Date.now()}`,
     action: newStatus ? 'publish' : 'update',
     entityType: 'Materi',

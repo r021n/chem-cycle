@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { eq, or, asc } from 'drizzle-orm';
-import { db } from '../db/index.js';
+import { getDb } from '../db/index.js';
 import { activities, auditLogs } from '../db/schema.js';
 import { adminAuthMiddleware, AdminPayload } from '../middleware/auth.js';
 import { generateSlug } from '../utils/hash.js';
@@ -25,7 +25,7 @@ const activitySchema = z.object({
 
 // GET /api/activities (Public - Published only)
 activitiesRoutes.get('/', async (c) => {
-  const items = await db
+  const items = await getDb()
     .select()
     .from(activities)
     .where(eq(activities.isPublished, true))
@@ -54,7 +54,7 @@ activitiesRoutes.get('/', async (c) => {
 
 // GET /api/activities/admin/all (Protected - Includes drafts)
 activitiesRoutes.get('/admin/all', adminAuthMiddleware, async (c) => {
-  const items = await db
+  const items = await getDb()
     .select()
     .from(activities)
     .orderBy(asc(activities.orderIndex))
@@ -84,7 +84,7 @@ activitiesRoutes.get('/admin/all', adminAuthMiddleware, async (c) => {
 activitiesRoutes.get('/:idOrSlug', async (c) => {
   const param = c.req.param('idOrSlug');
 
-  const item = await db
+  const item = await getDb()
     .select()
     .from(activities)
     .where(or(eq(activities.id, param), eq(activities.slug, param)))
@@ -130,7 +130,7 @@ activitiesRoutes.post('/', adminAuthMiddleware, zValidator('json', activitySchem
 
   const attachmentsStr = body.attachments ? JSON.stringify(body.attachments) : '[]';
 
-  await db.insert(activities).values({
+  await getDb().insert(activities).values({
     id,
     title: body.title,
     slug,
@@ -143,7 +143,7 @@ activitiesRoutes.post('/', adminAuthMiddleware, zValidator('json', activitySchem
     updatedAt: now,
   });
 
-  await db.insert(auditLogs).values({
+  await getDb().insert(auditLogs).values({
     id: `log-${Date.now()}`,
     action: 'create',
     entityType: 'Aktivitas',
@@ -165,7 +165,7 @@ activitiesRoutes.put(
     const body = c.req.valid('json');
     const admin = c.get('admin');
 
-    const existing = await db.select().from(activities).where(eq(activities.id, id)).get();
+    const existing = await getDb().select().from(activities).where(eq(activities.id, id)).get();
     if (!existing) {
       return c.json({ success: false, message: 'Aktivitas tidak ditemukan' }, 404);
     }
@@ -187,9 +187,9 @@ activitiesRoutes.put(
       updates.attachmentsJson = JSON.stringify(body.attachments);
     }
 
-    await db.update(activities).set(updates).where(eq(activities.id, id));
+    await getDb().update(activities).set(updates).where(eq(activities.id, id));
 
-    await db.insert(auditLogs).values({
+    await getDb().insert(auditLogs).values({
       id: `log-${Date.now()}`,
       action: 'update',
       entityType: 'Aktivitas',
@@ -207,14 +207,14 @@ activitiesRoutes.delete('/:id', adminAuthMiddleware, async (c) => {
   const id = c.req.param('id');
   const admin = c.get('admin');
 
-  const existing = await db.select().from(activities).where(eq(activities.id, id)).get();
+  const existing = await getDb().select().from(activities).where(eq(activities.id, id)).get();
   if (!existing) {
     return c.json({ success: false, message: 'Aktivitas tidak ditemukan' }, 404);
   }
 
-  await db.delete(activities).where(eq(activities.id, id));
+  await getDb().delete(activities).where(eq(activities.id, id));
 
-  await db.insert(auditLogs).values({
+  await getDb().insert(auditLogs).values({
     id: `log-${Date.now()}`,
     action: 'delete',
     entityType: 'Aktivitas',
@@ -231,18 +231,18 @@ activitiesRoutes.patch('/:id/publish', adminAuthMiddleware, async (c) => {
   const id = c.req.param('id');
   const admin = c.get('admin');
 
-  const existing = await db.select().from(activities).where(eq(activities.id, id)).get();
+  const existing = await getDb().select().from(activities).where(eq(activities.id, id)).get();
   if (!existing) {
     return c.json({ success: false, message: 'Aktivitas tidak ditemukan' }, 404);
   }
 
   const newStatus = !existing.isPublished;
-  await db
+  await getDb()
     .update(activities)
     .set({ isPublished: newStatus, updatedAt: new Date().toISOString() })
     .where(eq(activities.id, id));
 
-  await db.insert(auditLogs).values({
+  await getDb().insert(auditLogs).values({
     id: `log-${Date.now()}`,
     action: newStatus ? 'publish' : 'update',
     entityType: 'Aktivitas',

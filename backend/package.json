@@ -5,11 +5,14 @@
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch src/server.node.ts",
+    "dev:worker": "wrangler dev",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node dist/server.node.js",
+    "typecheck": "tsc --noEmit",
+    "deploy": "wrangler deploy",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:migrate": "tsx src/db/migrate.ts",
     "db:seed": "tsx src/db/seed.ts"
   },
   "dependencies": {
@@ -27,6 +30,7 @@
     "@types/node": "^22.13.9",
     "drizzle-kit": "^0.30.5",
     "tsx": "^4.19.3",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "wrangler": "^4.141.0"
   }
 }

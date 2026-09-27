@@ -3,7 +3,7 @@ import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { sign } from 'hono/jwt';
 import { eq, or } from 'drizzle-orm';
-import { db } from '../db/index.js';
+import { getDb } from '../db/index.js';
 import { admins, auditLogs } from '../db/schema.js';
 import { hashPassword, verifyPassword } from '../utils/hash.js';
 import { adminAuthMiddleware, AdminPayload } from '../middleware/auth.js';
@@ -34,7 +34,7 @@ const profileSchema = z.object({
 authRoutes.post('/login', authRateLimiter, zValidator('json', loginSchema), async (c) => {
   const { usernameOrEmail, password } = c.req.valid('json');
 
-  const admin = await db
+  const admin = await getDb()
     .select()
     .from(admins)
     .where(or(eq(admins.username, usernameOrEmail), eq(admins.email, usernameOrEmail)))
@@ -76,7 +76,7 @@ authRoutes.post('/login', authRateLimiter, zValidator('json', loginSchema), asyn
   );
 
   // Push audit log
-  await db.insert(auditLogs).values({
+  await getDb().insert(auditLogs).values({
     id: `log-${Date.now()}`,
     action: 'update',
     entityType: 'Pengaturan',
@@ -103,7 +103,7 @@ authRoutes.post('/login', authRateLimiter, zValidator('json', loginSchema), asyn
 // GET /api/auth/me (Protected)
 authRoutes.get('/me', adminAuthMiddleware, async (c) => {
   const payload = c.get('admin');
-  const admin = await db.select().from(admins).where(eq(admins.id, payload.sub)).get();
+  const admin = await getDb().select().from(admins).where(eq(admins.id, payload.sub)).get();
 
   if (!admin) {
     return c.json({ success: false, message: 'Data administrator tidak ditemukan' }, 404);
@@ -127,7 +127,7 @@ authRoutes.put('/profile', adminAuthMiddleware, zValidator('json', profileSchema
   const payload = c.get('admin');
   const updates = c.req.valid('json');
 
-  await db
+  await getDb()
     .update(admins)
     .set({
       ...updates,
@@ -152,7 +152,7 @@ authRoutes.put(
 
     const hashedPassword = await hashPassword(newPassword);
 
-    await db
+    await getDb()
       .update(admins)
       .set({
         passwordHash: hashedPassword,
@@ -160,7 +160,7 @@ authRoutes.put(
       })
       .where(eq(admins.id, payload.sub));
 
-    await db.insert(auditLogs).values({
+    await getDb().insert(auditLogs).values({
       id: `log-${Date.now()}`,
       action: 'update',
       entityType: 'Pengaturan',

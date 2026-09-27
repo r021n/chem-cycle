@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { eq, asc } from 'drizzle-orm';
-import { db } from '../db/index.js';
+import { getDb } from '../db/index.js';
 import { quizzes, quizQuestions, auditLogs } from '../db/schema.js';
 import { adminAuthMiddleware, AdminPayload } from '../middleware/auth.js';
 
@@ -37,14 +37,14 @@ const quizPackageSchema = z.object({
 
 // GET /api/quizzes (Public - Published only)
 quizzesRoutes.get('/', async (c) => {
-  const pkgs = await db
+  const pkgs = await getDb()
     .select()
     .from(quizzes)
     .where(eq(quizzes.isPublished, true))
     .orderBy(asc(quizzes.orderIndex))
     .all();
 
-  const questionsList = await db
+  const questionsList = await getDb()
     .select()
     .from(quizQuestions)
     .orderBy(asc(quizQuestions.orderIndex))
@@ -91,9 +91,9 @@ quizzesRoutes.get('/', async (c) => {
 
 // GET /api/quizzes/admin/all (Protected - Includes drafts & full questions)
 quizzesRoutes.get('/admin/all', adminAuthMiddleware, async (c) => {
-  const pkgs = await db.select().from(quizzes).orderBy(asc(quizzes.orderIndex)).all();
+  const pkgs = await getDb().select().from(quizzes).orderBy(asc(quizzes.orderIndex)).all();
 
-  const questionsList = await db
+  const questionsList = await getDb()
     .select()
     .from(quizQuestions)
     .orderBy(asc(quizQuestions.orderIndex))
@@ -141,12 +141,12 @@ quizzesRoutes.get('/admin/all', adminAuthMiddleware, async (c) => {
 quizzesRoutes.get('/:id', async (c) => {
   const id = c.req.param('id');
 
-  const pkg = await db.select().from(quizzes).where(eq(quizzes.id, id)).get();
+  const pkg = await getDb().select().from(quizzes).where(eq(quizzes.id, id)).get();
   if (!pkg) {
     return c.json({ success: false, message: 'Paket kuis tidak ditemukan' }, 404);
   }
 
-  const questionsData = await db
+  const questionsData = await getDb()
     .select()
     .from(quizQuestions)
     .where(eq(quizQuestions.quizId, id))
@@ -196,7 +196,7 @@ quizzesRoutes.post('/', adminAuthMiddleware, zValidator('json', quizPackageSchem
   const now = new Date().toISOString();
   const quizId = `quiz-${Date.now()}`;
 
-  await db.insert(quizzes).values({
+  await getDb().insert(quizzes).values({
     id: quizId,
     title: body.title,
     topic: body.topic,
@@ -220,7 +220,7 @@ quizzesRoutes.post('/', adminAuthMiddleware, zValidator('json', quizPackageSchem
         ? [q.correctAnswerId]
         : [];
 
-      await db.insert(quizQuestions).values({
+      await getDb().insert(quizQuestions).values({
         id: qId,
         quizId,
         orderIndex: i + 1,
@@ -236,7 +236,7 @@ quizzesRoutes.post('/', adminAuthMiddleware, zValidator('json', quizPackageSchem
     }
   }
 
-  await db.insert(auditLogs).values({
+  await getDb().insert(auditLogs).values({
     id: `log-${Date.now()}`,
     action: 'create',
     entityType: 'Kuis',
@@ -254,7 +254,7 @@ quizzesRoutes.put('/:id', adminAuthMiddleware, zValidator('json', quizPackageSch
   const body = c.req.valid('json');
   const admin = c.get('admin');
 
-  const existing = await db.select().from(quizzes).where(eq(quizzes.id, quizId)).get();
+  const existing = await getDb().select().from(quizzes).where(eq(quizzes.id, quizId)).get();
   if (!existing) {
     return c.json({ success: false, message: 'Paket kuis tidak ditemukan' }, 404);
   }
@@ -273,11 +273,11 @@ quizzesRoutes.put('/:id', adminAuthMiddleware, zValidator('json', quizPackageSch
   if (body.orderIndex !== undefined) metaUpdates.orderIndex = body.orderIndex;
   if (body.isPublished !== undefined) metaUpdates.isPublished = body.isPublished;
 
-  await db.update(quizzes).set(metaUpdates).where(eq(quizzes.id, quizId));
+  await getDb().update(quizzes).set(metaUpdates).where(eq(quizzes.id, quizId));
 
   // If questions array is supplied, replace all questions for this quiz
   if (body.questions) {
-    await db.delete(quizQuestions).where(eq(quizQuestions.quizId, quizId));
+    await getDb().delete(quizQuestions).where(eq(quizQuestions.quizId, quizId));
 
     for (let i = 0; i < body.questions.length; i++) {
       const q = body.questions[i];
@@ -289,7 +289,7 @@ quizzesRoutes.put('/:id', adminAuthMiddleware, zValidator('json', quizPackageSch
           ? [q.correctAnswerId]
           : [];
 
-      await db.insert(quizQuestions).values({
+      await getDb().insert(quizQuestions).values({
         id: qId,
         quizId,
         orderIndex: i + 1,
@@ -305,7 +305,7 @@ quizzesRoutes.put('/:id', adminAuthMiddleware, zValidator('json', quizPackageSch
     }
   }
 
-  await db.insert(auditLogs).values({
+  await getDb().insert(auditLogs).values({
     id: `log-${Date.now()}`,
     action: 'update',
     entityType: 'Kuis',
@@ -322,16 +322,16 @@ quizzesRoutes.delete('/:id', adminAuthMiddleware, async (c) => {
   const quizId = c.req.param('id');
   const admin = c.get('admin');
 
-  const existing = await db.select().from(quizzes).where(eq(quizzes.id, quizId)).get();
+  const existing = await getDb().select().from(quizzes).where(eq(quizzes.id, quizId)).get();
   if (!existing) {
     return c.json({ success: false, message: 'Paket kuis tidak ditemukan' }, 404);
   }
 
   // Delete questions and quiz package
-  await db.delete(quizQuestions).where(eq(quizQuestions.quizId, quizId));
-  await db.delete(quizzes).where(eq(quizzes.id, quizId));
+  await getDb().delete(quizQuestions).where(eq(quizQuestions.quizId, quizId));
+  await getDb().delete(quizzes).where(eq(quizzes.id, quizId));
 
-  await db.insert(auditLogs).values({
+  await getDb().insert(auditLogs).values({
     id: `log-${Date.now()}`,
     action: 'delete',
     entityType: 'Kuis',
@@ -348,18 +348,18 @@ quizzesRoutes.patch('/:id/publish', adminAuthMiddleware, async (c) => {
   const quizId = c.req.param('id');
   const admin = c.get('admin');
 
-  const existing = await db.select().from(quizzes).where(eq(quizzes.id, quizId)).get();
+  const existing = await getDb().select().from(quizzes).where(eq(quizzes.id, quizId)).get();
   if (!existing) {
     return c.json({ success: false, message: 'Paket kuis tidak ditemukan' }, 404);
   }
 
   const newStatus = !existing.isPublished;
-  await db
+  await getDb()
     .update(quizzes)
     .set({ isPublished: newStatus, updatedAt: new Date().toISOString() })
     .where(eq(quizzes.id, quizId));
 
-  await db.insert(auditLogs).values({
+  await getDb().insert(auditLogs).values({
     id: `log-${Date.now()}`,
     action: newStatus ? 'publish' : 'update',
     entityType: 'Kuis',

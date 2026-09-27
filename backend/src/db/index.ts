@@ -1,33 +1,35 @@
-import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
+import { drizzle } from 'drizzle-orm/libsql/web';
+import { createClient } from '@libsql/client/web';
+import type { LibSQLDatabase } from 'drizzle-orm/libsql';
 import * as schema from './schema.js';
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
-dotenv.config();
+type Db = LibSQLDatabase<typeof schema>;
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+let instance: Db | undefined;
 
-let rawUrl = process.env.DATABASE_URL || 'file:chem-cycle.db';
-if (rawUrl.startsWith('file:')) {
-  const filePath = rawUrl.slice(5);
-  if (!path.isAbsolute(filePath)) {
-    const resolvedPath = path.resolve(__dirname, '../../', filePath);
-    rawUrl = `file:${resolvedPath.replace(/\\/g, '/')}`;
+function resolveConfig(): { url: string; authToken?: string } {
+  const url = process.env.DATABASE_URL || process.env.TURSO_DATABASE_URL;
+  if (!url) {
+    throw new Error(
+      'DATABASE_URL (atau TURSO_DATABASE_URL) belum di-set. Contoh: libsql://<db>-<org>.turso.io'
+    );
   }
-} else if (
-  !rawUrl.startsWith('http:') &&
-  !rawUrl.startsWith('https:') &&
-  !rawUrl.startsWith('libsql:')
-) {
-  const resolvedPath = path.isAbsolute(rawUrl)
-    ? rawUrl
-    : path.resolve(__dirname, '../../', rawUrl);
-  rawUrl = `file:${resolvedPath.replace(/\\/g, '/')}`;
+  if (url.startsWith('file:') || url.startsWith(':memory:')) {
+    throw new Error(
+      'Mode file: SQLite tidak didukung oleh @libsql/client/web. Gunakan Turso (libsql:// atau https://) — lihat .env.example.'
+    );
+  }
+  const authToken = process.env.TURSO_AUTH_TOKEN;
+  return { url, authToken };
 }
 
-export const client = createClient({ url: rawUrl });
-export const db = drizzle(client, { schema });
+export function getDb(): Db {
+  if (!instance) {
+    const { url, authToken } = resolveConfig();
+    const client = createClient({ url, authToken });
+    instance = drizzle(client, { schema });
+  }
+  return instance;
+}
+
 export { schema };

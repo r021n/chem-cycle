@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { eq } from 'drizzle-orm';
-import { db } from '../db/index.js';
+import { getDb } from '../db/index.js';
 import { mediaBlobs } from '../db/schema.js';
 import { adminAuthMiddleware } from '../middleware/auth.js';
 
@@ -19,6 +19,7 @@ mediaRoutes.post('/', adminAuthMiddleware, async (c) => {
   const filename = uploadedFile.name || 'berkas-' + Date.now();
   const mimeType = uploadedFile.type || 'application/octet-stream';
   const arrayBuffer = await uploadedFile.arrayBuffer();
+  // Buffer tersedia di Workers via nodejs_compat (compatibility_date >= 2026-08-04).
   const buffer = Buffer.from(arrayBuffer);
   const sizeBytes = buffer.length;
 
@@ -30,7 +31,7 @@ mediaRoutes.post('/', adminAuthMiddleware, async (c) => {
   const id = `med-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
   const now = new Date().toISOString();
 
-  await db.insert(mediaBlobs).values({
+  await getDb().insert(mediaBlobs).values({
     id,
     filename,
     mimeType,
@@ -60,7 +61,7 @@ mediaRoutes.post('/', adminAuthMiddleware, async (c) => {
 mediaRoutes.get('/:id', async (c) => {
   const id = c.req.param('id');
 
-  const item = await db.select().from(mediaBlobs).where(eq(mediaBlobs.id, id)).get();
+  const item = await getDb().select().from(mediaBlobs).where(eq(mediaBlobs.id, id)).get();
   if (!item) {
     return c.json({ success: false, message: 'Media tidak ditemukan' }, 404);
   }

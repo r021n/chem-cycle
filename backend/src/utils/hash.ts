@@ -1,9 +1,18 @@
 import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
+
+// Cost factor bcrypt bisa diturunkan di Cloudflare Workers Free (limit CPU 10ms).
+// Contoh: BCRYPT_ROUNDS=6 di .dev.vars / wrangler vars, 10 di shared hosting Node.
+function bcryptRounds(): number {
+  const raw = Number(process.env.BCRYPT_ROUNDS);
+  if (Number.isFinite(raw) && raw >= 4 && raw <= 15) {
+    return raw;
+  }
+  return 10;
+}
 
 export async function hashPassword(password: string): Promise<string> {
-  const salt = await bcrypt.genSalt(10);
-  return bcrypt.hash(password, salt);
+  return bcrypt.hash(password, bcryptRounds());
 }
 
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {

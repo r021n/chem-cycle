@@ -1,0 +1,26 @@
+{
+  "name": "chem-cycle-backend",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-27",
+  // compatibility_date >= 2026-08-04 → nodejs_compat aktif by default
+  // (node:crypto, Buffer, process.env auto-populate dari bindings/secrets).
+  "vars": {
+    // GANTI dengan URL Cloudflare Pages frontend Anda:
+    "CORS_ORIGIN": "https://chem-cycle.pages.dev",
+    // GANTI dengan URL Turso Anda: turso db show <nama-db> --url
+    "DATABASE_URL": "libsql://REPLACE-WITH-YOUR-DB.turso.io",
+    // Sama dengan nilai di .env / .dev.vars — lihat catatan di .env.example
+    "BCRYPT_ROUNDS": "6"
+  },
+  // Secret (bukan bagian config ini, di-set via CLI):
+  //   npx wrangler secret put JWT_SECRET
+  //   npx wrangler secret put TURSO_AUTH_TOKEN
+  //
+  // Rate Limiting binding opsional (wrangler >= 4.36) untuk rate limit global
+  // lintas isolate di Workers. Tanpa blok ini, fallback in-memory tetap jalan.
+  // "ratelimits": [
+  //   { "name": "RATE_LIMIT_COMMENTS", "namespace_id": "1001", "simple": { "limit": 3, "period": 60 } },
+  //   { "name": "RATE_LIMIT_AUTH", "namespace_id": "1002", "simple": { "limit": 10, "period": 60 } },
+  //   { "name": "RATE_LIMIT_GENERAL", "namespace_id": "1003", "simple": { "limit": 180, "period": 60 } }
+  // ]
+}

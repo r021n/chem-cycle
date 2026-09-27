@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { eq, desc } from 'drizzle-orm';
-import { db } from '../db/index.js';
+import { getDb } from '../db/index.js';
 import { materialComments, materials } from '../db/schema.js';
 import { adminAuthMiddleware } from '../middleware/auth.js';
 import { commentRateLimiter } from '../middleware/rateLimiter.js';
@@ -44,7 +44,7 @@ const commentInputSchema = z.object({
 commentsRoutes.get('/materials/:materialId/comments', async (c) => {
   const materialId = c.req.param('materialId');
 
-  const comments = await db
+  const comments = await getDb()
     .select({
       id: materialComments.id,
       name: materialComments.name,
@@ -83,7 +83,7 @@ commentsRoutes.post(
     }
 
     // Verify material exists
-    const material = await db.select().from(materials).where(eq(materials.id, materialId)).get();
+    const material = await getDb().select().from(materials).where(eq(materials.id, materialId)).get();
     if (!material) {
       return c.json({ success: false, message: 'Materi yang dikomentari tidak ditemukan' }, 404);
     }
@@ -108,7 +108,7 @@ commentsRoutes.post(
       createdAt: now,
     };
 
-    await db.insert(materialComments).values(newComment);
+    await getDb().insert(materialComments).values(newComment);
 
     return c.json(
       {
@@ -130,7 +130,7 @@ commentsRoutes.post(
 // DELETE /api/comments/:id (Protected - Admin moderation)
 commentsRoutes.delete('/comments/:id', adminAuthMiddleware, async (c) => {
   const id = c.req.param('id');
-  const existing = await db
+  const existing = await getDb()
     .select()
     .from(materialComments)
     .where(eq(materialComments.id, id))
@@ -140,7 +140,7 @@ commentsRoutes.delete('/comments/:id', adminAuthMiddleware, async (c) => {
     return c.json({ success: false, message: 'Komentar tidak ditemukan' }, 404);
   }
 
-  await db.delete(materialComments).where(eq(materialComments.id, id));
+  await getDb().delete(materialComments).where(eq(materialComments.id, id));
 
   return c.json({ success: true, message: 'Komentar berhasil dihapus' });
 });
