@@ -1,5 +1,11 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  Navigate,
+  Outlet,
+  RouterProvider,
+  ScrollRestoration,
+} from 'react-router-dom';
 import { ClientLayout } from './layouts/ClientLayout';
 import { AdminLayout } from './layouts/AdminLayout';
 
@@ -23,40 +29,58 @@ import { AdminQuizzesPage } from './pages/admin/AdminQuizzesPage';
 import { AdminQuizEditorPage } from './pages/admin/AdminQuizEditorPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 
+// Root layout: hosts router-level behaviors that must span every route
+const RootLayout: React.FC = () => (
+  <>
+    <ScrollRestoration />
+    <Outlet />
+  </>
+);
+
+const router = createBrowserRouter([
+  {
+    element: <RootLayout />,
+    children: [
+      /* A. SISI PENGGUNA (CLIENT / OPEN-ACCESS PORTAL) */
+      {
+        element: <ClientLayout />,
+        children: [
+          { index: true, element: <HomePage /> },
+          { path: 'materi', element: <MaterialsCatalogPage /> },
+          { path: 'materi/:slug', element: <MaterialDetailPage /> },
+          { path: 'aktivitas', element: <ActivitiesCatalogPage /> },
+          { path: 'aktivitas/:id', element: <ActivityWorkspacePage /> },
+          { path: 'kuis', element: <QuizCatalogPage /> },
+          { path: 'kuis/:id', element: <QuizPlayerPage /> },
+        ],
+      },
+
+      /* B. SISI ADMINISTRATOR (ADMIN / CMS PANEL) */
+      { path: 'admin/login', element: <AdminLoginPage /> },
+      {
+        path: 'admin',
+        element: <AdminLayout />,
+        children: [
+          { index: true, element: <Navigate to="/admin/dashboard" replace /> },
+          { path: 'dashboard', element: <AdminDashboardPage /> },
+          { path: 'materi', element: <AdminMaterialsPage /> },
+          { path: 'materi/baru', element: <AdminMaterialEditorPage /> },
+          { path: 'materi/:materialId/edit', element: <AdminMaterialEditorPage /> },
+          { path: 'aktivitas', element: <AdminActivitiesPage /> },
+          { path: 'aktivitas/baru', element: <AdminActivityEditorPage /> },
+          { path: 'aktivitas/:activityId/edit', element: <AdminActivityEditorPage /> },
+          { path: 'kuis', element: <AdminQuizzesPage /> },
+          { path: 'kuis/:quizId/edit', element: <AdminQuizEditorPage /> },
+          { path: 'pengaturan', element: <AdminSettingsPage /> },
+        ],
+      },
+
+      /* Fallback to Home */
+      { path: '*', element: <Navigate to="/" replace /> },
+    ],
+  },
+]);
+
 export const App: React.FC = () => {
-  return (
-    <BrowserRouter>
-      <Routes>
-        {/* A. SISI PENGGUNA (CLIENT / OPEN-ACCESS PORTAL) */}
-        <Route element={<ClientLayout />}>
-          <Route index element={<HomePage />} />
-          <Route path="materi" element={<MaterialsCatalogPage />} />
-          <Route path="materi/:slug" element={<MaterialDetailPage />} />
-          <Route path="aktivitas" element={<ActivitiesCatalogPage />} />
-          <Route path="aktivitas/:id" element={<ActivityWorkspacePage />} />
-          <Route path="kuis" element={<QuizCatalogPage />} />
-          <Route path="kuis/:id" element={<QuizPlayerPage />} />
-        </Route>
-
-        {/* B. SISI ADMINISTRATOR (ADMIN / CMS PANEL) */}
-        <Route path="admin/login" element={<AdminLoginPage />} />
-        <Route path="admin" element={<AdminLayout />}>
-          <Route index element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="dashboard" element={<AdminDashboardPage />} />
-          <Route path="materi" element={<AdminMaterialsPage />} />
-          <Route path="materi/baru" element={<AdminMaterialEditorPage />} />
-          <Route path="materi/:materialId/edit" element={<AdminMaterialEditorPage />} />
-          <Route path="aktivitas" element={<AdminActivitiesPage />} />
-          <Route path="aktivitas/baru" element={<AdminActivityEditorPage />} />
-          <Route path="aktivitas/:activityId/edit" element={<AdminActivityEditorPage />} />
-          <Route path="kuis" element={<AdminQuizzesPage />} />
-          <Route path="kuis/:quizId/edit" element={<AdminQuizEditorPage />} />
-          <Route path="pengaturan" element={<AdminSettingsPage />} />
-        </Route>
-
-        {/* Fallback to Home */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
-  );
+  return <RouterProvider router={router} />;
 };
