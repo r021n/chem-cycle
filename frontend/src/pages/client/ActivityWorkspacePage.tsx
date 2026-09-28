@@ -120,12 +120,6 @@ export const ActivityWorkspacePage: React.FC = () => {
           <h1 className="font-serif text-2xl sm:text-4xl font-bold text-chem-dark leading-tight">
             {activity.title}
           </h1>
-
-          {activity.summary && (
-            <p className="text-xs sm:text-sm text-chem-ash max-w-3xl leading-relaxed">
-              {activity.summary}
-            </p>
-          )}
         </div>
 
         {/* Google Classroom Announcement Content */}

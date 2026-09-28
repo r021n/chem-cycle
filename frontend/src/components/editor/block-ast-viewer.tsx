@@ -132,7 +132,11 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({ contentJson, cla
 
           case 'bulletListItem': {
             return (
-              <div key={block.id || index} className="flex items-start space-x-3 ml-2">
+              <div
+                key={block.id || index}
+                data-block-list-item="bullet"
+                className="flex items-start space-x-3 ml-2"
+              >
                 <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 mt-2 flex-shrink-0" />
                 <div className="text-sm md:text-base text-slate-700">
                   {renderInlineContent(block.content)}
@@ -143,7 +147,11 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({ contentJson, cla
 
           case 'numberedListItem': {
             return (
-              <div key={block.id || index} className="flex items-start space-x-3 ml-2">
+              <div
+                key={block.id || index}
+                data-block-list-item="numbered"
+                className="flex items-start space-x-3 ml-2"
+              >
                 <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold flex items-center justify-center flex-shrink-0 mt-0.5">
                   {index + 1}
                 </span>
@@ -216,6 +224,7 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({ contentJson, cla
             return (
               <div
                 key={block.id || index}
+                data-block-callout="true"
                 className="my-4 p-4 rounded-2xl bg-amber-50/80 border border-amber-200/90 flex items-start gap-3"
               >
                 <span className="text-xl select-none leading-none shrink-0">{emoji}</span>

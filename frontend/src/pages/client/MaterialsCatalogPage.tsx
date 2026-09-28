@@ -137,9 +137,6 @@ export const MaterialsCatalogPage: React.FC = () => {
                         alt={mat.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                      <span className="absolute top-3 left-3 text-[11px] font-bold bg-chem-dark/85 backdrop-blur-xs text-white px-3 py-1 rounded-full shadow-xs border border-white/20">
-                        Bab {mat.orderIndex}
-                      </span>
                     </div>
                   )}
 

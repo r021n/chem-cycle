@@ -201,7 +201,7 @@ export const AccessibilityController: React.FC = () => {
     // Expanded selectors: Headings, paragraphs, lists, quotes, table cells, form labels, buttons/choices
     const rawElements = Array.from(
       root.querySelectorAll<HTMLElement>(
-        'h1, h2, h3, h4, h5, h6, p, li, blockquote, dt, dd, th, td, label, button, [role="button"], [role="option"], [role="radio"]'
+        'h1, h2, h3, h4, h5, h6, p, li, blockquote, dt, dd, th, td, label, button, [role="button"], [role="option"], [role="radio"], [data-block-list-item], [data-block-callout]'
       )
     );
 
@@ -243,6 +243,14 @@ export const AccessibilityController: React.FC = () => {
       let cleanText = el.innerText.trim();
       // Format quiz choices like "A\nText" or "A \n Text" into "A. Text" for smooth, natural speech
       cleanText = cleanText.replace(/^([A-Ea-e])\s*\n+\s*/, '$1. ');
+      // Numbered list blocks render the marker ("1\nText") in a separate span; speak it as "1. Text"
+      if (el.hasAttribute('data-block-list-item')) {
+        cleanText = cleanText.replace(/^(\d{1,3})\s*\n+\s*/, '$1. ');
+      }
+      // Callout blocks start with an emoji marker on its own line; skip it so speech starts with the text
+      if (el.hasAttribute('data-block-callout')) {
+        cleanText = cleanText.replace(/^[^\p{L}\p{N}]*\n+\s*/u, '');
+      }
       return {
         el,
         text: cleanText,
