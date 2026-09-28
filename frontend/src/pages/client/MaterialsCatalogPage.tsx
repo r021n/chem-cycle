@@ -91,7 +91,7 @@ export const MaterialsCatalogPage: React.FC = () => {
                     className="flex items-center gap-3.5 bg-white rounded-2xl border border-chem-border p-3 shadow-subtle active:border-chem-sage transition-colors"
                   >
                     {mat.coverUrl ? (
-                      <div className="w-[88px] h-[88px] shrink-0 rounded-xl overflow-hidden bg-slate-100">
+                      <div className="w-22 h-22 shrink-0 rounded-xl overflow-hidden bg-slate-100">
                         <img
                           src={resolveMediaUrl(mat.coverUrl)}
                           alt=""
@@ -99,7 +99,7 @@ export const MaterialsCatalogPage: React.FC = () => {
                         />
                       </div>
                     ) : (
-                      <div className="w-[88px] h-[88px] shrink-0 rounded-xl bg-chem-subtle border border-chem-border flex items-center justify-center">
+                      <div className="w-22 h-22 shrink-0 rounded-xl bg-chem-subtle border border-chem-border flex items-center justify-center">
                         <BookOpen className="w-6 h-6 text-chem-sage" />
                       </div>
                     )}

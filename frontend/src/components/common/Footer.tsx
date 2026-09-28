@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useAccessibilityStore } from "../../store/accessibilityStore";
-import { Heart, Globe2, ShieldCheck, Sparkles } from "lucide-react";
+import { Heart } from "lucide-react";
 
 export const Footer: React.FC = () => {
   const { language } = useAccessibilityStore();
@@ -50,20 +50,9 @@ export const Footer: React.FC = () => {
 
             <p className="text-xs text-white/70 leading-relaxed max-w-md">
               {language === "id"
-                ? "Platform media pembelajaran kimia sirkular dan hijau berbasis Universal Design for Learning (UDL) serta Web Content Accessibility Guidelines (WCAG 2.1 AA). Memberikan akses pendidikan sains terbuka, adil, dan bermakna untuk semua pembelajar."
-                : "Circular & green chemistry learning portal engineered around Universal Design for Learning (UDL) and WCAG 2.1 AA standards for equitable STEM education."}
+                ? "Platform pembelajaran kimia sirkular dan hijau berbasis Universal Design for Learning (UDL) untuk pendidikan sains yang adil dan terbuka."
+                : "Circular & green chemistry learning portal based on Universal Design for Learning (UDL) for equitable, open science education."}
             </p>
-
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 pt-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/30 text-emerald-300 text-[11px] font-medium">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                WCAG 2.1 AA Compliant
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-950/80 border border-blue-500/30 text-blue-300 text-[11px] font-medium">
-                <Globe2 className="w-3.5 h-3.5 text-blue-400" />
-                Open Access Portal
-              </span>
-            </div>
           </div>
 
           {/* Navigasi Utama */}
@@ -74,7 +63,7 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2.5 sm:space-y-2 text-xs text-white/70">
               <li>
                 <Link to="/" className="hover:text-chem-glow transition-colors inline-flex min-h-8 items-center">
-                  {language === "id" ? "Beranda Utama" : "Home"}
+                  {language === "id" ? "Beranda" : "Home"}
                 </Link>
               </li>
               <li>
@@ -82,9 +71,7 @@ export const Footer: React.FC = () => {
                   to="/materi"
                   className="hover:text-chem-glow transition-colors inline-flex min-h-8 items-center"
                 >
-                  {language === "id"
-                    ? "Katalog Materi Belajar"
-                    : "Materials Catalog"}
+                  {language === "id" ? "Materi" : "Materials"}
                 </Link>
               </li>
               <li>
@@ -92,9 +79,7 @@ export const Footer: React.FC = () => {
                   to="/aktivitas"
                   className="hover:text-chem-glow transition-colors inline-flex min-h-8 items-center"
                 >
-                  {language === "id"
-                    ? "Ruang Modul & Simulasi"
-                    : "Activity & Simulation"}
+                  {language === "id" ? "Aktivitas" : "Activities"}
                 </Link>
               </li>
               <li>
@@ -102,9 +87,7 @@ export const Footer: React.FC = () => {
                   to="/kuis"
                   className="hover:text-chem-glow transition-colors inline-flex min-h-8 items-center"
                 >
-                  {language === "id"
-                    ? "Latihan Soal & Evaluasi"
-                    : "Quizzes & Exercises"}
+                  {language === "id" ? "Kuis" : "Quizzes"}
                 </Link>
               </li>
             </ul>
@@ -119,24 +102,14 @@ export const Footer: React.FC = () => {
               <li>
                 <Link
                   to="/admin/login"
-                  className="hover:text-chem-glow transition-colors flex items-center gap-1.5"
+                  className="hover:text-chem-glow transition-colors inline-flex min-h-8 items-center"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                  <span>
-                    {language === "id"
-                      ? "Portal Pengelola CMS"
-                      : "Administrator CMS"}
-                  </span>
+                  {language === "id" ? "Pengelola CMS" : "Admin CMS"}
                 </Link>
               </li>
               <li>
                 <span className="text-white/50 text-[11px]">
-                  Lisensi Konten: Creative Commons CC-BY-SA 4.0
-                </span>
-              </li>
-              <li>
-                <span className="text-white/50 text-[11px]">
-                  Pengembang: Tim Pengembang Inovasi Pembelajaran Sains Kimia
+                  Lisensi: Creative Commons CC-BY-SA 4.0
                 </span>
               </li>
             </ul>
@@ -145,10 +118,7 @@ export const Footer: React.FC = () => {
 
         {/* Bottom copyright and metadata */}
         <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-[11px] text-white/50 text-center sm:text-left">
-          <p>
-            © {new Date().getFullYear()} EcoInclusive. Seluruh hak cipta materi
-            edukasi dilindungi.
-          </p>
+          <p>© {new Date().getFullYear()} EcoInclusive. Hak cipta dilindungi.</p>
           <div className="flex items-center gap-1">
             <span>Dirancang dengan</span>
             <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-400 inline mx-0.5" />
