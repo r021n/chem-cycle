@@ -29,6 +29,7 @@ import {
   BLOCK_METAS,
 } from "../../components/editor/quiz-section-editor";
 import { QuizSectionViewer } from "../../components/editor/quiz-section-viewer";
+import { LoadingButton } from "../../components/ui/loading-button";
 import {
   EditorQuestion,
   createChoice,
@@ -114,6 +115,7 @@ export const AdminQuizEditorPage: React.FC = () => {
     };
   }, [addMenuQuestionId, insertBetweenIndex]);
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<"editor" | "preview">("editor");
   const [previewQuestionIndex, setPreviewQuestionIndex] = useState(0);
   const [previewSelectedChoices, setPreviewSelectedChoices] = useState<
@@ -503,17 +505,23 @@ export const AdminQuizEditorPage: React.FC = () => {
   }, [questions]);
 
   const handleSave = async () => {
-    if (!quiz) return;
-    await updateQuiz(quiz.id, {
-      ...meta,
-      questions: questions.map(toQuizQuestion),
-    });
-    setSavedAt(new Date().toISOString());
+    if (!quiz || isSaving) return false;
+    setIsSaving(true);
+    try {
+      await updateQuiz(quiz.id, {
+        ...meta,
+        questions: questions.map(toQuizQuestion),
+      });
+      setSavedAt(new Date().toISOString());
+      return true;
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleSaveAndBack = async () => {
-    await handleSave();
-    navigate("/admin/kuis");
+    const saved = await handleSave();
+    if (saved) navigate("/admin/kuis");
   };
 
   if (!quiz) {
@@ -588,21 +596,25 @@ export const AdminQuizEditorPage: React.FC = () => {
               })}
             </span>
           )}
-          <button
+          <LoadingButton
             type="button"
+            loading={isSaving}
+            loadingLabel="Menyimpan..."
             onClick={handleSaveAndBack}
             className="px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-colors"
           >
             <span>Simpan &amp; Kembali</span>
-          </button>
-          <button
+          </LoadingButton>
+          <LoadingButton
             type="button"
+            loading={isSaving}
+            loadingLabel="Menyimpan..."
             onClick={handleSave}
             className="px-4 py-2.5 bg-chem-forest hover:bg-chem-moss text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
           >
             <Save className="w-4 h-4 text-chem-glow" />
             <span>Simpan Perubahan</span>
-          </button>
+          </LoadingButton>
         </div>
       </div>
 
@@ -1384,13 +1396,15 @@ export const AdminQuizEditorPage: React.FC = () => {
               <span>Tambah Butir Soal Baru</span>
             </button>
             <div className="flex items-center gap-2">
-              <button
+              <LoadingButton
                 type="button"
+                loading={isSaving}
+                loadingLabel="Menyimpan..."
                 onClick={handleSaveAndBack}
                 className="px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-xl text-xs font-bold cursor-pointer"
               >
                 Simpan &amp; Kembali ke Bank Soal
-              </button>
+              </LoadingButton>
             </div>
           </div>
         </>

@@ -10,6 +10,7 @@ import {
   Search,
   Paperclip,
 } from "lucide-react";
+import { LoadingButton } from "../../components/ui/loading-button";
 
 export const AdminActivitiesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -20,6 +21,31 @@ export const AdminActivitiesPage: React.FC = () => {
     "all" | "published" | "draft"
   >("all");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleTogglePublish = async (id: string) => {
+    if (togglingId) return;
+
+    setTogglingId(id);
+    try {
+      await togglePublishActivity(id);
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteConfirmId || isDeleting) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteActivity(deleteConfirmId);
+      setDeleteConfirmId(null);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const filteredActivities = useMemo(() => {
     return activities.filter((act) => {
@@ -138,9 +164,12 @@ export const AdminActivitiesPage: React.FC = () => {
                       </td>
 
                       <td className="py-3 px-4 text-center">
-                        <button
+                        <LoadingButton
                           type="button"
-                          onClick={() => togglePublishActivity(act.id)}
+                          loading={togglingId === act.id}
+                          loadingLabel=""
+                          spinnerClassName="w-3 h-3"
+                          onClick={() => handleTogglePublish(act.id)}
                           className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold cursor-pointer transition-all ${
                             act.isPublished
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
@@ -158,7 +187,7 @@ export const AdminActivitiesPage: React.FC = () => {
                               <span>Draf</span>
                             </>
                           )}
-                        </button>
+                        </LoadingButton>
                       </td>
 
                       <td className="py-3 px-4 text-right">
@@ -206,20 +235,20 @@ export const AdminActivitiesPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setDeleteConfirmId(null)}
-                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer"
+                disabled={isDeleting}
+                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Batal
               </button>
-              <button
+              <LoadingButton
                 type="button"
-                onClick={() => {
-                  deleteActivity(deleteConfirmId);
-                  setDeleteConfirmId(null);
-                }}
+                loading={isDeleting}
+                loadingLabel="Menghapus..."
+                onClick={handleDeleteConfirm}
                 className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold cursor-pointer"
               >
                 Hapus
-              </button>
+              </LoadingButton>
             </div>
           </div>
         </div>

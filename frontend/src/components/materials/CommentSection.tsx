@@ -3,6 +3,7 @@ import { MaterialComment } from '../../types/app';
 import { commentsApi } from '../../api/comments';
 import { ApiError } from '../../api/client';
 import { MessageSquare, Send, ShieldAlert, Loader2, CheckCircle2 } from 'lucide-react';
+import { LoadingButton } from '../ui/loading-button';
 
 interface CommentSectionProps {
   materialId: string;
@@ -214,23 +215,16 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ materialId }) =>
             <span className="text-[11px] text-chem-ash">Maks. 1.500 karakter</span>
           )}
 
-          <button
+          <LoadingButton
             type="submit"
-            disabled={submitting || cooldown > 0}
+            loading={submitting}
+            loadingLabel="Mengirim..."
+            disabled={cooldown > 0}
             className="inline-flex items-center justify-center gap-2 w-full sm:w-auto min-h-11 px-5 py-2.5 bg-chem-forest hover:bg-chem-moss disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer"
           >
-            {submitting ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Mengirim...</span>
-              </>
-            ) : (
-              <>
-                <Send className="w-4 h-4" />
-                <span>Kirim Komentar</span>
-              </>
-            )}
-          </button>
+            <Send className="w-4 h-4" />
+            <span>Kirim Komentar</span>
+          </LoadingButton>
         </div>
       </form>
 

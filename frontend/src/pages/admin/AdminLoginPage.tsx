@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDataStore } from '../../store/dataStore';
 import { ShieldCheck, Lock, Mail, ArrowRight, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { LoadingButton } from '../../components/ui/loading-button';
 
 export const AdminLoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -107,14 +108,15 @@ export const AdminLoginPage: React.FC = () => {
             </div>
           </div>
 
-          <button
+          <LoadingButton
             type="submit"
-            disabled={isSubmitting}
+            loading={isSubmitting}
+            loadingLabel="Memverifikasi..."
             className="w-full py-3.5 px-4 bg-chem-forest hover:bg-chem-moss disabled:opacity-50 text-white rounded-2xl text-xs font-bold shadow-float transition-all cursor-pointer flex items-center justify-center gap-2 mt-2"
           >
-            <span>{isSubmitting ? 'Memverifikasi...' : 'Masuk ke Dashboard CMS'}</span>
+            <span>Masuk ke Dashboard CMS</span>
             <ArrowRight className="w-4 h-4 text-chem-glow" />
-          </button>
+          </LoadingButton>
         </form>
 
         {/* Back to Public Home */}

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { NotionBlockEditor } from '../../components/editor/NotionBlockEditor';
 import { BlockAstViewer } from '../../components/editor/block-ast-viewer';
+import { LoadingButton } from '../../components/ui/loading-button';
 import { uploadCompressedImage, resolveMediaUrl } from '../../lib/media';
 
 function deriveSlug(title: string): string {
@@ -34,6 +35,7 @@ export const AdminMaterialEditorPage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [isCompressingCover, setIsCompressingCover] = useState(false);
   const [coverError, setCoverError] = useState('');
 
@@ -121,6 +123,8 @@ export const AdminMaterialEditorPage: React.FC = () => {
 
   // Save Material (Pure Blog)
   const handleSave = async () => {
+    if (isSaving) return;
+
     const finalTitle = title.trim() || 'Materi Tanpa Judul';
     const finalSlug = deriveSlug(finalTitle);
 
@@ -134,15 +138,20 @@ export const AdminMaterialEditorPage: React.FC = () => {
       contentJson: blocks,
     };
 
-    if (!isCreateNew && materialId) {
-      await updateMaterial(materialId, payload);
-    } else {
-      const created = await addMaterial(payload);
-      navigate(`/admin/materi/${created.id}/edit`, { replace: true });
-    }
+    setIsSaving(true);
+    try {
+      if (!isCreateNew && materialId) {
+        await updateMaterial(materialId, payload);
+      } else {
+        const created = await addMaterial(payload);
+        navigate(`/admin/materi/${created.id}/edit`, { replace: true });
+      }
 
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 2500);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2500);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -207,8 +216,10 @@ export const AdminMaterialEditorPage: React.FC = () => {
             </button>
 
             {/* Save Button */}
-            <button
+            <LoadingButton
               type="button"
+              loading={isSaving}
+              loadingLabel="Menyimpan..."
               onClick={handleSave}
               className="px-4 py-1.5 bg-chem-forest hover:bg-chem-moss text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 cursor-pointer transition-colors"
             >
@@ -223,7 +234,7 @@ export const AdminMaterialEditorPage: React.FC = () => {
                   <span>Simpan</span>
                 </>
               )}
-            </button>
+            </LoadingButton>
           </div>
         </div>
       </header>
@@ -264,14 +275,17 @@ export const AdminMaterialEditorPage: React.FC = () => {
                 <div className="relative h-48 sm:h-64 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100">
                   <img src={resolveMediaUrl(coverUrl)} alt="Sampul" className="w-full h-full object-cover" />
                   <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
-                    <button
+                    <LoadingButton
                       type="button"
+                      loading={isCompressingCover}
+                      loadingLabel="Mengompresi..."
+                      spinnerClassName="w-3.5 h-3.5"
                       onClick={() => coverInputRef.current?.click()}
                       className="px-3 py-1.5 bg-black/70 hover:bg-black/90 text-white rounded-xl text-xs font-medium backdrop-blur-xs flex items-center gap-1.5 cursor-pointer"
                     >
                       <ImageIcon className="w-3.5 h-3.5" />
                       <span>Ganti Sampul</span>
-                    </button>
+                    </LoadingButton>
                     <button
                       type="button"
                       onClick={() => setCoverUrl('')}
@@ -283,14 +297,16 @@ export const AdminMaterialEditorPage: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <button
+                <LoadingButton
                   type="button"
+                  loading={isCompressingCover}
+                  loadingLabel="Mengompresi..."
                   onClick={() => coverInputRef.current?.click()}
                   className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 py-1 cursor-pointer transition-colors"
                 >
                   <ImageIcon className="w-4 h-4" />
                   <span>+ Tambah Sampul</span>
-                </button>
+                </LoadingButton>
               )}
 
               <input

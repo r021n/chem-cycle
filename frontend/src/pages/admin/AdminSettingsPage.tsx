@@ -6,12 +6,14 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
+import { LoadingButton } from "../../components/ui/loading-button";
 
 export const AdminSettingsPage: React.FC = () => {
   const { changePassword } = useDataStore();
 
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   // Form states for password change only
   const [newPassword, setNewPassword] = useState("");
@@ -38,14 +40,21 @@ export const AdminSettingsPage: React.FC = () => {
       return;
     }
 
-    const success = await changePassword(newPassword.trim());
-    if (success) {
-      setNewPassword("");
-      setConfirmPassword("");
-      setSavedSuccess(true);
-      setTimeout(() => setSavedSuccess(false), 3000);
-    } else {
-      setErrorMessage("Gagal mengubah kata sandi. Pastikan sesi admin Anda masih aktif.");
+    setIsSaving(true);
+    try {
+      const success = await changePassword(newPassword.trim());
+      if (success) {
+        setNewPassword("");
+        setConfirmPassword("");
+        setSavedSuccess(true);
+        setTimeout(() => setSavedSuccess(false), 3000);
+      } else {
+        setErrorMessage(
+          "Gagal mengubah kata sandi. Pastikan sesi admin Anda masih aktif.",
+        );
+      }
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -126,13 +135,15 @@ export const AdminSettingsPage: React.FC = () => {
 
         {/* Global Save Button */}
         <div className="flex justify-end pt-2">
-          <button
+          <LoadingButton
             type="submit"
+            loading={isSaving}
+            loadingLabel="Menyimpan..."
             className="px-6 py-3.5 bg-chem-forest hover:bg-chem-moss text-white rounded-2xl text-xs font-bold shadow-float flex items-center gap-2 cursor-pointer transition-all"
           >
             <Save className="w-4 h-4 text-chem-glow" />
             <span>Simpan Kata Sandi</span>
-          </button>
+          </LoadingButton>
         </div>
       </form>
     </div>

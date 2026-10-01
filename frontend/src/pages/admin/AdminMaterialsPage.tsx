@@ -12,10 +12,12 @@ import {
   XCircle,
   MoveUp,
   MoveDown,
+  Loader2,
   X,
   BookOpen,
 } from "lucide-react";
 import { BlockAstViewer } from "../../components/editor/block-ast-viewer";
+import { LoadingButton } from "../../components/ui/loading-button";
 import { resolveMediaUrl } from "../../lib/media";
 
 export const AdminMaterialsPage: React.FC = () => {
@@ -27,6 +29,9 @@ export const AdminMaterialsPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<
     "all" | "published" | "draft"
   >("all");
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [reorderingId, setReorderingId] = useState<string | null>(null);
 
   // Preview & Delete Confirmation Modals
   const [previewMaterial, setPreviewMaterial] =
@@ -54,19 +59,49 @@ export const AdminMaterialsPage: React.FC = () => {
   const isFiltering = !!searchQuery.trim() || statusFilter !== "all";
 
   const handleMoveOrder = async (id: string, direction: "up" | "down") => {
-    if (isFiltering) return;
+    if (isFiltering || reorderingId) return;
     const list = [...sortedMaterials];
     const index = list.findIndex((m) => m.id === id);
     if (direction === "up" && index > 0) {
       const temp = list[index];
       list[index] = list[index - 1];
       list[index - 1] = temp;
-      await reorderMaterials(list.map((m) => m.id));
     } else if (direction === "down" && index < list.length - 1) {
       const temp = list[index];
       list[index] = list[index + 1];
       list[index + 1] = temp;
+    } else {
+      return;
+    }
+
+    setReorderingId(id);
+    try {
       await reorderMaterials(list.map((m) => m.id));
+    } finally {
+      setReorderingId(null);
+    }
+  };
+
+  const handleTogglePublish = async (id: string) => {
+    if (togglingId) return;
+
+    setTogglingId(id);
+    try {
+      await togglePublishMaterial(id);
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteConfirmId || isDeleting) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteMaterial(deleteConfirmId);
+      setDeleteConfirmId(null);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -152,7 +187,11 @@ export const AdminMaterialsPage: React.FC = () => {
                         <div className="flex flex-col">
                           <button
                             type="button"
-                            disabled={isFiltering || idx === 0}
+                            disabled={
+                              isFiltering ||
+                              idx === 0 ||
+                              reorderingId !== null
+                            }
                             onClick={() => handleMoveOrder(mat.id, "up")}
                             className="text-slate-400 hover:text-chem-forest disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed"
                             title={
@@ -161,12 +200,18 @@ export const AdminMaterialsPage: React.FC = () => {
                                 : "Geser Naik"
                             }
                           >
-                            <MoveUp className="w-3 h-3" />
+                            {reorderingId === mat.id ? (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <MoveUp className="w-3 h-3" />
+                            )}
                           </button>
                           <button
                             type="button"
                             disabled={
-                              isFiltering || idx === filteredMaterials.length - 1
+                              isFiltering ||
+                              idx === filteredMaterials.length - 1 ||
+                              reorderingId !== null
                             }
                             onClick={() => handleMoveOrder(mat.id, "down")}
                             className="text-slate-400 hover:text-chem-forest disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed"
@@ -176,7 +221,11 @@ export const AdminMaterialsPage: React.FC = () => {
                                 : "Geser Turun"
                             }
                           >
-                            <MoveDown className="w-3 h-3" />
+                            {reorderingId === mat.id ? (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <MoveDown className="w-3 h-3" />
+                            )}
                           </button>
                         </div>
                       </div>
@@ -211,9 +260,12 @@ export const AdminMaterialsPage: React.FC = () => {
 
                     {/* Status */}
                     <td className="py-3 px-4 text-center">
-                      <button
+                      <LoadingButton
                         type="button"
-                        onClick={() => togglePublishMaterial(mat.id)}
+                        loading={togglingId === mat.id}
+                        loadingLabel=""
+                        spinnerClassName="w-3 h-3"
+                        onClick={() => handleTogglePublish(mat.id)}
                         className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold cursor-pointer transition-all ${
                           mat.isPublished
                             ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
@@ -231,7 +283,7 @@ export const AdminMaterialsPage: React.FC = () => {
                             <span>Draf</span>
                           </>
                         )}
-                      </button>
+                      </LoadingButton>
                     </td>
 
                     {/* Aksi */}
@@ -324,20 +376,20 @@ export const AdminMaterialsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setDeleteConfirmId(null)}
-                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer"
+                disabled={isDeleting}
+                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Batal
               </button>
-              <button
+              <LoadingButton
                 type="button"
-                onClick={() => {
-                  deleteMaterial(deleteConfirmId);
-                  setDeleteConfirmId(null);
-                }}
+                loading={isDeleting}
+                loadingLabel="Menghapus..."
+                onClick={handleDeleteConfirm}
                 className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold cursor-pointer"
               >
                 Hapus
-              </button>
+              </LoadingButton>
             </div>
           </div>
         </div>

@@ -11,6 +11,7 @@ import {
   XCircle,
   Search,
 } from 'lucide-react';
+import { LoadingButton } from '../../components/ui/loading-button';
 
 export const AdminQuizzesPage: React.FC = () => {
   const {
@@ -22,7 +23,10 @@ export const AdminQuizzesPage: React.FC = () => {
   const navigate = useNavigate();
 
   const [isPacketEditorOpen, setIsPacketEditorOpen] = useState(false);
+  const [isSavingPacket, setIsSavingPacket] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   // Search & filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -73,14 +77,44 @@ export const AdminQuizzesPage: React.FC = () => {
     setIsPacketEditorOpen(true);
   };
 
-  const handleSavePacket = (e: React.FormEvent) => {
+  const handleSavePacket = async (e: React.FormEvent) => {
     e.preventDefault();
-    addQuiz({
-      ...packetFormData,
-      orderIndex: quizzes.length + 1,
-      questions: [],
-    });
-    setIsPacketEditorOpen(false);
+    if (isSavingPacket) return;
+
+    setIsSavingPacket(true);
+    try {
+      await addQuiz({
+        ...packetFormData,
+        orderIndex: quizzes.length + 1,
+        questions: [],
+      });
+      setIsPacketEditorOpen(false);
+    } finally {
+      setIsSavingPacket(false);
+    }
+  };
+
+  const handleTogglePublish = async (id: string) => {
+    if (togglingId) return;
+
+    setTogglingId(id);
+    try {
+      await togglePublishQuiz(id);
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteConfirmId || isDeleting) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteQuiz(deleteConfirmId);
+      setDeleteConfirmId(null);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -191,9 +225,12 @@ export const AdminQuizzesPage: React.FC = () => {
                       </td>
 
                       <td className="py-3.5 px-4 text-center">
-                        <button
+                        <LoadingButton
                           type="button"
-                          onClick={() => togglePublishQuiz(q.id)}
+                          loading={togglingId === q.id}
+                          loadingLabel=""
+                          spinnerClassName="w-3.5 h-3.5"
+                          onClick={() => handleTogglePublish(q.id)}
                           className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold cursor-pointer transition-all ${
                             q.isPublished
                               ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
@@ -211,7 +248,7 @@ export const AdminQuizzesPage: React.FC = () => {
                               <span>Draf</span>
                             </>
                           )}
-                        </button>
+                        </LoadingButton>
                       </td>
 
                       <td className="py-3.5 px-4 text-right">
@@ -327,12 +364,14 @@ export const AdminQuizzesPage: React.FC = () => {
                 >
                   Batal
                 </button>
-                <button
+                <LoadingButton
                   type="submit"
+                  loading={isSavingPacket}
+                  loadingLabel="Menyimpan..."
                   className="px-5 py-2.5 bg-chem-forest hover:bg-chem-moss text-white rounded-xl font-bold shadow-xs cursor-pointer"
                 >
                   Simpan Paket
-                </button>
+                </LoadingButton>
               </div>
             </form>
           </div>
@@ -353,20 +392,20 @@ export const AdminQuizzesPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setDeleteConfirmId(null)}
-                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer"
+                disabled={isDeleting}
+                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Batal
               </button>
-              <button
+              <LoadingButton
                 type="button"
-                onClick={() => {
-                  deleteQuiz(deleteConfirmId);
-                  setDeleteConfirmId(null);
-                }}
+                loading={isDeleting}
+                loadingLabel="Menghapus..."
+                onClick={handleDeleteConfirm}
                 className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold cursor-pointer"
               >
                 Hapus
-              </button>
+              </LoadingButton>
             </div>
           </div>
         </div>

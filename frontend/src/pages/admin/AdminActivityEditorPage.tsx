@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { NotionBlockEditor } from '../../components/editor/NotionBlockEditor';
 import { BlockAstViewer } from '../../components/editor/block-ast-viewer';
+import { LoadingButton } from '../../components/ui/loading-button';
 import { formatFileSize } from '../../lib/utils';
 import { uploadCompressedImage, resolveMediaUrl } from '../../lib/media';
 import { mediaApi } from '../../api/media';
@@ -41,6 +42,7 @@ export const AdminActivityEditorPage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
   // Announcement States
@@ -196,6 +198,8 @@ export const AdminActivityEditorPage: React.FC = () => {
 
   // Save Announcement / Activity
   const handleSave = async () => {
+    if (isSaving) return;
+
     const finalTitle = title.trim() || 'Aktivitas Tanpa Judul';
     const finalSlug = deriveSlug(finalTitle);
 
@@ -213,15 +217,20 @@ export const AdminActivityEditorPage: React.FC = () => {
         .join(' '),
     };
 
-    if (!isCreateNew && activityId) {
-      await updateActivity(activityId, payload);
-    } else {
-      const created = await addActivity(payload);
-      navigate(`/admin/aktivitas/${created.id}/edit`, { replace: true });
-    }
+    setIsSaving(true);
+    try {
+      if (!isCreateNew && activityId) {
+        await updateActivity(activityId, payload);
+      } else {
+        const created = await addActivity(payload);
+        navigate(`/admin/aktivitas/${created.id}/edit`, { replace: true });
+      }
 
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 2500);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2500);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -286,8 +295,10 @@ export const AdminActivityEditorPage: React.FC = () => {
             </button>
 
             {/* Save Button */}
-            <button
+            <LoadingButton
               type="button"
+              loading={isSaving}
+              loadingLabel="Menyimpan..."
               onClick={handleSave}
               className="px-4 py-1.5 bg-chem-forest hover:bg-chem-moss text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 cursor-pointer transition-colors"
             >
@@ -302,7 +313,7 @@ export const AdminActivityEditorPage: React.FC = () => {
                   <span>Simpan</span>
                 </>
               )}
-            </button>
+            </LoadingButton>
           </div>
         </div>
       </header>
@@ -418,15 +429,16 @@ export const AdminActivityEditorPage: React.FC = () => {
                       e.target.value = '';
                     }}
                   />
-                  <button
+                  <LoadingButton
                     type="button"
+                    loading={isUploading}
+                    loadingLabel="Mengunggah..."
                     onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading}
                     className="px-2.5 py-1 text-xs rounded-lg border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700 flex items-center gap-1 cursor-pointer transition-colors"
                   >
                     <Upload className="w-3 h-3 text-slate-500" />
-                    <span>{isUploading ? 'Mengunggah...' : 'Upload File'}</span>
-                  </button>
+                    <span>Upload File</span>
+                  </LoadingButton>
 
                   <button
                     type="button"
