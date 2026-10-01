@@ -48,7 +48,7 @@ export const QuizCatalogPage: React.FC = () => {
 
         {/* Dynamic Quiz Packages Grid */}
         {publishedQuizzes.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-chem-border p-8 sm:p-12 text-center text-chem-ash">
+          <div className="bg-chem-card rounded-3xl border border-chem-card-border p-8 sm:p-12 text-center text-chem-ash">
             <HelpCircle className="w-12 h-12 mx-auto text-chem-sage mb-3 opacity-60" />
             <h3 className="font-serif text-lg font-bold text-chem-dark">
               {isLoading ? 'Memuat paket latihan soal...' : 'Belum Ada Latihan Soal'}
@@ -67,7 +67,7 @@ export const QuizCatalogPage: React.FC = () => {
                 <li key={quiz.id}>
                   <Link
                     to={`/kuis/${quiz.id}`}
-                    className="flex items-center gap-3.5 bg-white rounded-2xl border border-chem-border p-3.5 shadow-subtle active:border-chem-sage transition-colors"
+                    className="flex items-center gap-3.5 bg-chem-card rounded-2xl border border-chem-card-border p-3.5 shadow-subtle active:border-chem-forest transition-colors"
                   >
                     <div className="w-[88px] h-[88px] shrink-0 rounded-xl bg-chem-glow/60 border border-chem-sage/30 flex flex-col items-center justify-center">
                       <HelpCircle className="w-6 h-6 text-chem-forest" />
@@ -112,7 +112,7 @@ export const QuizCatalogPage: React.FC = () => {
                 <Link
                   key={quiz.id}
                   to={`/kuis/${quiz.id}`}
-                  className="bg-white rounded-3xl border border-chem-border p-5 shadow-subtle hover:shadow-float hover:border-chem-sage transition-all flex flex-col gap-3 group"
+                  className="bg-chem-card rounded-3xl border border-chem-card-border p-5 shadow-subtle hover:shadow-float hover:border-chem-forest transition-all flex flex-col gap-3 group"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-[10px] font-mono font-bold uppercase px-3 py-1 rounded-full bg-chem-glow text-chem-forest border border-chem-sage/40">

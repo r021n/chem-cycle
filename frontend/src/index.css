@@ -5,6 +5,8 @@
   --font-serif: 'Newsreader', Georgia, serif;
 
   --color-chem-paper: #fbfbfa;
+  --color-chem-card: #f0f7f4;
+  --color-chem-card-border: #004d40;
   --color-chem-subtle: #f3f4ee;
   --color-chem-border: #e6e8df;
   --color-chem-dark: #0e1f18;
@@ -128,6 +130,7 @@
 }
 #accessible-content-root.acc-dark-contrast .bg-white,
 #accessible-content-root.acc-dark-contrast .bg-chem-paper,
+#accessible-content-root.acc-dark-contrast .bg-chem-card,
 #accessible-content-root.acc-dark-contrast .bg-chem-subtle {
   background-color: #12211b !important;
   color: #f0f7f3 !important;

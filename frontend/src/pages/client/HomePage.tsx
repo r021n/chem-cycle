@@ -5,9 +5,8 @@ import {
   BookOpen,
   FlaskConical,
   CheckCircle2,
-  Recycle,
   GraduationCap,
-  CloudRain,
+  Zap,
   ChevronRight,
 } from "lucide-react";
 
@@ -61,23 +60,17 @@ const SDG_GOALS = [
     description:
       "Akses pembelajaran sains terbuka dan inklusif bagi semua profil belajar.",
     color: "#c5192d",
+    textColor: "#ffffff",
     Icon: GraduationCap,
   },
   {
-    number: 12,
-    title: "Konsumsi & Produksi Bertanggung Jawab",
+    number: 7,
+    title: "Energi Bersih dan Terjangkau",
     description:
-      "Prinsip 12 Kimia Hijau: cegah limbah, katalisis ramah lingkungan, daur ulang polimer.",
-    color: "#cf8d2a",
-    Icon: Recycle,
-  },
-  {
-    number: 13,
-    title: "Penanganan Perubahan Iklim",
-    description:
-      "Neraca massa dan termodinamika penangkapan karbon untuk masa depan net-zero.",
-    color: "#3f7e44",
-    Icon: CloudRain,
+      "Termokimia dan kinetika untuk memahami konversi energi terbarukan serta penyimpanan energi yang efisien.",
+    color: "#fcc30b",
+    textColor: "#1b4332",
+    Icon: Zap,
   },
 ];
 
@@ -110,7 +103,7 @@ export const HomePage: React.FC = () => {
 
                 <Link
                   to={HERO.secondaryCtaLink}
-                  className="inline-flex items-center justify-center gap-2 px-5 py-4 sm:py-3.5 bg-white hover:bg-chem-subtle text-chem-dark border border-chem-border rounded-2xl text-xs font-semibold transition-colors cursor-pointer"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-4 sm:py-3.5 bg-white hover:bg-chem-subtle text-chem-dark border border-chem-card-border rounded-2xl text-xs font-semibold transition-colors cursor-pointer"
                 >
                   <FlaskConical className="w-4 h-4 text-chem-sage" />
                   <span>{HERO.secondaryCtaText}</span>
@@ -120,7 +113,7 @@ export const HomePage: React.FC = () => {
 
             {/* Right Hero Visual Banner */}
             <div className="lg:col-span-5 relative">
-              <div className="relative rounded-3xl overflow-hidden shadow-float border-2 border-chem-border bg-white group">
+              <div className="relative rounded-3xl overflow-hidden shadow-float border-2 border-chem-card-border bg-chem-card group">
                 <img
                   src={HERO.bannerImage}
                   alt="Laboratorium Pembelajaran Kimia Sirkular"
@@ -162,7 +155,7 @@ export const HomePage: React.FC = () => {
                 <Link
                   key={step.step}
                   to={step.route}
-                  className="group flex gap-4 lg:flex-col lg:gap-4 lg:bg-white lg:p-6 lg:rounded-3xl lg:border lg:border-chem-border lg:shadow-subtle lg:hover:shadow-float lg:hover:border-chem-sage transition-all cursor-pointer"
+                  className="group flex gap-4 lg:flex-col lg:gap-4 lg:bg-chem-card lg:p-6 lg:rounded-3xl lg:border lg:border-chem-card-border lg:shadow-subtle lg:hover:shadow-float lg:hover:border-chem-forest transition-all cursor-pointer"
                 >
                   <div className="flex flex-col items-center shrink-0 lg:items-start">
                     <div className="w-12 h-12 rounded-2xl bg-chem-glow/70 text-chem-forest flex items-center justify-center group-hover:scale-110 transition-transform shadow-subtle">
@@ -207,7 +200,7 @@ export const HomePage: React.FC = () => {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {SDG_GOALS.map((g) => {
               const GoalIcon = g.Icon;
 
@@ -218,8 +211,8 @@ export const HomePage: React.FC = () => {
                 >
                   <div className="flex items-center justify-between">
                     <div
-                      className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-xs"
-                      style={{ backgroundColor: g.color }}
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg shadow-xs"
+                      style={{ backgroundColor: g.color, color: g.textColor }}
                     >
                       {g.number}
                     </div>

@@ -175,7 +175,7 @@ export const UniversalAccessibilityDrawer: React.FC = () => {
       {/* Slide-over Drawer Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs transition-opacity"
+          className="fixed inset-0 z-50 bg-black/20 transition-opacity"
           onClick={() => setIsOpen(false)}
           aria-hidden="true"
         />

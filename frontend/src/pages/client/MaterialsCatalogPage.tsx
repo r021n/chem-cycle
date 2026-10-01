@@ -57,7 +57,7 @@ export const MaterialsCatalogPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="bg-white p-4 rounded-3xl border border-chem-border shadow-subtle">
+        <div className="bg-chem-card p-4 rounded-3xl border border-chem-card-border shadow-subtle">
           <div className="relative w-full">
             <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-chem-ash" />
             <input
@@ -65,13 +65,13 @@ export const MaterialsCatalogPage: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari judul bab kimia..."
-              className="w-full pl-10 pr-4 py-2.5 bg-chem-subtle/50 focus:bg-white text-xs text-chem-dark rounded-2xl border border-chem-border focus:border-chem-sage focus:outline-none transition-all"
+              className="w-full pl-10 pr-4 py-2.5 bg-chem-subtle/50 focus:bg-white text-xs text-chem-dark rounded-2xl border border-chem-card-border focus:border-chem-forest focus:outline-none transition-all"
             />
           </div>
         </div>
 
         {filteredMaterials.length === 0 ? (
-          <div className="py-14 sm:py-20 text-center bg-white rounded-3xl border border-chem-border p-6 sm:p-8 space-y-3">
+          <div className="py-14 sm:py-20 text-center bg-chem-card rounded-3xl border border-chem-card-border p-6 sm:p-8 space-y-3">
             <BookOpen className="w-10 h-10 text-chem-ash mx-auto opacity-50" />
             <h3 className="font-serif text-lg font-bold text-chem-dark">
               Tidak ada materi yang cocok
@@ -88,7 +88,7 @@ export const MaterialsCatalogPage: React.FC = () => {
                 <li key={mat.id}>
                   <Link
                     to={`/materi/${mat.slug || mat.id}`}
-                    className="flex items-center gap-3.5 bg-white rounded-2xl border border-chem-border p-3 shadow-subtle active:border-chem-sage transition-colors"
+                    className="flex items-center gap-3.5 bg-chem-card rounded-2xl border border-chem-card-border p-3 shadow-subtle active:border-chem-forest transition-colors"
                   >
                     {mat.coverUrl ? (
                       <div className="w-22 h-22 shrink-0 rounded-xl overflow-hidden bg-slate-100">
@@ -99,7 +99,7 @@ export const MaterialsCatalogPage: React.FC = () => {
                         />
                       </div>
                     ) : (
-                      <div className="w-22 h-22 shrink-0 rounded-xl bg-chem-subtle border border-chem-border flex items-center justify-center">
+                      <div className="w-22 h-22 shrink-0 rounded-xl bg-white border border-chem-card-border flex items-center justify-center">
                         <BookOpen className="w-6 h-6 text-chem-sage" />
                       </div>
                     )}
@@ -128,7 +128,7 @@ export const MaterialsCatalogPage: React.FC = () => {
                 <Link
                   key={mat.id}
                   to={`/materi/${mat.slug || mat.id}`}
-                  className="bg-white rounded-3xl border border-chem-border overflow-hidden shadow-subtle hover:shadow-float hover:border-chem-sage transition-all flex flex-col group"
+                  className="bg-chem-card rounded-3xl border border-chem-card-border overflow-hidden shadow-subtle hover:shadow-float hover:border-chem-forest transition-all flex flex-col group"
                 >
                   {mat.coverUrl && (
                     <div className="h-44 overflow-hidden relative bg-slate-100">

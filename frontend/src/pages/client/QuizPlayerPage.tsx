@@ -263,7 +263,7 @@ export const QuizPlayerPage: React.FC = () => {
   ) {
     return (
       <div className="min-h-screen bg-chem-paper lab-grid-bg flex items-center justify-center p-6 font-sans">
-        <div className="bg-white p-8 rounded-3xl border border-chem-border text-center max-w-md space-y-4 shadow-subtle">
+        <div className="bg-chem-card p-8 rounded-3xl border border-chem-card-border text-center max-w-md space-y-4 shadow-subtle">
           <div className="w-10 h-10 border-4 border-chem-forest border-t-transparent rounded-full animate-spin mx-auto" />
           <h2 className="font-serif text-lg font-bold text-chem-dark">
             Memuat Paket Soal...
@@ -279,7 +279,7 @@ export const QuizPlayerPage: React.FC = () => {
   if (!quiz) {
     return (
       <div className="min-h-screen bg-chem-paper lab-grid-bg flex items-center justify-center p-6 font-sans">
-        <div className="bg-white p-8 rounded-3xl border border-chem-border text-center max-w-md space-y-4 shadow-subtle">
+        <div className="bg-chem-card p-8 rounded-3xl border border-chem-card-border text-center max-w-md space-y-4 shadow-subtle">
           <h2 className="font-serif text-xl font-bold text-chem-dark">
             Paket Soal Tidak Ditemukan
           </h2>
@@ -301,7 +301,7 @@ export const QuizPlayerPage: React.FC = () => {
   if (totalQuestions === 0) {
     return (
       <div className="min-h-screen bg-chem-paper lab-grid-bg flex items-center justify-center p-6 font-sans">
-        <div className="bg-white p-8 rounded-3xl border border-chem-border text-center max-w-md space-y-4 shadow-subtle">
+        <div className="bg-chem-card p-8 rounded-3xl border border-chem-card-border text-center max-w-md space-y-4 shadow-subtle">
           <h2 className="font-serif text-xl font-bold text-chem-dark">
             Belum Ada Butir Soal
           </h2>
@@ -349,7 +349,7 @@ export const QuizPlayerPage: React.FC = () => {
 
         {/* 1. SCORE SUMMARY CARD (IF COMPLETED) */}
         {isQuizCompleted ? (
-          <div className="bg-white rounded-3xl border border-chem-border p-6 sm:p-8 shadow-float text-center space-y-6">
+          <div className="bg-chem-card rounded-3xl border border-chem-card-border p-6 sm:p-8 shadow-float text-center space-y-6">
             <div className="w-20 h-20 rounded-full mx-auto flex items-center justify-center bg-chem-glow text-chem-forest shadow-subtle">
               <Award className="w-10 h-10 text-chem-forest" />
             </div>
@@ -362,7 +362,7 @@ export const QuizPlayerPage: React.FC = () => {
 
             {/* Score Metrics */}
             <div className="grid grid-cols-2 gap-4 max-w-xs mx-auto pt-2">
-              <div className="p-4 bg-chem-subtle rounded-2xl border border-chem-border">
+              <div className="p-4 bg-white rounded-2xl border border-chem-card-border">
                 <span className="text-[10px] text-chem-ash block uppercase font-bold">
                   Skor Akhir
                 </span>
@@ -385,7 +385,7 @@ export const QuizPlayerPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleRestartQuiz}
-                className="px-6 min-h-12 bg-white hover:bg-chem-subtle text-chem-dark border border-chem-border rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="px-6 min-h-12 bg-white hover:bg-chem-subtle text-chem-dark border border-chem-card-border rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <RotateCcw className="w-4 h-4 text-chem-sage" />
                 <span>Ulangi Latihan</span>
@@ -403,7 +403,7 @@ export const QuizPlayerPage: React.FC = () => {
         ) : (
           <>
             {/* 2. STEPPER / QUESTION TRACKER */}
-            <div className="bg-white p-4 sm:p-5 rounded-3xl border border-chem-border shadow-subtle space-y-3">
+            <div className="bg-chem-card p-4 sm:p-5 rounded-3xl border border-chem-card-border shadow-subtle space-y-3">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-bold text-chem-forest">
                   Soal {currentQuestionIndex + 1}/{totalQuestions}
@@ -420,7 +420,7 @@ export const QuizPlayerPage: React.FC = () => {
                   aria-label="Geser daftar soal ke kiri"
                   onClick={() => scrollStepper(-1)}
                   disabled={stepperScroll.atStart}
-                  className="h-9 w-8 shrink-0 rounded-xl border border-chem-border bg-chem-subtle text-chem-ash flex items-center justify-center transition-colors cursor-pointer hover:bg-chem-paper hover:text-chem-forest disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="h-9 w-8 shrink-0 rounded-xl border border-chem-card-border bg-chem-subtle text-chem-ash flex items-center justify-center transition-colors cursor-pointer hover:bg-chem-paper hover:text-chem-forest disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -439,7 +439,7 @@ export const QuizPlayerPage: React.FC = () => {
                     const isCurrent = idx === currentQuestionIndex;
 
                     let bgClass =
-                      "bg-chem-subtle text-chem-ash border-chem-border";
+                      "bg-chem-subtle text-chem-ash border-chem-card-border";
                     if (isCurrent) {
                       bgClass =
                         "ring-2 ring-chem-forest bg-chem-paper text-chem-forest font-bold";
@@ -468,7 +468,7 @@ export const QuizPlayerPage: React.FC = () => {
                   aria-label="Geser daftar soal ke kanan"
                   onClick={() => scrollStepper(1)}
                   disabled={stepperScroll.atEnd}
-                  className="h-9 w-8 shrink-0 rounded-xl border border-chem-border bg-chem-subtle text-chem-ash flex items-center justify-center transition-colors cursor-pointer hover:bg-chem-paper hover:text-chem-forest disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="h-9 w-8 shrink-0 rounded-xl border border-chem-card-border bg-chem-subtle text-chem-ash flex items-center justify-center transition-colors cursor-pointer hover:bg-chem-paper hover:text-chem-forest disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -477,7 +477,7 @@ export const QuizPlayerPage: React.FC = () => {
 
             {/* 3. DYNAMIC QUESTION CARD */}
             {currentQ && (
-              <div className="bg-white rounded-3xl border border-chem-border shadow-subtle p-5 sm:p-8 space-y-6">
+              <div className="bg-chem-card rounded-3xl border border-chem-card-border shadow-subtle p-5 sm:p-8 space-y-6">
                 {/* Question content sections (Notion-style blocks) */}
                 {currentQ.sections && currentQ.sections.length > 0 ? (
                   <QuizSectionViewer sections={currentQ.sections} />
@@ -485,7 +485,7 @@ export const QuizPlayerPage: React.FC = () => {
                   <>
                     {/* Question stimulus image (legacy) */}
                     {currentQ.stimulusImage && (
-                      <div className="h-52 w-full rounded-2xl overflow-hidden border border-chem-border bg-slate-100">
+                      <div className="h-52 w-full rounded-2xl overflow-hidden border border-chem-card-border bg-slate-100">
                         <img
                           src={currentQ.stimulusImage}
                           alt="Stimulus Soal Kimia"
@@ -518,7 +518,7 @@ export const QuizPlayerPage: React.FC = () => {
                     const isCorrect = currentCorrectIds.includes(choice.id);
 
                     let choiceStyle =
-                      "bg-white border-chem-border text-chem-dark hover:border-chem-sage hover:bg-chem-subtle/50";
+                      "bg-white border-chem-card-border text-chem-dark hover:border-chem-forest hover:bg-chem-glow/40";
 
                     if (isCurrentSubmitted) {
                       if (isCorrect) {
@@ -626,7 +626,7 @@ export const QuizPlayerPage: React.FC = () => {
                 type="button"
                 onClick={handlePrevQuestion}
                 disabled={currentQuestionIndex === 0}
-                className="px-5 py-3 rounded-2xl bg-white border border-chem-border text-xs font-bold text-chem-dark hover:bg-chem-subtle disabled:opacity-30 flex items-center gap-2 cursor-pointer transition-colors"
+                className="px-5 py-3 rounded-2xl bg-white border border-chem-card-border text-xs font-bold text-chem-dark hover:bg-chem-subtle disabled:opacity-30 flex items-center gap-2 cursor-pointer transition-colors"
               >
                 <ChevronLeft className="w-4 h-4" />
                 <span>Sebelumnya</span>
@@ -657,7 +657,7 @@ export const QuizPlayerPage: React.FC = () => {
                 onClick={handlePrevQuestion}
                 disabled={currentQuestionIndex === 0}
                 aria-label="Soal sebelumnya"
-                className="min-h-12 min-w-12 shrink-0 rounded-2xl bg-white border border-chem-border text-chem-dark hover:bg-chem-subtle disabled:opacity-30 flex items-center justify-center cursor-pointer transition-colors"
+                className="min-h-12 min-w-12 shrink-0 rounded-2xl bg-white border border-chem-card-border text-chem-dark hover:bg-chem-subtle disabled:opacity-30 flex items-center justify-center cursor-pointer transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>

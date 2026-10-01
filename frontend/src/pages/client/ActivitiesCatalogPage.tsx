@@ -53,7 +53,7 @@ export const ActivitiesCatalogPage: React.FC = () => {
         </div>
 
         {publishedActivities.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-chem-border p-8 sm:p-12 text-center text-chem-ash">
+          <div className="bg-chem-card rounded-3xl border border-chem-card-border p-8 sm:p-12 text-center text-chem-ash">
             <Paperclip className="w-12 h-12 mx-auto text-chem-sage mb-3 opacity-60" />
             <h3 className="font-serif text-lg font-bold text-chem-dark">
               {isLoading
@@ -76,9 +76,9 @@ export const ActivitiesCatalogPage: React.FC = () => {
                   <li key={act.id}>
                     <Link
                       to={`/aktivitas/${act.id}`}
-                      className="flex items-center gap-3.5 bg-white rounded-2xl border border-chem-border p-3.5 shadow-subtle active:border-chem-sage transition-colors"
+                      className="flex items-center gap-3.5 bg-chem-card rounded-2xl border border-chem-card-border p-3.5 shadow-subtle active:border-chem-forest transition-colors"
                     >
-                      <div className="w-22 h-22 shrink-0 rounded-xl bg-chem-subtle border border-chem-border flex flex-col items-center justify-center">
+                      <div className="w-22 h-22 shrink-0 rounded-xl bg-white border border-chem-card-border flex flex-col items-center justify-center">
                         <FlaskConical className="w-6 h-6 text-chem-forest" />
                         <span className="text-[10px] font-mono font-bold text-chem-sage mt-1">
                           No. {act.orderIndex}
@@ -117,7 +117,7 @@ export const ActivitiesCatalogPage: React.FC = () => {
                   <Link
                     key={act.id}
                     to={`/aktivitas/${act.id}`}
-                    className="bg-white rounded-3xl border border-chem-border p-6 shadow-subtle hover:shadow-float hover:border-chem-sage transition-all flex flex-col gap-4 group"
+                    className="bg-chem-card rounded-3xl border border-chem-card-border p-6 shadow-subtle hover:shadow-float hover:border-chem-forest transition-all flex flex-col gap-4 group"
                   >
                     <div className="space-y-2">
                       <h3 className="font-serif text-lg font-bold text-chem-dark group-hover:text-chem-forest transition-colors leading-snug">

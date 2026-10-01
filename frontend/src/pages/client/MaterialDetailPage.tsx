@@ -44,7 +44,7 @@ export const MaterialDetailPage: React.FC = () => {
   if (!material) {
     return (
       <div className="min-h-screen bg-chem-paper lab-grid-bg flex items-center justify-center p-6 font-sans">
-        <div className="bg-white p-8 rounded-3xl border border-chem-border text-center max-w-md space-y-4 shadow-subtle">
+        <div className="bg-chem-card p-8 rounded-3xl border border-chem-card-border text-center max-w-md space-y-4 shadow-subtle">
           <h2 className="font-serif text-xl font-bold text-chem-dark">
             Bab Materi Tidak Ditemukan
           </h2>
@@ -161,7 +161,7 @@ export const MaterialDetailPage: React.FC = () => {
             {prevMaterial ? (
               <Link
                 to={`/materi/${prevMaterial.slug || prevMaterial.id}`}
-                className="group text-left bg-white border border-chem-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0"
+                className="group text-left bg-chem-card border border-chem-card-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0"
               >
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
                   <ChevronLeft className="w-3.5 h-3.5" />
@@ -174,7 +174,7 @@ export const MaterialDetailPage: React.FC = () => {
             ) : (
               <Link
                 to="/materi"
-                className="group text-left bg-white border border-chem-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0"
+                className="group text-left bg-chem-card border border-chem-card-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0"
               >
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
                   <ArrowLeft className="w-3.5 h-3.5" />
@@ -189,7 +189,7 @@ export const MaterialDetailPage: React.FC = () => {
             {nextMaterial ? (
               <Link
                 to={`/materi/${nextMaterial.slug || nextMaterial.id}`}
-                className="group text-left sm:text-right sm:col-start-2 bg-white border border-chem-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0"
+                className="group text-left sm:text-right sm:col-start-2 bg-chem-card border border-chem-card-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0"
               >
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
                   Bab Selanjutnya
@@ -202,7 +202,7 @@ export const MaterialDetailPage: React.FC = () => {
             ) : (
               <Link
                 to="/aktivitas"
-                className="group text-left sm:text-right sm:col-start-2 bg-white border border-chem-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0"
+                className="group text-left sm:text-right sm:col-start-2 bg-chem-card border border-chem-card-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0"
               >
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
                   Langkah Berikutnya

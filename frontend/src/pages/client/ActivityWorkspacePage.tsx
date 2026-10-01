@@ -49,7 +49,7 @@ export const ActivityWorkspacePage: React.FC = () => {
   if (!activity) {
     return (
       <div className="min-h-screen bg-chem-paper lab-grid-bg flex items-center justify-center p-6 font-sans">
-        <div className="bg-white p-8 rounded-3xl border border-chem-border text-center max-w-md space-y-4 shadow-subtle">
+        <div className="bg-chem-card p-8 rounded-3xl border border-chem-card-border text-center max-w-md space-y-4 shadow-subtle">
           <h2 className="font-serif text-xl font-bold text-chem-dark">
             Aktivitas Tidak Ditemukan
           </h2>
@@ -124,7 +124,7 @@ export const ActivityWorkspacePage: React.FC = () => {
 
         {/* Google Classroom Announcement Content */}
         {activity.contentJson && (
-          <section className="bg-white rounded-3xl border border-chem-border p-5 sm:p-8 shadow-subtle">
+          <section className="bg-chem-card rounded-3xl border border-chem-card-border p-5 sm:p-8 shadow-subtle">
             <div className="prose max-w-none">
               <BlockAstViewer contentJson={activity.contentJson} />
             </div>
@@ -133,7 +133,7 @@ export const ActivityWorkspacePage: React.FC = () => {
 
         {/* Attachments & Files Section */}
         {attachments.length > 0 && (
-          <section className="bg-white rounded-3xl border border-chem-border p-5 sm:p-8 shadow-subtle space-y-4">
+          <section className="bg-chem-card rounded-3xl border border-chem-card-border p-5 sm:p-8 shadow-subtle space-y-4">
             <div className="flex items-center gap-2 pb-3 border-b border-chem-border/70">
               <Paperclip className="w-4 h-4 text-chem-forest shrink-0" />
               <h2 className="font-serif text-base font-bold text-chem-dark">
@@ -148,9 +148,9 @@ export const ActivityWorkspacePage: React.FC = () => {
                   href={resolveMediaUrl(att.url)}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-3 sm:gap-3.5 p-3.5 sm:p-4 rounded-2xl border border-chem-border hover:border-chem-forest active:border-chem-forest bg-chem-subtle/40 hover:bg-white transition-all group shadow-2xs"
+                  className="flex items-center gap-3 sm:gap-3.5 p-3.5 sm:p-4 rounded-2xl border border-chem-card-border hover:border-chem-forest active:border-chem-forest bg-white hover:bg-chem-glow/40 transition-all group shadow-2xs"
                 >
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white border border-chem-border flex items-center justify-center text-chem-forest shrink-0">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white border border-chem-card-border flex items-center justify-center text-chem-forest shrink-0">
                     {att.type === "link" ? (
                       <Link2 className="w-4 h-4" />
                     ) : att.type === "image" ? (
@@ -184,7 +184,7 @@ export const ActivityWorkspacePage: React.FC = () => {
           {prevActivity ? (
             <Link
               to={`/aktivitas/${prevActivity.id}`}
-              className="group text-left bg-white border border-chem-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0"
+              className="group text-left bg-chem-card border border-chem-card-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0"
             >
               <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
                 <ChevronLeft className="w-3.5 h-3.5" />
@@ -195,7 +195,7 @@ export const ActivityWorkspacePage: React.FC = () => {
               </span>
             </Link>
           ) : (
-            <Link to="/aktivitas" className="group text-left bg-white border border-chem-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0">
+            <Link to="/aktivitas" className="group text-left bg-chem-card border border-chem-card-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0">
               <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
                 <ArrowLeft className="w-3.5 h-3.5" />
                 Katalog Aktivitas
@@ -209,7 +209,7 @@ export const ActivityWorkspacePage: React.FC = () => {
           {nextActivity ? (
             <Link
               to={`/aktivitas/${nextActivity.id}`}
-              className="group text-left sm:text-right sm:col-start-2 bg-white border border-chem-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0"
+              className="group text-left sm:text-right sm:col-start-2 bg-chem-card border border-chem-card-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0"
             >
               <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
                 Aktivitas Selanjutnya
@@ -220,7 +220,7 @@ export const ActivityWorkspacePage: React.FC = () => {
               </span>
             </Link>
           ) : (
-            <Link to="/kuis" className="group text-left sm:text-right sm:col-start-2 bg-white border border-chem-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0">
+            <Link to="/kuis" className="group text-left sm:text-right sm:col-start-2 bg-chem-card border border-chem-card-border rounded-2xl p-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:p-0">
               <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-chem-ash">
                 Evaluasi Belajar
                 <ChevronRight className="w-3.5 h-3.5" />
