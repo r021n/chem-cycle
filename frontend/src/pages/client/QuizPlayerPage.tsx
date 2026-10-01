@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useDataStore } from "../../store/dataStore";
 import { QuizSectionViewer } from "../../components/editor/quiz-section-viewer";
@@ -119,17 +119,62 @@ export const QuizPlayerPage: React.FC = () => {
 
   const stepperRef = useRef<HTMLDivElement>(null);
   const currentStepRef = useRef<HTMLButtonElement>(null);
+  const [stepperScroll, setStepperScroll] = useState({
+    atStart: true,
+    atEnd: true,
+  });
 
-  // Keep the active step pill visible inside the mobile scroll strip
+  const updateStepperScroll = useCallback(() => {
+    const el = stepperRef.current;
+    if (!el) return;
+    const max = Math.max(0, el.scrollWidth - el.clientWidth);
+    const atStart = el.scrollLeft <= 1;
+    const atEnd = el.scrollLeft >= max - 1;
+    setStepperScroll((prev) =>
+      prev.atStart === atStart && prev.atEnd === atEnd
+        ? prev
+        : { atStart, atEnd },
+    );
+  }, []);
+
+  const scrollStepper = (direction: -1 | 1) => {
+    const el = stepperRef.current;
+    if (!el) return;
+    el.scrollBy({
+      left: direction * Math.max(el.clientWidth * 0.7, 160),
+      behavior: "smooth",
+    });
+  };
+
+  useEffect(() => {
+    updateStepperScroll();
+    window.addEventListener("resize", updateStepperScroll);
+    return () => window.removeEventListener("resize", updateStepperScroll);
+  }, [updateStepperScroll, totalQuestions]);
+
+  // Keep the active step pill visible inside the scroll strip
   useEffect(() => {
     const container = stepperRef.current;
     const step = currentStepRef.current;
     if (!container || !step) return;
-    if (container.scrollWidth <= container.clientWidth) return;
+    const max = container.scrollWidth - container.clientWidth;
+    if (max <= 0) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const stepRect = step.getBoundingClientRect();
+    const isFullyVisible =
+      stepRect.left >= containerRect.left &&
+      stepRect.right <= containerRect.right;
+    if (isFullyVisible) return;
+
     const targetLeft =
-      step.offsetLeft - container.clientWidth / 2 + step.clientWidth / 2;
+      container.scrollLeft +
+      (stepRect.left - containerRect.left) +
+      stepRect.width / 2 -
+      container.clientWidth / 2;
+
     container.scrollTo({
-      left: Math.max(0, targetLeft),
+      left: Math.min(max, Math.max(0, targetLeft)),
       behavior: "smooth",
     });
   }, [currentQuestionIndex, totalQuestions]);
@@ -368,42 +413,65 @@ export const QuizPlayerPage: React.FC = () => {
                 </span>
               </div>
 
-              {/* Step indicator pills — horizontal scroll on mobile, grid on sm+ */}
-              <div
-                ref={stepperRef}
-                className="flex sm:grid sm:grid-cols-10 gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 snap-x scroll-smooth"
-              >
-                {questions.map((q, idx) => {
-                  const isSubmitted = !!submittedAnswers[q.id];
-                  const selection = selectedAnswers[q.id] || [];
-                  const isCorrect =
-                    selection.length > 0 &&
-                    sameSelection(selection, getCorrectAnswerIds(q));
-                  const isCurrent = idx === currentQuestionIndex;
+              {/* Step indicator pills — always one row, scrolled via arrows */}
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  aria-label="Geser daftar soal ke kiri"
+                  onClick={() => scrollStepper(-1)}
+                  disabled={stepperScroll.atStart}
+                  className="h-9 w-8 shrink-0 rounded-xl border border-chem-border bg-chem-subtle text-chem-ash flex items-center justify-center transition-colors cursor-pointer hover:bg-chem-paper hover:text-chem-forest disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
 
-                  let bgClass =
-                    "bg-chem-subtle text-chem-ash border-chem-border";
-                  if (isCurrent) {
-                    bgClass =
-                      "ring-2 ring-chem-forest bg-chem-paper text-chem-forest font-bold";
-                  } else if (isSubmitted) {
-                    bgClass = isCorrect
-                      ? "bg-emerald-100 text-emerald-800 border-emerald-300 font-bold"
-                      : "bg-rose-100 text-rose-800 border-rose-300 font-bold";
-                  }
+                <div
+                  ref={stepperRef}
+                  onScroll={updateStepperScroll}
+                  className="flex flex-1 min-w-0 gap-1.5 overflow-x-auto py-1 px-0.5 scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                >
+                  {questions.map((q, idx) => {
+                    const isSubmitted = !!submittedAnswers[q.id];
+                    const selection = selectedAnswers[q.id] || [];
+                    const isCorrect =
+                      selection.length > 0 &&
+                      sameSelection(selection, getCorrectAnswerIds(q));
+                    const isCurrent = idx === currentQuestionIndex;
 
-                  return (
-                    <button
-                      key={q.id}
-                      ref={isCurrent ? currentStepRef : undefined}
-                      type="button"
-                      onClick={() => setCurrentQuestionIndex(idx)}
-                      className={`h-9 w-9 sm:w-full shrink-0 snap-center rounded-xl border text-xs flex items-center justify-center transition-all cursor-pointer ${bgClass}`}
-                    >
-                      {idx + 1}
-                    </button>
-                  );
-                })}
+                    let bgClass =
+                      "bg-chem-subtle text-chem-ash border-chem-border";
+                    if (isCurrent) {
+                      bgClass =
+                        "ring-2 ring-chem-forest bg-chem-paper text-chem-forest font-bold";
+                    } else if (isSubmitted) {
+                      bgClass = isCorrect
+                        ? "bg-emerald-100 text-emerald-800 border-emerald-300 font-bold"
+                        : "bg-rose-100 text-rose-800 border-rose-300 font-bold";
+                    }
+
+                    return (
+                      <button
+                        key={q.id}
+                        ref={isCurrent ? currentStepRef : undefined}
+                        type="button"
+                        onClick={() => setCurrentQuestionIndex(idx)}
+                        className={`h-9 w-9 shrink-0 rounded-xl border text-xs flex items-center justify-center transition-all cursor-pointer ${bgClass}`}
+                      >
+                        {idx + 1}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  type="button"
+                  aria-label="Geser daftar soal ke kanan"
+                  onClick={() => scrollStepper(1)}
+                  disabled={stepperScroll.atEnd}
+                  className="h-9 w-8 shrink-0 rounded-xl border border-chem-border bg-chem-subtle text-chem-ash flex items-center justify-center transition-colors cursor-pointer hover:bg-chem-paper hover:text-chem-forest disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               </div>
             </div>
 
