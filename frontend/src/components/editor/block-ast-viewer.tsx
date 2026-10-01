@@ -6,6 +6,7 @@ import { getEmbedInfo } from "../../lib/embed";
 import { renderInlineContent } from "../../lib/rich-text-render";
 import { segmentsPlainText } from "../../lib/rich-text";
 import { LinkCard } from "./link-card";
+import { EmbedPlayer } from "./embed-player";
 
 interface BlockAstViewerProps {
   contentJson: string | BlockAstNode[];
@@ -213,21 +214,12 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({
               );
             }
             return (
-              <div
+              <EmbedPlayer
                 key={block.id || index}
-                className="my-6 rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-slate-950"
-              >
-                <div className="aspect-video w-full">
-                  <iframe
-                    src={embed.embedUrl}
-                    title="Penjelasan Materi Kimia"
-                    loading="lazy"
-                    className="w-full h-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-              </div>
+                info={embed}
+                title="Penjelasan Materi Kimia"
+                className="my-6"
+              />
             );
           }
 

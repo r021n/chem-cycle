@@ -60,6 +60,10 @@ describe('Block AST Viewer Unit Tests', () => {
     const iframe = screen.getByTitle('Penjelasan Materi Kimia');
     expect(iframe).toBeInTheDocument();
     expect(iframe).toHaveAttribute('src', 'https://www.youtube.com/embed/dQw4w9WgXcQ');
+    expect(iframe.parentElement).toHaveClass('aspect-video');
+    expect(
+      iframe.closest('[data-embed-orientation]')
+    ).toHaveAttribute('data-embed-orientation', 'landscape');
   });
 
   it('should render underline, strike and paragraph alignment', () => {
@@ -118,5 +122,9 @@ describe('Block AST Viewer Unit Tests', () => {
 
     const iframe = screen.getByTitle('Penjelasan Materi Kimia');
     expect(iframe).toHaveAttribute('src', 'https://www.tiktok.com/embed/7123456789012345678');
+    expect(iframe.parentElement).toHaveClass('aspect-[9/16]');
+    expect(
+      iframe.closest('[data-embed-orientation]')
+    ).toHaveAttribute('data-embed-orientation', 'portrait');
   });
 });

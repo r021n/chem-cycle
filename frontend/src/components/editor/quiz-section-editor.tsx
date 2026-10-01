@@ -34,6 +34,7 @@ import { formatFileSize, cn } from '../../lib/utils';
 import { RichTextEditable } from './rich-text-editable';
 import { FormatToolbar } from './format-toolbar';
 import { LinkCard } from './link-card';
+import { EmbedPlayer } from './embed-player';
 
 export interface QuizSectionEditorProps {
   section: QuizSection;
@@ -491,21 +492,7 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
               />
             </div>
             {embed ? (
-              <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-950 relative">
-                <span className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-md bg-black/70 text-white text-[10px] font-bold">
-                  {embed.label}
-                </span>
-                <div className="aspect-video w-full">
-                  <iframe
-                    src={embed.embedUrl}
-                    title={`Pratinjau video ${embed.label}`}
-                    loading="lazy"
-                    className="w-full h-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                    allowFullScreen
-                  />
-                </div>
-              </div>
+              <EmbedPlayer info={embed} title={`Pratinjau video ${embed.label}`} />
             ) : section.url.trim() ? (
               <p className="text-[11px] text-amber-600">
                 URL belum dikenali. Platform yang didukung: {EMBED_PLATFORM_HINT}.

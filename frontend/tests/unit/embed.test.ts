@@ -85,4 +85,22 @@ describe('getEmbedInfo - multi platform resolver', () => {
     expect(EMBED_PLATFORM_HINT).toContain('YouTube');
     expect(EMBED_PLATFORM_HINT).toContain('TikTok');
   });
+
+  it('marks short-form videos as portrait and regular videos as landscape', () => {
+    expect(getEmbedInfo('https://www.youtube.com/shorts/abc123')?.orientation).toBe('portrait');
+    expect(getEmbedInfo('https://www.youtube.com/watch?v=abc123')?.orientation).toBe('landscape');
+    expect(getEmbedInfo('https://youtu.be/abc123')?.orientation).toBe('landscape');
+    expect(
+      getEmbedInfo('https://www.tiktok.com/@user/video/7123456789012345678')?.orientation
+    ).toBe('portrait');
+    expect(getEmbedInfo('https://www.instagram.com/reels/XYZ789/')?.orientation).toBe('portrait');
+    expect(getEmbedInfo('https://www.instagram.com/reel/XYZ789/')?.orientation).toBe('portrait');
+    expect(getEmbedInfo('https://www.instagram.com/p/ABC123/')?.orientation).toBe('landscape');
+    expect(getEmbedInfo('https://www.facebook.com/page/reel/999/')?.orientation).toBe('portrait');
+    expect(
+      getEmbedInfo('https://www.facebook.com/page/videos/123456789/')?.orientation
+    ).toBe('landscape');
+    expect(getEmbedInfo('https://vimeo.com/76979871')?.orientation).toBe('landscape');
+    expect(getEmbedInfo('https://x.com/someone/status/1234567890')?.orientation).toBe('landscape');
+  });
 });

@@ -10,10 +10,13 @@ export type EmbedPlatform =
   | 'loom'
   | 'twitch';
 
+export type EmbedOrientation = 'landscape' | 'portrait';
+
 export interface EmbedInfo {
   platform: EmbedPlatform;
   label: string;
   embedUrl: string;
+  orientation: EmbedOrientation;
 }
 
 const PLATFORM_LABELS: Record<EmbedPlatform, string> = {
@@ -50,8 +53,12 @@ function getParent(): string {
   return 'localhost';
 }
 
-function info(platform: EmbedPlatform, embedUrl: string): EmbedInfo {
-  return { platform, label: PLATFORM_LABELS[platform], embedUrl };
+function info(
+  platform: EmbedPlatform,
+  embedUrl: string,
+  orientation: EmbedOrientation = 'landscape'
+): EmbedInfo {
+  return { platform, label: PLATFORM_LABELS[platform], embedUrl, orientation };
 }
 
 export function getEmbedInfo(rawUrl?: string): EmbedInfo | null {
@@ -75,7 +82,11 @@ export function getEmbedInfo(rawUrl?: string): EmbedInfo | null {
     }
     const v = url.searchParams.get('v');
     if (v) return info('youtube', `https://www.youtube.com/embed/${v}`);
-    const m = path.match(/^\/(?:embed|shorts|live)\/([^/?#]+)/);
+    const shorts = path.match(/^\/shorts\/([^/?#]+)/);
+    if (shorts) {
+      return info('youtube', `https://www.youtube.com/embed/${shorts[1]}`, 'portrait');
+    }
+    const m = path.match(/^\/(?:embed|live)\/([^/?#]+)/);
     if (m) return info('youtube', `https://www.youtube.com/embed/${m[1]}`);
     return null;
   }
@@ -109,9 +120,11 @@ export function getEmbedInfo(rawUrl?: string): EmbedInfo | null {
     const isVideoPath =
       /\/videos\//.test(path) || /\/watch\/?/.test(path) || /\/reel\//.test(path);
     if (!isVideoPath) return null;
+    const orientation: EmbedOrientation = /\/reel\//.test(path) ? 'portrait' : 'landscape';
     return info(
       'facebook',
-      `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url.href)}&show_text=false`
+      `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url.href)}&show_text=false`,
+      orientation
     );
   }
 
@@ -120,15 +133,17 @@ export function getEmbedInfo(rawUrl?: string): EmbedInfo | null {
     const m = path.match(/^\/(p|reel|reels|tv)\/([^/?#]+)/);
     if (!m) return null;
     const kind = m[1] === 'reels' ? 'reel' : m[1];
-    return info('instagram', `https://www.instagram.com/${kind}/${m[2]}/embed`);
+    const orientation: EmbedOrientation =
+      kind === 'reel' || kind === 'tv' ? 'portrait' : 'landscape';
+    return info('instagram', `https://www.instagram.com/${kind}/${m[2]}/embed`, orientation);
   }
 
   // TikTok: /@user/video/<id> (vm./vt./t/ = short links, cannot resolve client-side)
   if (host === 'tiktok.com' || host === 'm.tiktok.com' || host === 'vm.tiktok.com' || host === 'vt.tiktok.com') {
     const embedSelf = path.match(/^\/embed\/([A-Za-z0-9]+)/);
-    if (embedSelf) return info('tiktok', `https://www.tiktok.com/embed/${embedSelf[1]}`);
+    if (embedSelf) return info('tiktok', `https://www.tiktok.com/embed/${embedSelf[1]}`, 'portrait');
     const video = path.match(/^\/@[^/]+\/video\/(\d+)/);
-    if (video) return info('tiktok', `https://www.tiktok.com/embed/${video[1]}`);
+    if (video) return info('tiktok', `https://www.tiktok.com/embed/${video[1]}`, 'portrait');
     return null;
   }
 

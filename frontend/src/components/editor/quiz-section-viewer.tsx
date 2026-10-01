@@ -6,6 +6,7 @@ import { segmentsPlainText } from '../../lib/rich-text';
 import { renderInlineContent } from '../../lib/rich-text-render';
 import { Modal } from '../ui/modal';
 import { LinkCard } from './link-card';
+import { EmbedPlayer } from './embed-player';
 
 interface QuizSectionViewerProps {
   sections: QuizSection[];
@@ -132,21 +133,11 @@ export const QuizSectionViewer: React.FC<QuizSectionViewerProps> = ({
               ) : null;
             }
             return (
-              <div
+              <EmbedPlayer
                 key={section.id || index}
-                className="rounded-2xl overflow-hidden border border-chem-border bg-chem-dark"
-              >
-                <div className="aspect-video w-full">
-                  <iframe
-                    src={embed.embedUrl}
-                    title="Video Pembelajaran Kimia"
-                    loading="lazy"
-                    className="w-full h-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-              </div>
+                info={embed}
+                title="Video Pembelajaran Kimia"
+              />
             );
           }
 

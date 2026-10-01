@@ -32,6 +32,7 @@ import { cn } from '../../lib/utils';
 import { RichTextEditable } from './rich-text-editable';
 import { FormatToolbar } from './format-toolbar';
 import { LinkCard } from './link-card';
+import { EmbedPlayer } from './embed-player';
 
 export interface NotionBlockEditorProps {
   blocks: BlockAstNode[];
@@ -498,6 +499,8 @@ export const NotionBlockEditor: React.FC<NotionBlockEditorProps> = ({
           const handleContentChange = (segments: BlockInlineContent[]) =>
             updateBlock(index, setBlockContent(block, segments));
           const align = block.props?.align || 'left';
+          const videoEmbed =
+            block.type === 'video' ? getEmbedInfo(block.props?.url) : null;
 
           return (
             <div key={block.id || `idx-${index}`} className="space-y-2">
@@ -990,29 +993,11 @@ export const NotionBlockEditor: React.FC<NotionBlockEditorProps> = ({
 
                         {block.props?.url && (
                           <div className="mt-2">
-                            {getEmbedInfo(block.props.url) ? (
-                              <div
-                                className={cn(
-                                  'w-full rounded-xl overflow-hidden border border-slate-200 bg-black relative',
-                                  viewHeightMode === 'compact'
-                                    ? 'max-h-36 aspect-video'
-                                    : 'aspect-video'
-                                )}
-                              >
-                                <span className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-md bg-black/70 text-white text-[10px] font-bold">
-                                  {getEmbedInfo(block.props.url)!.label}
-                                </span>
-                                <iframe
-                                  src={getEmbedInfo(block.props.url)!.embedUrl}
-                                  title={`Video ${
-                                    getEmbedInfo(block.props.url)!.label
-                                  }`}
-                                  className="w-full h-full border-0"
-                                  loading="lazy"
-                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                                  allowFullScreen
-                                />
-                              </div>
+                            {videoEmbed ? (
+                              <EmbedPlayer
+                                info={videoEmbed}
+                                title={`Video ${videoEmbed.label}`}
+                              />
                             ) : (
                               <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800">
                                 URL video belum dikenali. Platform yang didukung: {EMBED_PLATFORM_HINT}.
