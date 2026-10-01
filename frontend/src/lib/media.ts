@@ -1,4 +1,5 @@
 import { mediaApi, resolveMediaUrl } from '../api/media';
+import { getEmbedInfo } from './embed';
 
 export const MAX_MEDIA_BYTES = 300 * 1024;
 
@@ -31,34 +32,8 @@ function canvasToBlob(canvas: HTMLCanvasElement, quality: number): Promise<Blob 
 }
 
 export function getYoutubeEmbedUrl(url?: string): string | null {
-  if (!url) return null;
-  const trimmed = url.trim();
-  if (!trimmed) return null;
-  try {
-    if (trimmed.includes('youtube.com/watch')) {
-      const urlObj = new URL(trimmed);
-      const v = urlObj.searchParams.get('v');
-      return v ? `https://www.youtube.com/embed/${v}` : null;
-    }
-    if (trimmed.startsWith('youtu.be/')) {
-      const id = trimmed.split('youtu.be/')[1]?.split('?')[0];
-      return id ? `https://www.youtube.com/embed/${id}` : null;
-    }
-    if (trimmed.includes('youtu.be/')) {
-      const id = trimmed.split('youtu.be/')[1]?.split('?')[0];
-      return id ? `https://www.youtube.com/embed/${id}` : null;
-    }
-    if (trimmed.includes('youtube.com/embed/')) {
-      return trimmed;
-    }
-    if (trimmed.includes('youtube.com/shorts/')) {
-      const id = trimmed.split('youtube.com/shorts/')[1]?.split('?')[0];
-      return id ? `https://www.youtube.com/embed/${id}` : null;
-    }
-  } catch {
-    return null;
-  }
-  return null;
+  const info = getEmbedInfo(url);
+  return info && info.platform === 'youtube' ? info.embedUrl : null;
 }
 
 export async function compressImageToBlob(

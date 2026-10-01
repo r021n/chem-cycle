@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDataStore } from "../../store/dataStore";
 import { QuizSectionType, QuizSection } from "../../types/app";
+import { BlockInlineContent, TextAlign } from "../../types/material";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -285,13 +286,21 @@ export const AdminQuizEditorPage: React.FC = () => {
         if (q.id !== questionId) return q;
         const current = q.sections[sectionIndex];
         let currentText = "";
+        let currentContent: BlockInlineContent[] | undefined;
+        let currentAlign: TextAlign | undefined;
         if (
           current.type === "text" ||
           current.type === "callout" ||
           current.type === "heading"
         ) {
           currentText = current.text || "";
+          currentContent = current.content;
+          currentAlign = current.align;
         }
+        const carryContent =
+          newType === "text" || newType === "heading" || newType === "callout"
+            ? { content: currentContent, align: currentAlign }
+            : {};
 
         let converted: QuizSection;
         switch (newType) {
@@ -301,6 +310,7 @@ export const AdminQuizEditorPage: React.FC = () => {
               type: "heading",
               text: currentText,
               level: 2,
+              ...carryContent,
             };
             break;
           case "callout":
@@ -309,6 +319,7 @@ export const AdminQuizEditorPage: React.FC = () => {
               type: "callout",
               text: currentText,
               emoji: "💡",
+              ...carryContent,
             };
             break;
           case "orderedList":
@@ -339,9 +350,12 @@ export const AdminQuizEditorPage: React.FC = () => {
           case "youtube":
             converted = { id: current.id, type: "youtube", url: "" };
             break;
+          case "link":
+            converted = { id: current.id, type: "link", url: "" };
+            break;
           case "text":
           default:
-            converted = { id: current.id, type: "text", text: currentText };
+            converted = { id: current.id, type: "text", text: currentText, ...carryContent };
             break;
         }
 
@@ -473,7 +487,8 @@ export const AdminQuizEditorPage: React.FC = () => {
     const hasMedia = q.sections.some(
       (s) =>
         (s.type === "image" && s.dataUrl) ||
-        (s.type === "youtube" && s.url.trim()),
+        (s.type === "youtube" && s.url.trim()) ||
+        (s.type === "link" && s.url.trim()),
     );
     const hasChoice = q.choices.some((c) => c.text.trim());
     const hasCorrect = q.correctAnswerIds.length > 0;

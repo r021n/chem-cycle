@@ -11,6 +11,8 @@ export interface BlockInlineContent {
   };
 }
 
+export type TextAlign = 'left' | 'center' | 'right' | 'justify';
+
 export interface BlockAstNode {
   id: string;
   type:
@@ -22,7 +24,8 @@ export interface BlockAstNode {
     | 'image'
     | 'video'
     | 'divider'
-    | 'callout';
+    | 'callout'
+    | 'link';
   props?: {
     level?: 1 | 2 | 3;
     url?: string;
@@ -30,6 +33,9 @@ export interface BlockAstNode {
     previewUrl?: string;
     text?: string;
     emoji?: string;
+    align?: TextAlign;
+    title?: string;
+    description?: string;
   };
   content?: BlockInlineContent[];
   children?: BlockAstNode[];

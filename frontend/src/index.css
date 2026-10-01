@@ -71,6 +71,37 @@
 }
 
 /* ==========================================================================
+   RICH TEXT EDITOR (contentEditable blocks)
+   ========================================================================== */
+.rte {
+  position: relative;
+  min-height: 1.4em;
+  outline: none;
+}
+.rte-placeholder[data-empty='true']::before {
+  content: attr(data-placeholder);
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #cbd5e1;
+  pointer-events: none;
+  user-select: none;
+}
+.rte code {
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 0 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+}
+.rte a {
+  color: #4f46e5;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ==========================================================================
    ACCESSIBILITY & UDL CONTRAST / THEME ENGINE
    Scoped to #accessible-content-root to isolate drawer & controls
    ========================================================================== */

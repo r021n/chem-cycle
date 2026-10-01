@@ -22,10 +22,16 @@ import {
   Sparkles,
   Minimize2,
   Maximize2,
+  Link2,
 } from 'lucide-react';
-import { BlockAstNode } from '../../types/material';
-import { compressImageToDataUrl, getYoutubeEmbedUrl } from '../../lib/media';
+import { BlockAstNode, BlockInlineContent, TextAlign } from '../../types/material';
+import { compressImageToDataUrl } from '../../lib/media';
+import { EMBED_PLATFORM_HINT, getEmbedInfo } from '../../lib/embed';
+import { segmentsPlainText } from '../../lib/rich-text';
 import { cn } from '../../lib/utils';
+import { RichTextEditable } from './rich-text-editable';
+import { FormatToolbar } from './format-toolbar';
+import { LinkCard } from './link-card';
 
 export interface NotionBlockEditorProps {
   blocks: BlockAstNode[];
@@ -71,9 +77,15 @@ const BLOCK_DEFINITIONS: {
   },
   {
     type: 'video',
-    label: 'Video YouTube',
-    desc: 'Sematkan video pembelajaran',
+    label: 'Video / Embed',
+    desc: 'Sematkan video dari platform apa pun',
     icon: MonitorPlay,
+  },
+  {
+    type: 'link',
+    label: 'Tautan / URL',
+    desc: 'Kartu tautan ke sumber luar',
+    icon: Link2,
   },
   {
     type: 'bulletListItem',
@@ -103,20 +115,38 @@ const BLOCK_DEFINITIONS: {
 
 const CALLOUT_EMOJIS = ['💡', '⚠️', '🧪', '📌', '🔍', '📝', '❓', '⚡'];
 
+const TEXT_BLOCK_TYPES: BlockType[] = [
+  'paragraph',
+  'heading',
+  'callout',
+  'bulletListItem',
+  'numberedListItem',
+  'quote',
+];
+
+function isTextBlockType(type: BlockType): boolean {
+  return TEXT_BLOCK_TYPES.includes(type);
+}
+
 function getBlockText(block: BlockAstNode): string {
+  const fromContent = segmentsPlainText(block.content);
+  if (fromContent) return fromContent;
   if (block.props?.text) return block.props.text;
-  if (block.content && block.content.length > 0) {
-    return block.content.map((c) => c.text).join('');
-  }
   return '';
 }
 
-function setBlockText(block: BlockAstNode, text: string): BlockAstNode {
+function setBlockContent(block: BlockAstNode, content: BlockAstNode['content']): BlockAstNode {
   return {
     ...block,
-    content: [{ type: 'text', text }],
-    props: { ...block.props, text },
+    content,
+    props: { ...block.props, text: segmentsPlainText(content) },
   };
+}
+
+function getBlockContent(block: BlockAstNode): BlockInlineContent[] {
+  if (block.content && block.content.length > 0) return block.content;
+  if (block.props?.text) return [{ type: 'text', text: block.props.text }];
+  return [];
 }
 
 function getBlockSnippet(block: BlockAstNode): string {
@@ -128,7 +158,14 @@ function getBlockSnippet(block: BlockAstNode): string {
     return block.props?.caption || (block.props?.url ? 'Gambar terunggah' : '(Gambar belum diunggah)');
   }
   if (block.type === 'video') {
-    return block.props?.url ? 'Video YouTube' : '(Tautan video belum disematkan)';
+    const embed = getEmbedInfo(block.props?.url);
+    if (embed) return `${embed.label} · Video`;
+    return block.props?.url ? '(Tautan video belum didukung)' : '(Tautan video belum disematkan)';
+  }
+  if (block.type === 'link') {
+    const url = block.props?.url || '';
+    if (!url.trim()) return '(Tautan belum diisi)';
+    return block.props?.title?.trim() || url.replace(/^https?:\/\//, '').slice(0, 65);
   }
   if (block.type === 'divider') {
     return 'Garis Pembatas Horizontal';
@@ -200,16 +237,6 @@ export const NotionBlockEditor: React.FC<NotionBlockEditorProps> = ({
     };
   }, [activeMenuIndex]);
 
-  const autoGrow = (el: HTMLTextAreaElement | null) => {
-    if (!el) return;
-    if (viewHeightMode === 'full') {
-      el.style.height = 'auto';
-      el.style.height = `${Math.max(el.scrollHeight, 28)}px`;
-    } else {
-      el.style.height = '';
-    }
-  };
-
   const toggleBlockCollapse = (id: string) => {
     setCollapsedBlockIds((prev) => ({ ...prev, [id]: !prev[id] }));
   };
@@ -278,13 +305,23 @@ export const NotionBlockEditor: React.FC<NotionBlockEditorProps> = ({
 
   const convertBlockType = (index: number, newType: BlockType) => {
     const current = blocks[index];
-    const text = getBlockText(current);
+    const wasText = isTextBlockType(current.type);
+    const willBeText = isTextBlockType(newType);
     const def = BLOCK_DEFINITIONS.find((d) => d.type === newType);
+
+    let content = current.content;
+    const nextProps = { ...(def?.defaultProps || {}), ...(current.props || {}) };
+    if (willBeText && !wasText) {
+      const text = getBlockText(current);
+      content = [{ type: 'text', text }];
+      nextProps.text = text;
+    }
+
     const converted: BlockAstNode = {
       ...current,
       type: newType,
-      props: { ...(def?.defaultProps || {}), ...(current.props || {}) },
-      content: [{ type: 'text', text }],
+      props: nextProps,
+      content,
     };
     updateBlock(index, converted);
     setActiveMenuIndex(null);
@@ -455,10 +492,12 @@ export const NotionBlockEditor: React.FC<NotionBlockEditorProps> = ({
       {/* Block List */}
       <div className="space-y-2.5">
         {blocks.map((block, index) => {
-          const textValue = getBlockText(block);
           const def = BLOCK_DEFINITIONS.find((d) => d.type === block.type) || BLOCK_DEFINITIONS[0];
           const Icon = def.icon;
           const isCollapsed = !!collapsedBlockIds[block.id];
+          const handleContentChange = (segments: BlockInlineContent[]) =>
+            updateBlock(index, setBlockContent(block, segments));
+          const align = block.props?.align || 'left';
 
           return (
             <div key={block.id || `idx-${index}`} className="space-y-2">
@@ -698,24 +737,29 @@ export const NotionBlockEditor: React.FC<NotionBlockEditorProps> = ({
                       viewHeightMode === 'full' && 'max-h-none'
                     )}
                   >
+                    {/* Format Toolbar (text blocks) */}
+                    {isTextBlockType(block.type) && (
+                      <div className="flex justify-end mb-1.5 -mt-0.5 opacity-60 hover:opacity-100 transition-opacity">
+                        <FormatToolbar
+                          align={align}
+                          onAlign={(nextAlign: TextAlign) =>
+                            updateBlock(index, {
+                              ...block,
+                              props: { ...block.props, align: nextAlign },
+                            })
+                          }
+                        />
+                      </div>
+                    )}
+
                     {/* 1. PARAGRAPH */}
                     {block.type === 'paragraph' && (
-                      <textarea
-                        ref={(el) => autoGrow(el)}
-                        onInput={(e) => autoGrow(e.currentTarget)}
-                        value={textValue}
-                        rows={
-                          viewHeightMode === 'compact'
-                            ? 2
-                            : viewHeightMode === 'medium'
-                            ? 4
-                            : Math.max(1, textValue.split('\n').length)
-                        }
+                      <RichTextEditable
+                        content={getBlockContent(block)}
+                        onChange={handleContentChange}
                         placeholder="Ketik teks narasi materi di sini..."
-                        onChange={(e) =>
-                          updateBlock(index, setBlockText(block, e.target.value))
-                        }
-                        className="w-full bg-transparent border-0 p-0 text-sm md:text-base text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-0 resize-y leading-relaxed"
+                        className="text-sm md:text-base text-slate-800 leading-relaxed"
+                        style={{ textAlign: align }}
                       />
                     )}
 
@@ -746,20 +790,19 @@ export const NotionBlockEditor: React.FC<NotionBlockEditorProps> = ({
                             </button>
                           ))}
                         </div>
-                        <input
-                          type="text"
-                          value={textValue}
+                        <RichTextEditable
+                          content={getBlockContent(block)}
+                          onChange={handleContentChange}
                           placeholder="Judul bagian materi..."
-                          onChange={(e) =>
-                            updateBlock(index, setBlockText(block, e.target.value))
-                          }
-                          className={`w-full bg-transparent border-0 p-0 font-serif font-bold text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-0 ${
+                          multiline={false}
+                          className={`font-serif font-bold text-slate-900 ${
                             (block.props?.level || 2) === 1
                               ? 'text-xl pt-1'
                               : (block.props?.level || 2) === 2
                               ? 'text-lg pt-0.5'
                               : 'text-base'
                           }`}
+                          style={{ textAlign: align }}
                         />
                       </div>
                     )}
@@ -796,22 +839,12 @@ export const NotionBlockEditor: React.FC<NotionBlockEditorProps> = ({
                             </div>
                           </div>
 
-                          <textarea
-                            ref={(el) => autoGrow(el)}
-                            onInput={(e) => autoGrow(e.currentTarget)}
-                            value={textValue}
-                            rows={
-                              viewHeightMode === 'compact'
-                                ? 2
-                                : viewHeightMode === 'medium'
-                                ? 4
-                                : Math.max(1, textValue.split('\n').length)
-                            }
+                          <RichTextEditable
+                            content={getBlockContent(block)}
+                            onChange={handleContentChange}
                             placeholder="Tuliskan catatan penting, stimulus, atau perhatian khusus..."
-                            onChange={(e) =>
-                              updateBlock(index, setBlockText(block, e.target.value))
-                            }
-                            className="w-full bg-transparent border-0 p-0 text-xs sm:text-sm text-slate-800 placeholder:text-amber-700/40 focus:outline-none focus:ring-0 resize-y leading-relaxed font-sans"
+                            className="w-full text-xs sm:text-sm text-slate-800 leading-relaxed font-sans flex-1"
+                            style={{ textAlign: align }}
                           />
                         </div>
                       </div>
@@ -939,13 +972,13 @@ export const NotionBlockEditor: React.FC<NotionBlockEditorProps> = ({
                       </div>
                     )}
 
-                    {/* 5. VIDEO YOUTUBE */}
+                    {/* 5. VIDEO / EMBED (multi-platform) */}
                     {block.type === 'video' && (
                       <div className="space-y-2">
                         <input
                           type="url"
                           value={block.props?.url || ''}
-                          placeholder="Tempel tautan video YouTube (misal: https://youtu.be/...)"
+                          placeholder="Tempel tautan video (YouTube, TikTok, Instagram, Facebook, ...)"
                           onChange={(e) =>
                             updateBlock(index, {
                               ...block,
@@ -957,30 +990,84 @@ export const NotionBlockEditor: React.FC<NotionBlockEditorProps> = ({
 
                         {block.props?.url && (
                           <div className="mt-2">
-                            {getYoutubeEmbedUrl(block.props.url) ? (
+                            {getEmbedInfo(block.props.url) ? (
                               <div
                                 className={cn(
-                                  'w-full rounded-xl overflow-hidden border border-slate-200 bg-black',
+                                  'w-full rounded-xl overflow-hidden border border-slate-200 bg-black relative',
                                   viewHeightMode === 'compact'
                                     ? 'max-h-36 aspect-video'
                                     : 'aspect-video'
                                 )}
                               >
+                                <span className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-md bg-black/70 text-white text-[10px] font-bold">
+                                  {getEmbedInfo(block.props.url)!.label}
+                                </span>
                                 <iframe
-                                  src={getYoutubeEmbedUrl(block.props.url)!}
-                                  title="Video YouTube"
+                                  src={getEmbedInfo(block.props.url)!.embedUrl}
+                                  title={`Video ${
+                                    getEmbedInfo(block.props.url)!.label
+                                  }`}
                                   className="w-full h-full border-0"
-                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  loading="lazy"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                                   allowFullScreen
                                 />
                               </div>
                             ) : (
                               <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800">
-                                Format URL YouTube tidak dikenali. Pastikan URL berasal dari
-                                youtube.com atau youtu.be.
+                                URL video belum dikenali. Platform yang didukung: {EMBED_PLATFORM_HINT}.
                               </div>
                             )}
                           </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* 5b. LINK / URL CARD */}
+                    {block.type === 'link' && (
+                      <div className="space-y-2">
+                        <input
+                          type="url"
+                          value={block.props?.url || ''}
+                          placeholder="Tempel tautan URL (misal: https://sumber.belajar.id/...)"
+                          onChange={(e) =>
+                            updateBlock(index, {
+                              ...block,
+                              props: { ...block.props, url: e.target.value },
+                            })
+                          }
+                          className="w-full px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-chem-sage font-mono"
+                        />
+                        <input
+                          type="text"
+                          value={block.props?.title || ''}
+                          placeholder="Judul kartu tautan (opsional, default = nama domain)..."
+                          onChange={(e) =>
+                            updateBlock(index, {
+                              ...block,
+                              props: { ...block.props, title: e.target.value },
+                            })
+                          }
+                          className="w-full px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-chem-sage"
+                        />
+                        <input
+                          type="text"
+                          value={block.props?.description || ''}
+                          placeholder="Deskripsi singkat (opsional)..."
+                          onChange={(e) =>
+                            updateBlock(index, {
+                              ...block,
+                              props: { ...block.props, description: e.target.value },
+                            })
+                          }
+                          className="w-full px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-chem-sage"
+                        />
+                        {block.props?.url?.trim() && (
+                          <LinkCard
+                            url={block.props.url}
+                            title={block.props.title}
+                            description={block.props.description}
+                          />
                         )}
                       </div>
                     )}
@@ -989,22 +1076,12 @@ export const NotionBlockEditor: React.FC<NotionBlockEditorProps> = ({
                     {block.type === 'bulletListItem' && (
                       <div className="flex items-start gap-2.5">
                         <span className="inline-block w-2 h-2 rounded-full bg-chem-forest mt-2 shrink-0" />
-                        <textarea
-                          ref={(el) => autoGrow(el)}
-                          onInput={(e) => autoGrow(e.currentTarget)}
-                          value={textValue}
-                          rows={
-                            viewHeightMode === 'compact'
-                              ? 2
-                              : viewHeightMode === 'medium'
-                              ? 3
-                              : Math.max(1, textValue.split('\n').length)
-                          }
+                        <RichTextEditable
+                          content={getBlockContent(block)}
+                          onChange={handleContentChange}
                           placeholder="Poin butir..."
-                          onChange={(e) =>
-                            updateBlock(index, setBlockText(block, e.target.value))
-                          }
-                          className="w-full bg-transparent border-0 p-0 text-sm md:text-base text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-0 resize-y leading-relaxed"
+                          className="flex-1 text-sm md:text-base text-slate-800 leading-relaxed"
+                          style={{ textAlign: align }}
                         />
                       </div>
                     )}
@@ -1015,22 +1092,12 @@ export const NotionBlockEditor: React.FC<NotionBlockEditorProps> = ({
                         <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-600 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
                           {index + 1}
                         </span>
-                        <textarea
-                          ref={(el) => autoGrow(el)}
-                          onInput={(e) => autoGrow(e.currentTarget)}
-                          value={textValue}
-                          rows={
-                            viewHeightMode === 'compact'
-                              ? 2
-                              : viewHeightMode === 'medium'
-                              ? 3
-                              : Math.max(1, textValue.split('\n').length)
-                          }
+                        <RichTextEditable
+                          content={getBlockContent(block)}
+                          onChange={handleContentChange}
                           placeholder="Poin berurut..."
-                          onChange={(e) =>
-                            updateBlock(index, setBlockText(block, e.target.value))
-                          }
-                          className="w-full bg-transparent border-0 p-0 text-sm md:text-base text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-0 resize-y leading-relaxed"
+                          className="flex-1 text-sm md:text-base text-slate-800 leading-relaxed"
+                          style={{ textAlign: align }}
                         />
                       </div>
                     )}
@@ -1038,22 +1105,12 @@ export const NotionBlockEditor: React.FC<NotionBlockEditorProps> = ({
                     {/* 8. QUOTE */}
                     {block.type === 'quote' && (
                       <div className="border-l-3 border-chem-forest pl-3 py-1">
-                        <textarea
-                          ref={(el) => autoGrow(el)}
-                          onInput={(e) => autoGrow(e.currentTarget)}
-                          value={textValue}
-                          rows={
-                            viewHeightMode === 'compact'
-                              ? 2
-                              : viewHeightMode === 'medium'
-                              ? 3
-                              : Math.max(1, textValue.split('\n').length)
-                          }
+                        <RichTextEditable
+                          content={getBlockContent(block)}
+                          onChange={handleContentChange}
                           placeholder="Tulis kutipan atau hukum dasar kimia..."
-                          onChange={(e) =>
-                            updateBlock(index, setBlockText(block, e.target.value))
-                          }
-                          className="w-full bg-transparent border-0 p-0 text-sm italic text-slate-700 placeholder:text-slate-300 focus:outline-none focus:ring-0 resize-y leading-relaxed"
+                          className="text-sm italic text-slate-700 leading-relaxed"
+                          style={{ textAlign: align }}
                         />
                       </div>
                     )}

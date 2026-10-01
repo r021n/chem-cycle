@@ -19,9 +19,21 @@ import {
   Plus,
   Sparkles,
 } from 'lucide-react';
-import { QuizSection, QuizSectionType } from '../../types/app';
-import { compressImageToDataUrl, getYoutubeEmbedUrl } from '../../lib/media';
+import {
+  QuizSection,
+  QuizSectionType,
+  QuizSectionText,
+  QuizSectionHeading,
+  QuizSectionCallout,
+} from '../../types/app';
+import { TextAlign, BlockInlineContent } from '../../types/material';
+import { compressImageToDataUrl } from '../../lib/media';
+import { EMBED_PLATFORM_HINT, getEmbedInfo } from '../../lib/embed';
+import { segmentsPlainText } from '../../lib/rich-text';
 import { formatFileSize, cn } from '../../lib/utils';
+import { RichTextEditable } from './rich-text-editable';
+import { FormatToolbar } from './format-toolbar';
+import { LinkCard } from './link-card';
 
 export interface QuizSectionEditorProps {
   section: QuizSection;
@@ -68,9 +80,9 @@ export const BLOCK_METAS: Record<
     category: 'Media',
   },
   youtube: {
-    label: 'Video YouTube',
+    label: 'Video / Embed',
     icon: MonitorPlay,
-    hint: 'Sematkan video penjelasan/fenomena',
+    hint: 'YouTube, TikTok, Instagram, Facebook, dll.',
     category: 'Media',
   },
   orderedList: {
@@ -85,6 +97,12 @@ export const BLOCK_METAS: Record<
     hint: 'Poin butir / bullet points',
     category: 'Daftar',
   },
+  link: {
+    label: 'Tautan / URL',
+    icon: Link2,
+    hint: 'Kartu tautan ke sumber luar',
+    category: 'Media',
+  },
   divider: {
     label: 'Garis Pembatas',
     icon: Minus,
@@ -95,15 +113,31 @@ export const BLOCK_METAS: Record<
 
 const CALLOUT_EMOJIS = ['💡', '⚠️', '🧪', '📌', '🔍', '📝', '❓', '⚡'];
 
+type RichQuizSection = QuizSectionText | QuizSectionHeading | QuizSectionCallout;
+
+function getSectionContent(section: RichQuizSection): BlockInlineContent[] {
+  if (section.content && section.content.length > 0) return section.content;
+  if (section.text) return [{ type: 'text', text: section.text }];
+  return [];
+}
+
 function getSectionSnippet(section: QuizSection): string {
   if (section.type === 'text' || section.type === 'heading' || section.type === 'callout') {
-    return section.text ? section.text.replace(/\s+/g, ' ').slice(0, 65) : '(Teks kosong)';
+    const plain =
+      segmentsPlainText(section.content) || (section.text ? String(section.text) : '');
+    return plain ? plain.replace(/\s+/g, ' ').slice(0, 65) : '(Teks kosong)';
   }
   if (section.type === 'image') {
     return section.caption || (section.dataUrl ? 'Gambar stimulus' : '(Gambar belum diunggah)');
   }
   if (section.type === 'youtube') {
-    return section.url ? 'Video YouTube' : '(Tautan video kosong)';
+    const embed = getEmbedInfo(section.url);
+    if (embed) return `${embed.label} · Video`;
+    return section.url ? '(Tautan video belum didukung)' : '(Tautan video kosong)';
+  }
+  if (section.type === 'link') {
+    if (!section.url.trim()) return '(Tautan kosong)';
+    return section.title?.trim() || section.url.replace(/^https?:\/\//, '').slice(0, 65);
   }
   if (section.type === 'orderedList' || section.type === 'unorderedList') {
     const items = (section.items || []).filter(Boolean);
@@ -173,16 +207,6 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
     };
   }, [isMenuOpen, isConvertMenuOpen, isInsertMenuOpen]);
 
-  const autoGrow = (el: HTMLTextAreaElement | null) => {
-    if (!el) return;
-    if (viewHeightMode === 'full') {
-      el.style.height = 'auto';
-      el.style.height = `${Math.max(el.scrollHeight, 28)}px`;
-    } else {
-      el.style.height = '';
-    }
-  };
-
   const meta = BLOCK_METAS[section.type] || BLOCK_METAS.text;
   const Icon = meta.icon;
 
@@ -217,19 +241,27 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
 
     // Default conversion fallback
     let currentText = '';
+    let currentContent: BlockInlineContent[] | undefined;
+    let currentAlign: TextAlign | undefined;
     if (section.type === 'text' || section.type === 'callout' || section.type === 'heading') {
       currentText = section.text || '';
+      currentContent = section.content;
+      currentAlign = section.align;
     }
+    const carryContent =
+      targetType === 'text' || targetType === 'heading' || targetType === 'callout'
+        ? { content: currentContent, align: currentAlign }
+        : {};
 
     switch (targetType) {
       case 'text':
-        onChange({ id: section.id, type: 'text', text: currentText });
+        onChange({ id: section.id, type: 'text', text: currentText, ...carryContent });
         break;
       case 'heading':
-        onChange({ id: section.id, type: 'heading', text: currentText, level: 2 });
+        onChange({ id: section.id, type: 'heading', text: currentText, level: 2, ...carryContent });
         break;
       case 'callout':
-        onChange({ id: section.id, type: 'callout', text: currentText, emoji: '💡' });
+        onChange({ id: section.id, type: 'callout', text: currentText, emoji: '💡', ...carryContent });
         break;
       case 'orderedList':
         onChange({ id: section.id, type: 'orderedList', items: currentText ? [currentText] : [''] });
@@ -246,25 +278,40 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
       case 'youtube':
         onChange({ id: section.id, type: 'youtube', url: '' });
         break;
+      case 'link':
+        onChange({ id: section.id, type: 'link', url: '' });
+        break;
     }
 
     setIsConvertMenuOpen(false);
     setIsMenuOpen(false);
   };
 
+  const renderRichToolbar = (target: RichQuizSection) => (
+    <div className="flex justify-end mb-1.5 opacity-60 hover:opacity-100 transition-opacity">
+      <FormatToolbar
+        align={target.align || 'left'}
+        onAlign={(a) => onChange({ ...target, align: a })}
+      />
+    </div>
+  );
+
   const renderBody = () => {
     switch (section.type) {
       case 'text':
         return (
-          <textarea
-            ref={(el) => autoGrow(el)}
-            onInput={(e) => autoGrow(e.currentTarget)}
-            rows={viewHeightMode === 'compact' ? 2 : viewHeightMode === 'medium' ? 3 : Math.max(1, (section.text || '').split('\n').length)}
-            value={section.text}
-            onChange={(e) => onChange({ ...section, text: e.target.value })}
-            placeholder="Tulis teks stimulus, pengantar kasus, atau kalimat soal..."
-            className="w-full text-sm text-slate-800 leading-relaxed bg-transparent resize-y focus:outline-none placeholder:text-slate-400 font-sans"
-          />
+          <>
+            {renderRichToolbar(section)}
+            <RichTextEditable
+              content={getSectionContent(section)}
+              onChange={(segments) =>
+                onChange({ ...section, content: segments, text: segmentsPlainText(segments) })
+              }
+              placeholder="Tulis teks stimulus, pengantar kasus, atau kalimat soal..."
+              className="w-full text-sm text-slate-800 leading-relaxed font-sans"
+              style={{ textAlign: section.align || 'left' }}
+            />
+          </>
         );
 
       case 'heading':
@@ -282,15 +329,19 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
                 <option value={3}>H3 · Subjudul Kecil</option>
               </select>
             </div>
-            <input
-              type="text"
-              value={section.text}
-              onChange={(e) => onChange({ ...section, text: e.target.value })}
+            {renderRichToolbar(section)}
+            <RichTextEditable
+              content={getSectionContent(section)}
+              onChange={(segments) =>
+                onChange({ ...section, content: segments, text: segmentsPlainText(segments) })
+              }
               placeholder="Tuliskan teks subjudul..."
+              multiline={false}
               className={cn(
                 'w-full bg-transparent focus:outline-none text-slate-900 font-bold',
                 section.level === 3 ? 'text-base font-sans' : 'text-lg font-serif'
               )}
+              style={{ textAlign: section.align || 'left' }}
             />
           </div>
         );
@@ -318,18 +369,19 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
                 </button>
               ))}
             </div>
+            {renderRichToolbar(section)}
             <div className="flex items-start gap-2.5">
               <span className="text-xl leading-none mt-1 select-none">
                 {section.emoji || '💡'}
               </span>
-              <textarea
-                ref={(el) => autoGrow(el)}
-                onInput={(e) => autoGrow(e.currentTarget)}
-                rows={viewHeightMode === 'compact' ? 2 : viewHeightMode === 'medium' ? 3 : Math.max(1, (section.text || '').split('\n').length)}
-                value={section.text}
-                onChange={(e) => onChange({ ...section, text: e.target.value })}
+              <RichTextEditable
+                content={getSectionContent(section)}
+                onChange={(segments) =>
+                  onChange({ ...section, content: segments, text: segmentsPlainText(segments) })
+                }
                 placeholder="Tulis catatan, petunjuk soal, atau fakta penting di sini..."
-                className="w-full text-xs sm:text-sm text-amber-950 bg-transparent resize-y focus:outline-none placeholder:text-amber-700/60 leading-relaxed font-sans"
+                className="w-full text-xs sm:text-sm text-amber-950 leading-relaxed font-sans flex-1"
+                style={{ textAlign: section.align || 'left' }}
               />
             </div>
           </div>
@@ -425,7 +477,7 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
       }
 
       case 'youtube': {
-        const embedUrl = getYoutubeEmbedUrl(section.url);
+        const embed = getEmbedInfo(section.url);
         return (
           <div className="space-y-2">
             <div className="flex items-center gap-2">
@@ -434,30 +486,71 @@ export const QuizSectionEditor: React.FC<QuizSectionEditorProps> = ({
                 type="url"
                 value={section.url}
                 onChange={(e) => onChange({ ...section, url: e.target.value })}
-                placeholder="https://www.youtube.com/watch?v=..."
+                placeholder="Tempel tautan video (YouTube, TikTok, Instagram, Facebook, ...)"
                 className="flex-1 text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-chem-sage font-mono"
               />
             </div>
-            {embedUrl ? (
-              <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-950">
+            {embed ? (
+              <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-950 relative">
+                <span className="absolute top-2 left-2 z-10 px-2 py-0.5 rounded-md bg-black/70 text-white text-[10px] font-bold">
+                  {embed.label}
+                </span>
                 <div className="aspect-video w-full">
                   <iframe
-                    src={embedUrl}
-                    title="Pratinjau video YouTube"
+                    src={embed.embedUrl}
+                    title={`Pratinjau video ${embed.label}`}
+                    loading="lazy"
                     className="w-full h-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                     allowFullScreen
                   />
                 </div>
               </div>
             ) : section.url.trim() ? (
               <p className="text-[11px] text-amber-600">
-                URL belum dikenali sebagai link YouTube yang valid.
+                URL belum dikenali. Platform yang didukung: {EMBED_PLATFORM_HINT}.
               </p>
             ) : null}
           </div>
         );
       }
+
+      case 'link':
+        return (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Link2 className="w-4 h-4 text-slate-400 shrink-0" />
+              <input
+                type="url"
+                value={section.url}
+                onChange={(e) => onChange({ ...section, url: e.target.value })}
+                placeholder="Tempel tautan URL (misal: https://sumber.belajar.id/...)"
+                className="flex-1 text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-chem-sage font-mono"
+              />
+            </div>
+            <input
+              type="text"
+              value={section.title || ''}
+              onChange={(e) => onChange({ ...section, title: e.target.value })}
+              placeholder="Judul kartu tautan (opsional, default = nama domain)..."
+              className="w-full text-xs p-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-chem-sage"
+            />
+            <input
+              type="text"
+              value={section.description || ''}
+              onChange={(e) => onChange({ ...section, description: e.target.value })}
+              placeholder="Deskripsi singkat (opsional)..."
+              className="w-full text-xs p-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-chem-sage"
+            />
+            {section.url.trim() && (
+              <LinkCard
+                url={section.url}
+                title={section.title}
+                description={section.description}
+              />
+            )}
+          </div>
+        );
 
       case 'orderedList':
       case 'unorderedList': {

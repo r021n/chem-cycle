@@ -1,4 +1,4 @@
-import { BlockAstNode } from './material';
+import { BlockAstNode, BlockInlineContent, TextAlign } from './material';
 
 export interface PracticeExample {
   id: string;
@@ -109,18 +109,23 @@ export type QuizSectionType =
   | 'youtube'
   | 'orderedList'
   | 'unorderedList'
+  | 'link'
   | 'divider';
 
 export interface QuizSectionText {
   id: string;
   type: 'text';
   text: string;
+  content?: BlockInlineContent[];
+  align?: TextAlign;
 }
 
 export interface QuizSectionCallout {
   id: string;
   type: 'callout';
   text: string;
+  content?: BlockInlineContent[];
+  align?: TextAlign;
   emoji?: string;
 }
 
@@ -128,6 +133,8 @@ export interface QuizSectionHeading {
   id: string;
   type: 'heading';
   text: string;
+  content?: BlockInlineContent[];
+  align?: TextAlign;
   level?: 2 | 3;
 }
 
@@ -149,6 +156,14 @@ export interface QuizSectionYoutube {
   url: string;
 }
 
+export interface QuizSectionLink {
+  id: string;
+  type: 'link';
+  url: string;
+  title?: string;
+  description?: string;
+}
+
 export interface QuizSectionList {
   id: string;
   type: 'orderedList' | 'unorderedList';
@@ -162,6 +177,7 @@ export type QuizSection =
   | QuizSectionDivider
   | QuizSectionImage
   | QuizSectionYoutube
+  | QuizSectionLink
   | QuizSectionList;
 
 export interface QuizQuestion {

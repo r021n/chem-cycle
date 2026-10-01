@@ -1,7 +1,11 @@
 import React, { useState } from "react";
-import { BlockAstNode, BlockInlineContent } from "../../types/material";
+import { BlockAstNode } from "../../types/material";
 import { Modal } from "../ui/modal";
 import { resolveMediaUrl } from "../../lib/media";
+import { getEmbedInfo } from "../../lib/embed";
+import { renderInlineContent } from "../../lib/rich-text-render";
+import { segmentsPlainText } from "../../lib/rich-text";
+import { LinkCard } from "./link-card";
 
 interface BlockAstViewerProps {
   contentJson: string | BlockAstNode[];
@@ -38,67 +42,13 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({
     );
   }
 
-  const renderInlineContent = (content?: BlockInlineContent[]) => {
-    if (!content || content.length === 0) return null;
-    return content.map((item, idx) => {
-      let element: React.ReactNode = item.text || "";
-      if (item.styles?.bold) {
-        element = (
-          <strong key={idx} className="font-semibold text-slate-900">
-            {element}
-          </strong>
-        );
-      }
-      if (item.styles?.italic) {
-        element = <em key={idx}>{element}</em>;
-      }
-      if (item.styles?.code) {
-        element = (
-          <code
-            key={idx}
-            className="bg-slate-100 text-slate-800 px-1.5 py-0.5 rounded border border-slate-200 font-mono text-xs"
-          >
-            {element}
-          </code>
-        );
-      }
-      if (item.type === "link" || item.href) {
-        element = (
-          <a
-            key={idx}
-            href={item.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-indigo-600 hover:text-indigo-800 underline underline-offset-2 font-medium"
-          >
-            {element}
-          </a>
-        );
-      }
-      return <React.Fragment key={idx}>{element}</React.Fragment>;
-    });
-  };
+  const alignStyle = (block: BlockAstNode): React.CSSProperties | undefined =>
+    block.props?.align && block.props.align !== "left"
+      ? { textAlign: block.props.align }
+      : undefined;
 
-  const getYoutubeEmbedUrl = (url?: string) => {
-    if (!url) return null;
-    try {
-      if (url.includes("youtube.com/watch")) {
-        const urlObj = new URL(url);
-        const v = urlObj.searchParams.get("v");
-        return v ? `https://www.youtube.com/embed/${v}` : null;
-      }
-      if (url.includes("youtu.be/")) {
-        const id = url.split("youtu.be/")[1]?.split("?")[0];
-        return id ? `https://www.youtube.com/embed/${id}` : null;
-      }
-      if (url.includes("youtube.com/embed/")) {
-        return url;
-      }
-    } catch {
-      return null;
-    }
-    return null;
-  };
+  const renderBlockContent = (block: BlockAstNode) =>
+    renderInlineContent(block.content) || block.props?.text || null;
 
   return (
     <div
@@ -112,9 +62,10 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({
               return (
                 <h1
                   key={block.id || index}
+                  style={alignStyle(block)}
                   className="text-xl sm:text-2xl font-bold text-slate-900 mt-6 mb-3 border-b border-slate-200 pb-2"
                 >
-                  {renderInlineContent(block.content)}
+                  {renderBlockContent(block)}
                 </h1>
               );
             }
@@ -122,18 +73,20 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({
               return (
                 <h2
                   key={block.id || index}
+                  style={alignStyle(block)}
                   className="text-xl font-semibold text-slate-900 mt-5 mb-2"
                 >
-                  {renderInlineContent(block.content)}
+                  {renderBlockContent(block)}
                 </h2>
               );
             }
             return (
               <h3
                 key={block.id || index}
+                style={alignStyle(block)}
                 className="text-lg font-semibold text-slate-900 mt-4 mb-2"
               >
-                {renderInlineContent(block.content)}
+                {renderBlockContent(block)}
               </h3>
             );
           }
@@ -142,9 +95,10 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({
             return (
               <p
                 key={block.id || index}
+                style={alignStyle(block)}
                 className="text-sm md:text-base text-slate-700 leading-relaxed"
               >
-                {renderInlineContent(block.content)}
+                {renderBlockContent(block)}
               </p>
             );
           }
@@ -157,8 +111,11 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({
                 className="flex items-start space-x-3 ml-2"
               >
                 <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 mt-2 shrink-0" />
-                <div className="text-sm md:text-base text-slate-700">
-                  {renderInlineContent(block.content)}
+                <div
+                  style={alignStyle(block)}
+                  className="text-sm md:text-base text-slate-700 flex-1"
+                >
+                  {renderBlockContent(block)}
                 </div>
               </div>
             );
@@ -174,8 +131,11 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({
                 <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold flex items-center justify-center shrink-0 mt-0.5">
                   {index + 1}
                 </span>
-                <div className="text-sm md:text-base text-slate-700">
-                  {renderInlineContent(block.content)}
+                <div
+                  style={alignStyle(block)}
+                  className="text-sm md:text-base text-slate-700 flex-1"
+                >
+                  {renderBlockContent(block)}
                 </div>
               </div>
             );
@@ -185,10 +145,25 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({
             return (
               <blockquote
                 key={block.id || index}
+                style={alignStyle(block)}
                 className="border-l-4 border-indigo-500 pl-4 py-3 bg-indigo-50/50 rounded-r-lg text-slate-800 text-sm my-4 italic"
               >
-                {renderInlineContent(block.content)}
+                {renderBlockContent(block)}
               </blockquote>
+            );
+          }
+
+          case "link": {
+            const url = block.props?.url || "";
+            if (!url.trim()) return null;
+            return (
+              <LinkCard
+                key={block.id || index}
+                url={url}
+                title={block.props?.title}
+                description={block.props?.description}
+                className="my-4"
+              />
             );
           }
 
@@ -217,8 +192,9 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({
           }
 
           case "video": {
-            const embedUrl = getYoutubeEmbedUrl(block.props?.url);
-            if (!embedUrl) {
+            const embed = getEmbedInfo(block.props?.url);
+            if (!embed) {
+              if (!block.props?.url?.trim()) return null;
               return (
                 <div
                   key={block.id || index}
@@ -243,8 +219,9 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({
               >
                 <div className="aspect-video w-full">
                   <iframe
-                    src={embedUrl}
+                    src={embed.embedUrl}
                     title="Penjelasan Materi Kimia"
+                    loading="lazy"
                     className="w-full h-full border-0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
@@ -255,7 +232,7 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({
           }
 
           case "callout": {
-            const text = block.content?.[0]?.text || block.props?.text || "";
+            const text = segmentsPlainText(block.content) || block.props?.text || "";
             const emoji = block.props?.emoji || "💡";
             return (
               <div
@@ -266,7 +243,10 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({
                 <span className="text-xl select-none leading-none shrink-0">
                   {emoji}
                 </span>
-                <div className="text-sm md:text-base text-slate-800 leading-relaxed">
+                <div
+                  style={alignStyle(block)}
+                  className="text-sm md:text-base text-slate-800 leading-relaxed flex-1"
+                >
                   {renderInlineContent(block.content) || text}
                 </div>
               </div>
@@ -285,7 +265,7 @@ export const BlockAstViewer: React.FC<BlockAstViewerProps> = ({
           default:
             return (
               <div key={block.id || index} className="text-sm text-slate-700">
-                {renderInlineContent(block.content)}
+                {renderBlockContent(block)}
               </div>
             );
         }

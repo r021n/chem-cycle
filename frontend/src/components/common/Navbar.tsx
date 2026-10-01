@@ -100,7 +100,7 @@ export const Navbar: React.FC = () => {
         </Link>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center space-x-1 lg:space-x-2 text-xs font-semibold">
+        <nav className="hidden md:flex items-center space-x-1 lg:space-x-2 text-sm font-semibold">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.to);

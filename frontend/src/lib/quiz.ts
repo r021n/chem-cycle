@@ -31,6 +31,8 @@ export function createSection(type: QuizSectionType): QuizSection {
       return { id: uid('sec'), type: 'image', dataUrl: '', caption: '' };
     case 'youtube':
       return { id: uid('sec'), type: 'youtube', url: '' };
+    case 'link':
+      return { id: uid('sec'), type: 'link', url: '' };
     case 'orderedList':
       return { id: uid('sec'), type: 'orderedList', items: [''] };
     case 'unorderedList':
